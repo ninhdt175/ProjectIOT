@@ -695,7 +695,7 @@ body {
 .empty-row td {
     height: 60px;
     padding: 14px 20px;
-    border-bottom: 1px solid var(--border-light);
+    border-bottom: 1px solid transparent; /* Ẩn toàn bộ đường gạch của các hàng trống cho giao diện sạch đẹp, không rối mắt */
     user-select: none;
     pointer-events: none;
 }
