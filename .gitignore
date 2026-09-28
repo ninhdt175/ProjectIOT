@@ -2,6 +2,10 @@
 frontend_old_backup/
 frontend_refactored/
 
+# Local agent configuration
+GEMINI.md
+.agents/
+
 # Office documents and temporary scripts
 *.docx
 *.bak
