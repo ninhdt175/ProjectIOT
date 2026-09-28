@@ -163,13 +163,13 @@ body {
 }
 
 .header {
-    height: 70px;
+    height: 64px;
     background-color: var(--bg-surface);
     border-bottom: 1px solid var(--border-light);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 32px;
+    padding: 0 24px;
     flex-shrink: 0;
 }
 
@@ -215,12 +215,9 @@ body {
 }
 
 .content-scroll {
-    padding: 20px 24px;
+    padding: 16px 24px;
     overflow-y: auto;
     flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
 }
 
 .view-section {
@@ -230,14 +227,6 @@ body {
 
 .view-section.active {
     display: block;
-}
-
-#sensors.view-section.active,
-#history.view-section.active {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    min-height: 0;
 }
 
 @keyframes fadeIn {
@@ -644,7 +633,7 @@ body {
 
 .data-table th {
     text-align: left;
-    padding: 10px 16px;
+    padding: 8px 14px;
     font-size: 12px;
     font-weight: 600;
     color: var(--text-muted);
@@ -652,17 +641,17 @@ body {
     letter-spacing: 0.5px;
     border-bottom: 1px solid var(--border-light);
     background: #f8fafc;
-    height: 42px;
+    height: 38px;
     white-space: nowrap;
 }
 
 .data-table td {
-    padding: 10px 16px;
+    padding: 8px 14px;
     font-size: 13px;
     border-bottom: 1px solid var(--border-light);
     color: var(--text-p);
     vertical-align: middle;
-    height: 52px;
+    height: 46px;
     white-space: nowrap;
 }
 
@@ -671,20 +660,18 @@ body {
 #history .card {
     display: flex;
     flex-direction: column;
-    flex: 1;
-    min-height: 0;
-    padding: 18px 24px;
+    padding: 16px 20px;
 }
 
 #sensors .card-header,
 #history .card-header {
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     flex-shrink: 0;
 }
 
 #sensors .toolbar,
 #history .toolbar {
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     flex-shrink: 0;
 }
 
@@ -692,8 +679,15 @@ body {
 .table-responsive {
     overflow-x: auto;
     width: 100%;
-    flex: 1;
-    min-height: 0;
+}
+
+/* Cố định chiều cao tối thiểu cho bảng để thanh phân trang không bị giật khi sang trang cuối */
+#sensors .table-responsive {
+    min-height: 452px; /* 38px header + 9 hàng * 46px = 452px chuẩn full bảng */
+}
+
+#history .table-responsive {
+    min-height: 360px; /* 38px header + 7 hàng * 46px = 360px chuẩn full bảng */
 }
 
 .data-table tbody tr:hover {
@@ -822,8 +816,8 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-top: 14px;
-    margin-top: auto;
+    padding-top: 10px;
+    margin-top: 6px;
     border-top: 1px solid var(--border-light);
     font-size: 13px;
     color: var(--text-muted);

@@ -19,9 +19,9 @@ let appliedSensorFilters = {
     type: 'ALL'
 };
 
-// Cấu hình phân trang (5 bản ghi / trang để vừa vặn trong 1 màn hình không bị thanh cuộn)
+// Cấu hình phân trang (9 bản ghi / trang hiển thị full bảng chuẩn thiết kế, không bị thanh cuộn)
 let currentSensorPage = 1;
-const sensorPageSize = 5;
+const sensorPageSize = 9;
 
 /**
  * Hiển thị danh sách dữ liệu cảm biến lên giao diện Bảng

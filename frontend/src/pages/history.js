@@ -20,9 +20,9 @@ let appliedHistoryFilters = {
     status: 'ALL'
 };
 
-// Cấu hình phân trang (5 bản ghi / trang để vừa vặn trong 1 màn hình không bị thanh cuộn)
+// Cấu hình phân trang (7 bản ghi / trang chia đều 14 bản ghi thành 2 trang đầy đủ, không bị thanh cuộn)
 let currentHistoryPage = 1;
-const historyPageSize = 5;
+const historyPageSize = 7;
 
 /**
  * Hiển thị danh sách lịch sử điều khiển lên giao diện Bảng
