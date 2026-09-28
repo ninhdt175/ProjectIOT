@@ -1,0 +1,13 @@
+# Temporary and backup directories
+frontend_old_backup/
+frontend_refactored/
+
+# Office documents and temporary scripts
+*.docx
+*.bak
+*.tmp
+*.log
+
+# Operating System files
+.DS_Store
+Thumbs.db
