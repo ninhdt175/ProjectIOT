@@ -681,13 +681,23 @@ body {
     width: 100%;
 }
 
-/* Cố định chiều cao tối thiểu cho bảng để thanh phân trang không bị giật khi sang trang cuối */
+/* Cố định chiều cao tuyệt đối cho bảng để thanh phân trang luôn đứng im không bao giờ giật layout */
 #sensors .table-responsive {
-    min-height: 580px; /* 40px header + 9 hàng * 60px = 580px chuẩn 60px/hàng thoáng đãng */
+    min-height: 607px;
+    height: 607px; /* 40px header + 9 hàng * 63px = 607px cố định 100% */
 }
 
 #history .table-responsive {
-    min-height: 460px; /* 40px header + 7 hàng * 60px = 460px chuẩn 60px/hàng thoáng đãng */
+    min-height: 481px;
+    height: 481px; /* 40px header + 7 hàng * 63px = 481px cố định 100% */
+}
+
+.empty-row td {
+    height: 60px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border-light);
+    user-select: none;
+    pointer-events: none;
 }
 
 .data-table tbody tr:hover {
@@ -816,6 +826,9 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    min-height: 48px;
+    height: 48px;
+    box-sizing: border-box;
     padding-top: 14px;
     margin-top: 14px;
     border-top: 1px solid var(--border-light);

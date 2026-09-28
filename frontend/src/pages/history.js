@@ -56,9 +56,19 @@ function renderControlHistoryTable() {
     }
 
     if (totalItems === 0) {
-        tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 24px; color: var(--text-muted);">Không tìm thấy nhật ký điều khiển phù hợp</td></tr>`;
+        let emptyHtml = `<tr class="empty-row"><td colspan="5" style="text-align: center; color: var(--text-muted);">Không tìm thấy nhật ký điều khiển phù hợp</td></tr>`;
+        for (let i = 1; i < historyPageSize; i++) {
+            emptyHtml += `<tr class="empty-row"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>`;
+        }
+        tableBody.innerHTML = emptyHtml;
         if (paginationInfo) paginationInfo.textContent = 'Hiển thị 0 trong số 0 bản ghi';
-        if (paginationControls) paginationControls.innerHTML = '';
+        if (paginationControls) {
+            paginationControls.innerHTML = `
+                <button class="page-btn" disabled title="Trang trước"><i class="ph ph-caret-left"></i></button>
+                <button class="page-btn active" disabled>1</button>
+                <button class="page-btn" disabled title="Trang sau"><i class="ph ph-caret-right"></i></button>
+            `;
+        }
         return;
     }
 
@@ -67,7 +77,7 @@ function renderControlHistoryTable() {
     const endIndex = Math.min(startIndex + historyPageSize, totalItems);
     const pageItems = filtered.slice(startIndex, endIndex);
 
-    tableBody.innerHTML = pageItems.map(item => {
+    let rowsHtml = pageItems.map(item => {
         // Xử lý 3 trạng thái: Thành công, Đang chờ (Pending), Thất bại
         let badgeClass = 'badge-green';
         let badgeText = 'Thành công';
@@ -107,6 +117,22 @@ function renderControlHistoryTable() {
             </tr>
         `;
     }).join('');
+
+    // Bổ sung các hàng trống nếu số lượng bản ghi chưa đủ 7 để giữ nguyên 100% vị trí phần chọn trang
+    const emptyRowsCount = historyPageSize - pageItems.length;
+    for (let i = 0; i < emptyRowsCount; i++) {
+        rowsHtml += `
+            <tr class="empty-row">
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+            </tr>
+        `;
+    }
+
+    tableBody.innerHTML = rowsHtml;
 
     // Cập nhật thông tin số lượng bản ghi hiển thị (VD: Hiển thị 1 - 5 trong số 14 bản ghi)
     if (paginationInfo) {

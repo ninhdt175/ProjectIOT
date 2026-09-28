@@ -51,9 +51,19 @@ function renderSensorTable() {
     }
 
     if (totalItems === 0) {
-        tableBody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 24px; color: var(--text-muted);">Không tìm thấy dữ liệu cảm biến phù hợp</td></tr>`;
+        let emptyHtml = `<tr class="empty-row"><td colspan="4" style="text-align: center; color: var(--text-muted);">Không tìm thấy dữ liệu cảm biến phù hợp</td></tr>`;
+        for (let i = 1; i < sensorPageSize; i++) {
+            emptyHtml += `<tr class="empty-row"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>`;
+        }
+        tableBody.innerHTML = emptyHtml;
         if (paginationInfo) paginationInfo.textContent = 'Hiển thị 0 trong số 0 bản ghi';
-        if (paginationControls) paginationControls.innerHTML = '';
+        if (paginationControls) {
+            paginationControls.innerHTML = `
+                <button class="page-btn" disabled title="Trang trước"><i class="ph ph-caret-left"></i></button>
+                <button class="page-btn active" disabled>1</button>
+                <button class="page-btn" disabled title="Trang sau"><i class="ph ph-caret-right"></i></button>
+            `;
+        }
         return;
     }
 
@@ -62,7 +72,7 @@ function renderSensorTable() {
     const endIndex = Math.min(startIndex + sensorPageSize, totalItems);
     const pageItems = filtered.slice(startIndex, endIndex);
 
-    tableBody.innerHTML = pageItems.map(item => {
+    let rowsHtml = pageItems.map(item => {
         let tagClass = 'tag-temp';
         let typeName = 'Nhiệt độ';
         if (item.type === 'humidity') {
@@ -92,6 +102,21 @@ function renderSensorTable() {
             </tr>
         `;
     }).join('');
+
+    // Bổ sung các hàng trống nếu số lượng bản ghi chưa đủ 9 để giữ nguyên 100% vị trí phần chọn trang
+    const emptyRowsCount = sensorPageSize - pageItems.length;
+    for (let i = 0; i < emptyRowsCount; i++) {
+        rowsHtml += `
+            <tr class="empty-row">
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+            </tr>
+        `;
+    }
+
+    tableBody.innerHTML = rowsHtml;
 
     // Cập nhật thông tin phân trang (VD: Hiển thị 1 - 5 trong số 20 bản ghi)
     if (paginationInfo) {
