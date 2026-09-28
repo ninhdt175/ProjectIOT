@@ -22,6 +22,7 @@ window.AppState = AppState;
 
 /**
  * 2. Chuyển đổi màn hình hiển thị (View Navigation)
+ * Lưu trạng thái vào sessionStorage để giữ nguyên trang hiện tại khi reload / F5
  * @param {string} viewId - ID của màn hình ('dashboard', 'sensors', 'history', 'profile')
  * @param {HTMLElement} element - Nút điều hướng vừa bấm trên Sidebar
  */
@@ -38,20 +39,24 @@ function switchView(viewId, element) {
     if (targetSection) {
         targetSection.classList.add('active');
     }
+
+    // Ghi nhớ trang đang mở để khi F5 / Reload sẽ ở lại đúng trang này
+    try {
+        sessionStorage.setItem('activeView', viewId);
+    } catch (e) {}
 }
 
 /**
- * Luôn đưa giao diện về màn hình Dashboard đầu tiên khi tải lại (F5 / Reload)
+ * Khôi phục màn hình đang làm việc khi tải lại trang (F5 / Reload)
  */
-function resetToDashboard() {
-    if (window.location.hash) {
-        try {
-            history.replaceState(null, null, window.location.pathname + window.location.search);
-        } catch (e) {}
-    }
-    const dashboardNav = document.querySelector('.nav-item[onclick*="dashboard"]') || document.querySelector('.nav-list .nav-item');
-    switchView('dashboard', dashboardNav);
-    window.scrollTo(0, 0);
+function restoreActiveView() {
+    let savedView = 'dashboard';
+    try {
+        savedView = sessionStorage.getItem('activeView') || 'dashboard';
+    } catch (e) {}
+
+    const targetNav = document.querySelector(`.nav-item[onclick*="'${savedView}'"]`) || document.querySelector('.nav-list .nav-item');
+    switchView(savedView, targetNav);
 }
 
 /**
@@ -78,6 +83,10 @@ function checkAuth() {
 function logout() {
     localStorage.removeItem('authToken');
     localStorage.removeItem('currentUser');
+    try {
+        sessionStorage.removeItem('activeView');
+    } catch (e) {}
+
     if (typeof showToast === 'function') {
         showToast('Đang đăng xuất khỏi hệ thống...', 'info');
     }
@@ -88,20 +97,15 @@ function logout() {
 
 // 5. Khởi động toàn bộ ứng dụng khi cây DOM sẵn sàng
 document.addEventListener('DOMContentLoaded', () => {
-    // Luôn luôn reset về Dashboard khi nạp lại trang
-    resetToDashboard();
+    // Khôi phục màn hình hiện tại (ở lại đúng trang khi reload / F5)
+    restoreActiveView();
     checkAuth();
     if (window.SocketService && typeof window.SocketService.initConnection === 'function') {
         window.SocketService.initConnection();
     }
 });
 
-// Bắt thêm sự kiện pageshow để xử lý khi người dùng ấn F5 hoặc khôi phục từ bộ nhớ tạm
-window.addEventListener('pageshow', () => {
-    resetToDashboard();
-});
-
 window.switchView = switchView;
-window.resetToDashboard = resetToDashboard;
+window.restoreActiveView = restoreActiveView;
 window.checkAuth = checkAuth;
 window.logout = logout;
