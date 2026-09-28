@@ -93,12 +93,12 @@ function renderControlHistoryTable() {
                     </div>
                 </td>
                 <td>
-                    <div style="color: var(--text-h); font-weight: 600;">${item.device}</div>
+                    <div style="color: var(--text-h); font-weight: 600; margin-bottom: 3px;">${item.device}</div>
                     <div style="font-size: 12px; color: var(--text-muted);">${item.deviceId}</div>
                 </td>
                 <td><span style="font-weight: 700; color: ${actionColor};">${item.action === 'ON' ? 'BẬT (ON)' : 'TẮT (OFF)'}</span></td>
                 <td>
-                    <div style="display: flex; align-items: center; gap: 8px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
                         <i class="ph-fill ph-user-circle" style="font-size: 18px; color: var(--text-muted);"></i>
                         ${item.user}
                     </div>

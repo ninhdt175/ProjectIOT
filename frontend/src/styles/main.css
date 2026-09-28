@@ -633,7 +633,7 @@ body {
 
 .data-table th {
     text-align: left;
-    padding: 8px 14px;
+    padding: 10px 20px;
     font-size: 12px;
     font-weight: 600;
     color: var(--text-muted);
@@ -641,17 +641,17 @@ body {
     letter-spacing: 0.5px;
     border-bottom: 1px solid var(--border-light);
     background: #f8fafc;
-    height: 38px;
+    height: 40px;
     white-space: nowrap;
 }
 
 .data-table td {
-    padding: 8px 14px;
+    padding: 14px 20px;
     font-size: 13px;
     border-bottom: 1px solid var(--border-light);
     color: var(--text-p);
     vertical-align: middle;
-    height: 46px;
+    height: 60px;
     white-space: nowrap;
 }
 
@@ -665,13 +665,13 @@ body {
 
 #sensors .card-header,
 #history .card-header {
-    margin-bottom: 10px;
+    margin-bottom: 12px;
     flex-shrink: 0;
 }
 
 #sensors .toolbar,
 #history .toolbar {
-    margin-bottom: 10px;
+    margin-bottom: 14px;
     flex-shrink: 0;
 }
 
@@ -683,11 +683,11 @@ body {
 
 /* Cố định chiều cao tối thiểu cho bảng để thanh phân trang không bị giật khi sang trang cuối */
 #sensors .table-responsive {
-    min-height: 452px; /* 38px header + 9 hàng * 46px = 452px chuẩn full bảng */
+    min-height: 580px; /* 40px header + 9 hàng * 60px = 580px chuẩn 60px/hàng thoáng đãng */
 }
 
 #history .table-responsive {
-    min-height: 360px; /* 38px header + 7 hàng * 46px = 360px chuẩn full bảng */
+    min-height: 460px; /* 40px header + 7 hàng * 60px = 460px chuẩn 60px/hàng thoáng đãng */
 }
 
 .data-table tbody tr:hover {
@@ -697,8 +697,8 @@ body {
 .status-badge {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 4px 10px;
+    gap: 8px;
+    padding: 5px 12px;
     border-radius: 6px;
     font-size: 12px;
     font-weight: 500;
@@ -742,8 +742,8 @@ body {
 
 .type-tag {
     display: inline-block;
-    padding: 3px 8px;
-    border-radius: 4px;
+    padding: 5px 12px;
+    border-radius: 6px;
     font-size: 12px;
     font-weight: 500;
     border: 1px solid transparent;
@@ -770,7 +770,7 @@ body {
 .time-cell {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
 }
 
 .time-text {
@@ -816,8 +816,8 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-top: 10px;
-    margin-top: 6px;
+    padding-top: 14px;
+    margin-top: 14px;
     border-top: 1px solid var(--border-light);
     font-size: 13px;
     color: var(--text-muted);

@@ -76,7 +76,7 @@ function renderSensorTable() {
         return `
             <tr>
                 <td>
-                    <div style="font-weight: 600; color: var(--text-h);">${item.sensor}</div>
+                    <div style="font-weight: 600; color: var(--text-h); margin-bottom: 3px;">${item.sensor}</div>
                     <div style="font-size: 12px; color: var(--text-muted);">${item.device}</div>
                 </td>
                 <td><span class="type-tag ${tagClass}">${typeName}</span></td>
