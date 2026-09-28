@@ -681,15 +681,11 @@ body {
     width: 100%;
 }
 
-/* Cố định chiều cao tuyệt đối cho bảng để thanh phân trang luôn đứng im không bao giờ giật layout */
-#sensors .table-responsive {
-    min-height: 607px;
-    height: 607px; /* 40px header + 9 hàng * 63px = 607px cố định 100% */
-}
-
+/* Cố định chiều cao tuyệt đối cho bảng để thanh phân trang luôn đứng im và vừa khít 1 màn hình, loại bỏ thanh cuộn */
+#sensors .table-responsive,
 #history .table-responsive {
     min-height: 481px;
-    height: 481px; /* 40px header + 7 hàng * 63px = 481px cố định 100% */
+    height: 481px; /* 40px header + 7 hàng * 63px = 481px vừa vặn 1 màn hình, loại bỏ 100% thanh cuộn dọc */
 }
 
 .empty-row td {
