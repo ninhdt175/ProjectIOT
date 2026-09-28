@@ -641,6 +641,8 @@ body {
     letter-spacing: 0.5px;
     border-bottom: 1px solid var(--border-light);
     background: #f8fafc;
+    height: 48px;
+    white-space: nowrap;
 }
 
 .data-table td {
@@ -649,6 +651,31 @@ body {
     border-bottom: 1px solid var(--border-light);
     color: var(--text-p);
     vertical-align: middle;
+    height: 62px;
+    white-space: nowrap;
+}
+
+/* Card hiển thị bảng dữ liệu */
+#sensors .card,
+#history .card {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Container cuộn ngang cho bảng dữ liệu */
+.table-responsive {
+    overflow-x: auto;
+    width: 100%;
+}
+
+/* Cố định chiều cao tối thiểu cho bảng để phần chọn trang (pagination)
+   không bị auto layout / co giật vị trí khi chuyển trang có ít dòng dữ liệu hơn */
+#sensors .table-responsive {
+    min-height: 606px; /* 48px header + 9 hàng dữ liệu * 62px = 606px chuẩn Data sensor */
+}
+
+#history .table-responsive {
+    min-height: 482px; /* 48px header + 7 hàng dữ liệu * 62px = 482px chuẩn History */
 }
 
 .data-table tbody tr:hover {
@@ -778,7 +805,7 @@ body {
     justify-content: space-between;
     align-items: center;
     padding-top: 16px;
-    margin-top: 8px;
+    margin-top: auto;
     border-top: 1px solid var(--border-light);
     font-size: 13px;
     color: var(--text-muted);
