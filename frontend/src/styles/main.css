@@ -215,9 +215,12 @@ body {
 }
 
 .content-scroll {
-    padding: 32px;
+    padding: 20px 24px;
     overflow-y: auto;
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
 }
 
 .view-section {
@@ -227,6 +230,14 @@ body {
 
 .view-section.active {
     display: block;
+}
+
+#sensors.view-section.active,
+#history.view-section.active {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
 }
 
 @keyframes fadeIn {
@@ -633,7 +644,7 @@ body {
 
 .data-table th {
     text-align: left;
-    padding: 14px 16px;
+    padding: 10px 16px;
     font-size: 12px;
     font-weight: 600;
     color: var(--text-muted);
@@ -641,41 +652,48 @@ body {
     letter-spacing: 0.5px;
     border-bottom: 1px solid var(--border-light);
     background: #f8fafc;
-    height: 48px;
+    height: 42px;
     white-space: nowrap;
 }
 
 .data-table td {
-    padding: 14px 16px;
+    padding: 10px 16px;
     font-size: 13px;
     border-bottom: 1px solid var(--border-light);
     color: var(--text-p);
     vertical-align: middle;
-    height: 62px;
+    height: 52px;
     white-space: nowrap;
 }
 
-/* Card hiển thị bảng dữ liệu */
+/* Card hiển thị bảng dữ liệu vừa vặn 1 màn hình không bị thanh cuộn */
 #sensors .card,
 #history .card {
     display: flex;
     flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    padding: 18px 24px;
+}
+
+#sensors .card-header,
+#history .card-header {
+    margin-bottom: 12px;
+    flex-shrink: 0;
+}
+
+#sensors .toolbar,
+#history .toolbar {
+    margin-bottom: 12px;
+    flex-shrink: 0;
 }
 
 /* Container cuộn ngang cho bảng dữ liệu */
 .table-responsive {
     overflow-x: auto;
     width: 100%;
-}
-
-/* Cố định chiều cao tối thiểu cho bảng để phần chọn trang (pagination)
-   không bị auto layout / co giật vị trí khi chuyển trang có ít dòng dữ liệu hơn */
-#sensors .table-responsive {
-    min-height: 606px; /* 48px header + 9 hàng dữ liệu * 62px = 606px chuẩn Data sensor */
-}
-
-#history .table-responsive {
-    min-height: 482px; /* 48px header + 7 hàng dữ liệu * 62px = 482px chuẩn History */
+    flex: 1;
+    min-height: 0;
 }
 
 .data-table tbody tr:hover {
@@ -804,11 +822,12 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-top: 16px;
+    padding-top: 14px;
     margin-top: auto;
     border-top: 1px solid var(--border-light);
     font-size: 13px;
     color: var(--text-muted);
+    flex-shrink: 0;
 }
 
 .pagination-controls {

@@ -20,9 +20,9 @@ let appliedHistoryFilters = {
     status: 'ALL'
 };
 
-// Cấu hình phân trang (7 bản ghi / trang)
+// Cấu hình phân trang (5 bản ghi / trang để vừa vặn trong 1 màn hình không bị thanh cuộn)
 let currentHistoryPage = 1;
-const historyPageSize = 7;
+const historyPageSize = 5;
 
 /**
  * Hiển thị danh sách lịch sử điều khiển lên giao diện Bảng
@@ -108,9 +108,9 @@ function renderControlHistoryTable() {
         `;
     }).join('');
 
-    // Cập nhật thông tin số lượng bản ghi hiển thị (chuẩn như bên data sensor)
+    // Cập nhật thông tin số lượng bản ghi hiển thị (VD: Hiển thị 1 - 5 trong số 14 bản ghi)
     if (paginationInfo) {
-        paginationInfo.textContent = `Hiển thị ${startIndex + 1} - ${endIndex} trong số ${totalItems > 10 ? totalItems + '+' : totalItems} bản ghi`;
+        paginationInfo.textContent = `Hiển thị ${startIndex + 1} - ${endIndex} trong số ${totalItems} bản ghi`;
     }
 
     // Cập nhật các nút phân trang

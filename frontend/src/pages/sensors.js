@@ -19,9 +19,9 @@ let appliedSensorFilters = {
     type: 'ALL'
 };
 
-// Cấu hình phân trang (9 bản ghi / trang theo đúng Data sensor (2).png)
+// Cấu hình phân trang (5 bản ghi / trang để vừa vặn trong 1 màn hình không bị thanh cuộn)
 let currentSensorPage = 1;
-const sensorPageSize = 9;
+const sensorPageSize = 5;
 
 /**
  * Hiển thị danh sách dữ liệu cảm biến lên giao diện Bảng
@@ -93,9 +93,9 @@ function renderSensorTable() {
         `;
     }).join('');
 
-    // Cập nhật thông tin phân trang (VD: Hiển thị 1 - 9 trong số 20+ bản ghi)
+    // Cập nhật thông tin phân trang (VD: Hiển thị 1 - 5 trong số 20 bản ghi)
     if (paginationInfo) {
-        paginationInfo.textContent = `Hiển thị ${startIndex + 1} - ${endIndex} trong số ${totalItems > 10 ? totalItems + '+' : totalItems} bản ghi`;
+        paginationInfo.textContent = `Hiển thị ${startIndex + 1} - ${endIndex} trong số ${totalItems} bản ghi`;
     }
 
     // Cập nhật các nút phân trang
