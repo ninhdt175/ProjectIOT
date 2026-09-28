@@ -30,7 +30,9 @@ function switchView(viewId, element) {
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
 
-    const navItem = element || document.querySelector(`.nav-item[onclick*="'${viewId}'"]`);
+    const navItem = element || 
+                    document.querySelector(`.nav-item[data-view="${viewId}"]`) || 
+                    document.querySelector(`.nav-item[onclick*="'${viewId}'"]`);
     if (navItem) {
         navItem.classList.add('active');
     }
@@ -55,8 +57,16 @@ function restoreActiveView() {
         savedView = sessionStorage.getItem('activeView') || 'dashboard';
     } catch (e) {}
 
-    const targetNav = document.querySelector(`.nav-item[onclick*="'${savedView}'"]`) || document.querySelector('.nav-list .nav-item');
+    const targetNav = document.querySelector(`.nav-item[data-view="${savedView}"]`) || 
+                      document.querySelector(`.nav-item[onclick*="'${savedView}'"]`) || 
+                      document.querySelector('.nav-list .nav-item');
     switchView(savedView, targetNav);
+
+    // Gỡ bỏ style chống chớp màn hình (early-view-style) khi DOM đã đồng bộ xong
+    const earlyStyle = document.getElementById('early-view-style');
+    if (earlyStyle) {
+        earlyStyle.remove();
+    }
 }
 
 /**
