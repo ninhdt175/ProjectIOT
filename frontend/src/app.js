@@ -29,14 +29,29 @@ function switchView(viewId, element) {
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
 
-    if (element) {
-        element.classList.add('active');
+    const navItem = element || document.querySelector(`.nav-item[onclick*="'${viewId}'"]`);
+    if (navItem) {
+        navItem.classList.add('active');
     }
 
     const targetSection = document.getElementById(viewId);
     if (targetSection) {
         targetSection.classList.add('active');
     }
+}
+
+/**
+ * Luôn đưa giao diện về màn hình Dashboard đầu tiên khi tải lại (F5 / Reload)
+ */
+function resetToDashboard() {
+    if (window.location.hash) {
+        try {
+            history.replaceState(null, null, window.location.pathname + window.location.search);
+        } catch (e) {}
+    }
+    const dashboardNav = document.querySelector('.nav-item[onclick*="dashboard"]') || document.querySelector('.nav-list .nav-item');
+    switchView('dashboard', dashboardNav);
+    window.scrollTo(0, 0);
 }
 
 /**
@@ -73,12 +88,20 @@ function logout() {
 
 // 5. Khởi động toàn bộ ứng dụng khi cây DOM sẵn sàng
 document.addEventListener('DOMContentLoaded', () => {
+    // Luôn luôn reset về Dashboard khi nạp lại trang
+    resetToDashboard();
     checkAuth();
     if (window.SocketService && typeof window.SocketService.initConnection === 'function') {
         window.SocketService.initConnection();
     }
 });
 
+// Bắt thêm sự kiện pageshow để xử lý khi người dùng ấn F5 hoặc khôi phục từ bộ nhớ tạm
+window.addEventListener('pageshow', () => {
+    resetToDashboard();
+});
+
 window.switchView = switchView;
+window.resetToDashboard = resetToDashboard;
 window.checkAuth = checkAuth;
 window.logout = logout;
