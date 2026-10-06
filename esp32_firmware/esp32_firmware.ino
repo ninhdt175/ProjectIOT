@@ -113,9 +113,7 @@ void connectMQTT() {
   }
 }
 
-// ==========================================
-// 3. NHÓM HÀM ĐIỀU KHIỂN THIẾT BỊ (DEVICE CONTROL)
-// ==========================================
+
 
 // Thực thi bật/tắt các chân GPIO đèn LED theo yêu cầu điều khiển
 bool executeDeviceControl(const char* target, const char* action) {
