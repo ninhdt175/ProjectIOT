@@ -1,14 +1,6 @@
-/**
- * ==============================================================================
- * SOURCE API: HTTP REST SERVICE (HTTP.SERVICE.JS)
- * ==============================================================================
- * Tầng giao tiếp mạng qua các chuẩn RESTful API với Backend Node.js
- * ==============================================================================
- */
-
 const HttpService = {
     /**
-     * Gửi yêu cầu Đăng nhập tài khoản
+     * Gửi yêu cầu đăng nhập tài khoản
      * @param {string} username - Tên đăng nhập
      * @param {string} password - Mật khẩu
      */
@@ -29,7 +21,7 @@ const HttpService = {
     },
 
     /**
-     * Lấy danh sách lịch sử dữ liệu cảm biến từ cơ sở dữ liệu
+     * Lấy danh sách lịch sử dữ liệu cảm biến
      * @param {number} page - Trang số
      * @param {number} limit - Số bản ghi trên 1 trang
      */
@@ -47,7 +39,7 @@ const HttpService = {
     },
 
     /**
-     * Lấy danh sách nhật ký điều khiển thiết bị từ cơ sở dữ liệu
+     * Lấy danh sách nhật ký điều khiển thiết bị
      * @param {number} page - Trang số
      * @param {number} limit - Số bản ghi trên 1 trang
      */

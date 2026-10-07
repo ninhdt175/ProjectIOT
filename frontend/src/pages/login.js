@@ -1,12 +1,4 @@
 /**
- * ==============================================================================
- * SOURCE PAGES: LOGIN VIEW (LOGIN.JS)
- * ==============================================================================
- * Xử lý xác thực người dùng, lưu phiên đăng nhập và điều hướng
- * ==============================================================================
- */
-
-/**
  * Ẩn / Hiện mật khẩu khi bấm vào biểu tượng con mắt
  */
 function togglePasswordVisibility() {
@@ -53,7 +45,6 @@ async function handleLogin(event) {
         let authSuccess = false;
         let userData = null;
 
-        // 1. Thử gửi xác thực qua tầng HttpService tới Backend
         if (window.HttpService && typeof window.HttpService.login === 'function') {
             const apiResult = await window.HttpService.login(username, password);
             if (apiResult && apiResult.token) {
@@ -63,7 +54,6 @@ async function handleLogin(event) {
             }
         }
 
-        // 2. Chế độ Standalone (Xác thực cục bộ qua DEMO_ACCOUNTS)
         if (!authSuccess) {
             const demoAccounts = window.APP_CONFIG?.DEMO_ACCOUNTS || {};
             userData = demoAccounts[username] || { name: username, studentId: username, role: 'Người dùng' };

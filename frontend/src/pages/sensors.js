@@ -1,31 +1,18 @@
-/**
- * ==============================================================================
- * SOURCE PAGES: SENSORS VIEW (SENSORS.JS)
- * ==============================================================================
- * Logic nghiệp vụ riêng biệt cho màn hình Dữ liệu cảm biến
- * Tuân thủ yêu cầu: Chỉ thực hiện lọc khi người dùng bấm nút "Lọc" hoặc nhấn Enter
- * ==============================================================================
- */
-
-// Danh sách dữ liệu cảm biến lấy từ cấu hình mặc định
 let sensorDataList = (window.APP_CONFIG && window.APP_CONFIG.DEFAULT_SENSORS)
     ? [...window.APP_CONFIG.DEFAULT_SENSORS]
     : [];
 
-// Trạng thái bộ lọc đang được áp dụng (chỉ thay đổi khi bấm nút "Lọc")
 let appliedSensorFilters = {
     time: '',
     name: 'ALL',
     type: 'ALL'
 };
 
-// Cấu hình phân trang (7 bản ghi / trang vừa khít 1 màn hình chuẩn, loại bỏ hoàn toàn thanh cuộn)
 let currentSensorPage = 1;
 const sensorPageSize = 7;
 
 /**
- * Hiển thị danh sách dữ liệu cảm biến lên giao diện Bảng
- * Sử dụng bộ lọc đã được bấm áp dụng và hỗ trợ phân trang
+ * Hiển thị danh sách dữ liệu cảm biến lên giao diện bảng
  */
 function renderSensorTable() {
     const tableBody = document.getElementById('sensor-table-body');
@@ -33,7 +20,6 @@ function renderSensorTable() {
     const paginationControls = document.getElementById('sensor-pagination-controls');
     if (!tableBody) return;
 
-    // Lọc theo 3 tiêu chí đã được xác nhận lọc
     const filtered = sensorDataList.filter(item => {
         const matchesTime = !appliedSensorFilters.time || 
                             (item.time && item.time.toLowerCase().includes(appliedSensorFilters.time));
@@ -67,7 +53,6 @@ function renderSensorTable() {
         return;
     }
 
-    // Cắt dữ liệu theo trang hiện tại (9 bản ghi/trang)
     const startIndex = (currentSensorPage - 1) * sensorPageSize;
     const endIndex = Math.min(startIndex + sensorPageSize, totalItems);
     const pageItems = filtered.slice(startIndex, endIndex);
@@ -103,7 +88,6 @@ function renderSensorTable() {
         `;
     }).join('');
 
-    // Bổ sung các hàng trống nếu số lượng bản ghi chưa đủ 9 để giữ nguyên 100% vị trí phần chọn trang
     const emptyRowsCount = sensorPageSize - pageItems.length;
     for (let i = 0; i < emptyRowsCount; i++) {
         rowsHtml += `
@@ -118,12 +102,10 @@ function renderSensorTable() {
 
     tableBody.innerHTML = rowsHtml;
 
-    // Cập nhật thông tin phân trang (VD: Hiển thị 1 - 5 trong số 20 bản ghi)
     if (paginationInfo) {
         paginationInfo.textContent = `Hiển thị ${startIndex + 1} - ${endIndex} trong số ${totalItems} bản ghi`;
     }
 
-    // Cập nhật các nút phân trang
     if (paginationControls) {
         let buttonsHtml = `
             <button class="page-btn" ${currentSensorPage === 1 ? 'disabled' : ''} onclick="goToSensorPage(${currentSensorPage - 1})" title="Trang trước">
@@ -170,15 +152,13 @@ function goToSensorPage(page) {
 }
 
 /**
- * Xử lý khi người dùng BẤM NÚT "LỌC" hoặc nhấn ENTER
- * Đọc giá trị từ các ô chọn và thực hiện lọc
+ * Xử lý khi người dùng bấm nút Lọc hoặc nhấn Enter
  */
 function handleManualFilterSensor() {
     const timeVal = document.getElementById('sensor-time-search-input')?.value.toLowerCase().trim() || '';
     const nameVal = document.getElementById('sensor-name-filter')?.value || 'ALL';
     const typeVal = document.getElementById('sensor-type-filter')?.value || 'ALL';
 
-    // Cập nhật bộ lọc chính thức và quay về trang 1
     appliedSensorFilters = {
         time: timeVal,
         name: nameVal,
@@ -205,7 +185,6 @@ function resetSensorFilters() {
     if (nameSelect) nameSelect.value = 'ALL';
     if (typeSelect) typeSelect.value = 'ALL';
 
-    // Xóa bộ lọc áp dụng và quay về trang 1
     appliedSensorFilters = {
         time: '',
         name: 'ALL',
@@ -221,7 +200,7 @@ function resetSensorFilters() {
 }
 
 /**
- * Thêm bản ghi cảm biến mới vào đầu danh sách (Real-time)
+ * Thêm bản ghi cảm biến mới vào đầu danh sách
  * @param {Object} record - Bản ghi mới
  */
 function appendSensorRecord(record) {
@@ -243,7 +222,7 @@ function handleCopyTimeClick(button) {
 }
 
 /**
- * Sao chép mốc thời gian vào Clipboard với phản hồi thị giác (visual feedback)
+ * Sao chép mốc thời gian vào Clipboard
  * @param {string} timeStr - Chuỗi thời gian
  * @param {HTMLElement} btn - Nút click
  */
@@ -273,9 +252,6 @@ function copyTimeToClipboard(timeStr, btn) {
     }
 }
 
-/**
- * Fallback copy cho môi trường không hỗ trợ navigator.clipboard
- */
 function fallbackCopyText(text) {
     try {
         const textArea = document.createElement('textarea');
@@ -295,7 +271,7 @@ function fallbackCopyText(text) {
 }
 
 /**
- * Đồng bộ dữ liệu từ Backend REST API qua HttpService
+ * Đồng bộ dữ liệu từ Backend REST API
  */
 async function fetchSensorDataFromAPI() {
     if (window.HttpService && typeof window.HttpService.getSensorHistory === 'function') {
@@ -314,12 +290,10 @@ async function fetchSensorDataFromAPI() {
     }
 }
 
-// Khởi chạy khi nạp trang
 document.addEventListener('DOMContentLoaded', () => {
     renderSensorTable();
     fetchSensorDataFromAPI();
 
-    // Hỗ trợ phím Enter trên ô tìm kiếm thời gian
     const timeSearchInput = document.getElementById('sensor-time-search-input');
     if (timeSearchInput) {
         timeSearchInput.addEventListener('keydown', (e) => {
@@ -330,7 +304,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Xuất các hàm ra window
 window.renderSensorTable = renderSensorTable;
 window.appendSensorRecord = appendSensorRecord;
 window.handleCopyTimeClick = handleCopyTimeClick;

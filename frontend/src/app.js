@@ -1,16 +1,3 @@
-/**
- * ==============================================================================
- * SOURCE APP: APPLICATION ORCHESTRATOR (APP.JS)
- * ==============================================================================
- * Điểm khởi động chính của ứng dụng:
- * 1. Quản lý trạng thái ứng dụng toàn cục (AppState)
- * 2. Điều hướng chuyển đổi các màn hình (View Navigation)
- * 3. Kiểm tra phiên đăng nhập và cập nhật thông tin người dùng
- * 4. Kích hoạt kết nối thời gian thực qua SocketService
- * ==============================================================================
- */
-
-// 1. Trạng thái toàn cục duy nhất của ứng dụng (Single Source of Truth)
 const AppState = {
     isOnline: true,
     socket: null,
@@ -21,8 +8,7 @@ const AppState = {
 window.AppState = AppState;
 
 /**
- * 2. Chuyển đổi màn hình hiển thị (View Navigation)
- * Lưu trạng thái vào sessionStorage để giữ nguyên trang hiện tại khi reload / F5
+ * Chuyển đổi màn hình hiển thị và lưu trạng thái vào sessionStorage
  * @param {string} viewId - ID của màn hình ('dashboard', 'sensors', 'history', 'profile')
  * @param {HTMLElement} element - Nút điều hướng vừa bấm trên Sidebar
  */
@@ -42,14 +28,13 @@ function switchView(viewId, element) {
         targetSection.classList.add('active');
     }
 
-    // Ghi nhớ trang đang mở để khi F5 / Reload sẽ ở lại đúng trang này
     try {
         sessionStorage.setItem('activeView', viewId);
     } catch (e) {}
 }
 
 /**
- * Khôi phục màn hình đang làm việc khi tải lại trang (F5 / Reload)
+ * Khôi phục màn hình đang làm việc khi tải lại trang (F5)
  */
 function restoreActiveView() {
     let savedView = 'dashboard';
@@ -62,7 +47,6 @@ function restoreActiveView() {
                       document.querySelector('.nav-list .nav-item');
     switchView(savedView, targetNav);
 
-    // Gỡ bỏ style chống chớp màn hình (early-view-style) khi DOM đã đồng bộ xong
     const earlyStyle = document.getElementById('early-view-style');
     if (earlyStyle) {
         earlyStyle.remove();
@@ -70,7 +54,7 @@ function restoreActiveView() {
 }
 
 /**
- * 3. Kiểm tra phiên đăng nhập người dùng từ LocalStorage
+ * Kiểm tra phiên đăng nhập người dùng từ LocalStorage
  */
 function checkAuth() {
     const userStr = localStorage.getItem('currentUser');
@@ -88,7 +72,7 @@ function checkAuth() {
 }
 
 /**
- * 4. Xử lý Đăng xuất người dùng
+ * Xử lý đăng xuất người dùng và dọn dẹp phiên làm việc
  */
 function logout() {
     localStorage.removeItem('authToken');
@@ -105,9 +89,7 @@ function logout() {
     }, 600);
 }
 
-// 5. Khởi động toàn bộ ứng dụng khi cây DOM sẵn sàng
 document.addEventListener('DOMContentLoaded', () => {
-    // Khôi phục màn hình hiện tại (ở lại đúng trang khi reload / F5)
     restoreActiveView();
     checkAuth();
     if (window.SocketService && typeof window.SocketService.initConnection === 'function') {

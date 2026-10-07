@@ -1,32 +1,18 @@
-/**
- * ==============================================================================
- * SOURCE PAGES: CONTROL HISTORY VIEW (HISTORY.JS)
- * ==============================================================================
- * Logic nghiệp vụ riêng biệt cho màn hình Lịch sử điều khiển thiết bị
- * Hỗ trợ trạng thái: Thành công (success), Đang chờ (pending), Thất bại (failed)
- * Tuân thủ yêu cầu: Chỉ thực hiện lọc khi người dùng bấm nút "Lọc" hoặc nhấn Enter
- * ==============================================================================
- */
-
-// Danh sách lịch sử điều khiển lấy từ cấu hình mặc định
 let controlHistoryList = (window.APP_CONFIG && window.APP_CONFIG.DEFAULT_HISTORY)
     ? [...window.APP_CONFIG.DEFAULT_HISTORY]
     : [];
 
-// Trạng thái bộ lọc đang được áp dụng (chỉ thay đổi khi bấm nút "Lọc")
 let appliedHistoryFilters = {
     time: '',
     device: 'ALL',
     status: 'ALL'
 };
 
-// Cấu hình phân trang (7 bản ghi / trang chia đều 14 bản ghi thành 2 trang đầy đủ, không bị thanh cuộn)
 let currentHistoryPage = 1;
 const historyPageSize = 7;
 
 /**
- * Hiển thị danh sách lịch sử điều khiển lên giao diện Bảng
- * Sử dụng bộ lọc đã được bấm áp dụng và hỗ trợ phân trang
+ * Hiển thị danh sách lịch sử điều khiển lên giao diện bảng
  */
 function renderControlHistoryTable() {
     const tableBody = document.getElementById('history-table-body');
@@ -34,7 +20,6 @@ function renderControlHistoryTable() {
     const paginationControls = document.getElementById('history-pagination-controls');
     if (!tableBody) return;
 
-    // Lọc theo 3 tiêu chí đã được xác nhận lọc
     const filtered = controlHistoryList.filter(item => {
         const matchesTime = !appliedHistoryFilters.time || 
                             (item.time && item.time.toLowerCase().includes(appliedHistoryFilters.time));
@@ -72,13 +57,11 @@ function renderControlHistoryTable() {
         return;
     }
 
-    // Cắt dữ liệu theo trang hiện tại
     const startIndex = (currentHistoryPage - 1) * historyPageSize;
     const endIndex = Math.min(startIndex + historyPageSize, totalItems);
     const pageItems = filtered.slice(startIndex, endIndex);
 
     let rowsHtml = pageItems.map(item => {
-        // Xử lý 3 trạng thái: Thành công, Đang chờ (Pending), Thất bại
         let badgeClass = 'badge-green';
         let badgeText = 'Thành công';
 
@@ -118,7 +101,6 @@ function renderControlHistoryTable() {
         `;
     }).join('');
 
-    // Bổ sung các hàng trống nếu số lượng bản ghi chưa đủ 7 để giữ nguyên 100% vị trí phần chọn trang
     const emptyRowsCount = historyPageSize - pageItems.length;
     for (let i = 0; i < emptyRowsCount; i++) {
         rowsHtml += `
@@ -134,12 +116,10 @@ function renderControlHistoryTable() {
 
     tableBody.innerHTML = rowsHtml;
 
-    // Cập nhật thông tin số lượng bản ghi hiển thị (VD: Hiển thị 1 - 5 trong số 14 bản ghi)
     if (paginationInfo) {
         paginationInfo.textContent = `Hiển thị ${startIndex + 1} - ${endIndex} trong số ${totalItems} bản ghi`;
     }
 
-    // Cập nhật các nút phân trang
     if (paginationControls) {
         let buttonsHtml = `
             <button class="page-btn" ${currentHistoryPage === 1 ? 'disabled' : ''} onclick="goToHistoryPage(${currentHistoryPage - 1})" title="Trang trước">
@@ -187,15 +167,13 @@ function goToHistoryPage(page) {
 }
 
 /**
- * Xử lý khi người dùng BẤM NÚT "LỌC" hoặc nhấn ENTER
- * Đọc giá trị từ các ô chọn và thực hiện lọc
+ * Xử lý khi người dùng bấm nút Lọc hoặc nhấn Enter
  */
 function handleManualFilterHistory() {
     const timeVal = document.getElementById('history-time-search-input')?.value.toLowerCase().trim() || '';
     const deviceVal = document.getElementById('history-device-filter')?.value || 'ALL';
     const statusVal = document.getElementById('history-status-filter')?.value || 'ALL';
 
-    // Cập nhật bộ lọc chính thức và quay về trang 1
     appliedHistoryFilters = {
         time: timeVal,
         device: deviceVal,
@@ -222,7 +200,6 @@ function resetHistoryFilters() {
     if (deviceSelect) deviceSelect.value = 'ALL';
     if (statusSelect) statusSelect.value = 'ALL';
 
-    // Xóa bộ lọc áp dụng và quay về trang 1
     appliedHistoryFilters = {
         time: '',
         device: 'ALL',
@@ -250,7 +227,7 @@ function appendControlLog(log) {
 }
 
 /**
- * Đồng bộ dữ liệu từ Backend REST API qua HttpService
+ * Đồng bộ dữ liệu từ Backend REST API
  */
 async function fetchControlHistoryFromAPI() {
     if (window.HttpService && typeof window.HttpService.getControlHistory === 'function') {
@@ -270,12 +247,10 @@ async function fetchControlHistoryFromAPI() {
     }
 }
 
-// Khởi chạy khi nạp trang
 document.addEventListener('DOMContentLoaded', () => {
     renderControlHistoryTable();
     fetchControlHistoryFromAPI();
 
-    // Hỗ trợ phím Enter trên ô tìm kiếm thời gian
     const timeSearchInput = document.getElementById('history-time-search-input');
     if (timeSearchInput) {
         timeSearchInput.addEventListener('keydown', (e) => {
@@ -286,7 +261,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Xuất các hàm ra window
 window.renderControlHistoryTable = renderControlHistoryTable;
 window.appendControlLog = appendControlLog;
 window.handleManualFilterHistory = handleManualFilterHistory;

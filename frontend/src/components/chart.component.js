@@ -1,12 +1,3 @@
-/**
- * ==============================================================================
- * SOURCE COMPONENTS: ENVIRONMENT CHART (CHART.COMPONENT.JS)
- * ==============================================================================
- * Thành phần biểu đồ môi trường đa trục thời gian thực (Chart.js)
- * ==============================================================================
- */
-
-// Biến lưu thể hiện biểu đồ Chart.js
 let realEnvironmentChart = null;
 
 /**
@@ -18,7 +9,6 @@ function initEnvironmentChart() {
 
     const ctx = canvas.getContext('2d');
 
-    // Tạo màu Gradient mềm mại cho 3 đường chỉ số
     const gradientTemp = ctx.createLinearGradient(0, 0, 0, 320);
     gradientTemp.addColorStop(0, 'rgba(239, 68, 68, 0.25)');
     gradientTemp.addColorStop(1, 'rgba(239, 68, 68, 0.0)');
@@ -31,7 +21,6 @@ function initEnvironmentChart() {
     gradientLight.addColorStop(0, 'rgba(245, 158, 11, 0.25)');
     gradientLight.addColorStop(1, 'rgba(245, 158, 11, 0.0)');
 
-    // Dữ liệu mẫu ban đầu
     const initialLabels = ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', 'Bây giờ'];
     const initialTemp = [26.0, 25.2, 27.5, 31.0, 32.4, 30.5, 30.0];
     const initialHumid = [75.0, 78.0, 70.0, 60.0, 62.5, 70.0, 74.0];
@@ -102,7 +91,7 @@ function initEnvironmentChart() {
                         boxWidth: 8,
                         boxHeight: 8,
                         padding: 16,
-                        color: '#0f172a', // Màu chữ chú thích rõ ràng, sắc nét (Slate-900)
+                        color: '#0f172a',
                         font: { family: 'Inter', size: 12, weight: '600' }
                     }
                 },
@@ -124,7 +113,7 @@ function initEnvironmentChart() {
                     grid: { display: false },
                     ticks: {
                         font: { family: 'Inter', size: 11, weight: '500' },
-                        color: '#334155' // Màu chữ trục thời gian đậm rõ ràng (Slate-700), không bị mờ
+                        color: '#334155'
                     }
                 },
                 y: {
@@ -134,12 +123,12 @@ function initEnvironmentChart() {
                     grid: { color: '#f1f5f9', drawBorder: false },
                     ticks: {
                         font: { family: 'Inter', size: 11, weight: '500' },
-                        color: '#334155' // Số đo trục trái màu xám đậm dễ đọc
+                        color: '#334155'
                     },
                     title: {
                         display: true,
                         text: 'Nhiệt độ (°C) / Độ ẩm (%)',
-                        color: '#0f172a', // Tiêu đề trục trái màu đen đậm nổi bật (Slate-900)
+                        color: '#0f172a',
                         font: { family: 'Inter', size: 12, weight: '600' }
                     },
                     suggestedMin: 0,
@@ -152,12 +141,12 @@ function initEnvironmentChart() {
                     grid: { drawOnChartArea: false },
                     ticks: {
                         font: { family: 'Inter', size: 11, weight: '600' },
-                        color: '#b45309' // Số đo trục ánh sáng màu cam đậm (Amber-700), độ tương phản cao
+                        color: '#b45309'
                     },
                     title: {
                         display: true,
                         text: 'Ánh sáng (lux)',
-                        color: '#b45309', // Tiêu đề trục ánh sáng màu cam đậm đồng bộ
+                        color: '#b45309',
                         font: { family: 'Inter', size: 12, weight: '600' }
                     },
                     suggestedMin: 0,
@@ -193,7 +182,7 @@ function updateChartRealtime(timeLabel, temp, humid, light) {
     realEnvironmentChart.data.datasets[1].data.push(humid);
     realEnvironmentChart.data.datasets[2].data.push(light);
 
-    realEnvironmentChart.update('none'); // Cập nhật không giật animation
+    realEnvironmentChart.update('none');
 }
 
 window.initEnvironmentChart = initEnvironmentChart;

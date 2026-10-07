@@ -1,12 +1,4 @@
 /**
- * ==============================================================================
- * SOURCE COMPONENTS: TOAST NOTIFICATIONS (TOAST.COMPONENT.JS)
- * ==============================================================================
- * Thành phần hiển thị các thông báo nổi góc dưới màn hình
- * ==============================================================================
- */
-
-/**
  * Hiển thị thông báo Toast
  * @param {string} message - Nội dung thông báo
  * @param {'info' | 'success' | 'warning' | 'error'} type - Kiểu thông báo
@@ -26,7 +18,6 @@ function showToast(message, type = 'info') {
     toast.innerHTML = `<i class="ph-bold ${icon}" style="font-size: 18px;"></i> <span>${message}</span>`;
     container.appendChild(toast);
 
-    // Tự động mờ dần và biến mất sau 3.5 giây
     setTimeout(() => {
         toast.style.opacity = '0';
         toast.style.transform = 'translateY(10px)';

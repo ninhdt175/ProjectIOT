@@ -5,23 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng nhập - Hệ thống IoT</title>
     
-    <!-- 1. Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- 2. Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     
-    <!-- 3. Tệp định dạng giao diện từ src/styles/ -->
     <link rel="stylesheet" href="src/styles/main.css">
     <link rel="stylesheet" href="src/styles/login.css">
 </head>
 <body class="login-page">
 
-    <!-- Khung Card Form Đăng nhập -->
     <div class="login-card-container">
-        <!-- Logo & Tiêu đề -->
         <div class="login-header">
             <div class="login-logo">
                 <i class="ph-fill ph-house-line"></i>
@@ -29,9 +24,7 @@
             <h1 class="login-title">Đăng nhập hệ thống</h1>
         </div>
 
-        <!-- Form nhập thông tin -->
         <form id="loginForm" onsubmit="handleLogin(event)">
-            <!-- Nhập Tên đăng nhập -->
             <div class="form-group">
                 <label class="form-label" for="username">Tên đăng nhập / Email</label>
                 <div class="input-wrapper">
@@ -47,7 +40,6 @@
                 </div>
             </div>
 
-            <!-- Nhập Mật khẩu -->
             <div class="form-group">
                 <label class="form-label" for="password">Mật khẩu</label>
                 <div class="input-wrapper">
@@ -66,7 +58,6 @@
                 </div>
             </div>
 
-            <!-- Tùy chọn Ghi nhớ -->
             <div class="form-options">
                 <label class="remember-me">
                     <input type="checkbox" id="rememberMe" checked>
@@ -74,7 +65,6 @@
                 </label>
             </div>
 
-            <!-- Nút bấm Đăng nhập -->
             <button type="submit" id="submitBtn" class="btn-submit">
                 <i class="ph-bold ph-sign-in"></i>
                 <span>Đăng nhập</span>
@@ -82,10 +72,8 @@
         </form>
     </div>
 
-    <!-- Khung hiển thị thông báo Toast nổi -->
     <div id="toast-container"></div>
 
-    <!-- Nạp cấu hình & script xử lý từ src/ -->
     <script src="src/config/app.config.js"></script>
     <script src="src/components/toast.component.js"></script>
     <script src="src/api/http.service.js"></script>

@@ -1,14 +1,6 @@
-/**
- * ==============================================================================
- * SOURCE API: REALTIME SOCKET SERVICE (SOCKET.SERVICE.JS)
- * ==============================================================================
- * Tầng truyền thông thời gian thực qua giao thức WebSocket (Socket.IO)
- * ==============================================================================
- */
-
 const SocketService = {
     /**
-     * Cập nhật đèn trạng thái kết nối phần cứng ESP32
+     * Cập nhật chỉ báo trạng thái kết nối phần cứng ESP32
      * @param {boolean} isOnline - Trạng thái Online / Offline
      */
     setDeviceOnlineStatus(isOnline) {
@@ -46,7 +38,6 @@ const SocketService = {
                     window.AppState.socket = socket;
                 }
 
-                // Khi kết nối thành công
                 socket.on('connect', () => {
                     this.setDeviceOnlineStatus(true);
                     if (typeof showToast === 'function') {
@@ -54,7 +45,6 @@ const SocketService = {
                     }
                 });
 
-                // Khi mất kết nối
                 socket.on('disconnect', () => {
                     this.setDeviceOnlineStatus(false);
                     if (typeof showToast === 'function') {
@@ -62,22 +52,18 @@ const SocketService = {
                     }
                 });
 
-                // Nhận luồng dữ liệu cảm biến mới đẩy từ MQTT Broker
                 socket.on('sensor_data', (data) => {
                     const now = new Date();
                     const timeLabel = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
 
-                    // Cập nhật số liệu các thẻ trên Dashboard
                     if (typeof updateDashboardMetrics === 'function') {
                         updateDashboardMetrics(data.temperature, data.humidity, data.light_lux);
                     }
 
-                    // Cập nhật điểm dữ liệu mới vào Biểu đồ Chart.js
                     if (typeof updateChartRealtime === 'function') {
                         updateChartRealtime(timeLabel, data.temperature, data.humidity, data.light_lux);
                     }
 
-                    // Ghi nhận bản ghi mới vào Bảng dữ liệu Cảm biến
                     const dateStr = now.toISOString().slice(0, 19).replace('T', ' ');
                     if (typeof appendSensorRecord === 'function') {
                         appendSensorRecord({
@@ -91,7 +77,6 @@ const SocketService = {
                     }
                 });
 
-                // Nhận cập nhật trạng thái thiết bị thực tế
                 socket.on('device_status', (data) => {
                     if (data.target && window.AppState?.devices?.[data.target]) {
                         const dev = window.AppState.devices[data.target];
@@ -109,13 +94,12 @@ const SocketService = {
                 this.startSimulatedTelemetry();
             }
         } else {
-            // Chạy chế độ mô phỏng nếu chưa nạp thư viện socket
             this.startSimulatedTelemetry();
         }
     },
 
     /**
-     * Bộ tạo dữ liệu mô phỏng thời gian thực (hỗ trợ kiểm thử khi chưa kết nối phần cứng)
+     * Bộ tạo dữ liệu mô phỏng thời gian thực khi chạy độc lập
      */
     startSimulatedTelemetry() {
         this.setDeviceOnlineStatus(true);

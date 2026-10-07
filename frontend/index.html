@@ -5,24 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hệ Thống IoT - Giám Sát & Điều Khiển</title>
     
-    <!-- 1. Font chữ Google: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- 2. Bộ biểu tượng Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    
-    <!-- 3. Thư viện vẽ biểu đồ Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <!-- 4. Thư viện kết nối thời gian thực Socket.IO Client -->
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     
-    <!-- 5. Tệp định dạng giao diện chính từ src/styles/ -->
     <link rel="stylesheet" href="src/styles/main.css">
 
-    <!-- 6. Ngăn chặn hoàn toàn chớp màn hình Dashboard khi tải lại trang (Zero-Flicker View Restoration) -->
     <script>
         (function() {
             try {
@@ -45,18 +37,13 @@
 </head>
 <body>
 
-    <!-- ====================================================================
-         THANH MENU BÊN TRÁI (SIDEBAR)
-         ==================================================================== -->
     <aside class="sidebar">
-        <!-- Logo hệ thống -->
         <div class="logo-container">
             <div class="logo-text">
                 <i class="ph-fill ph-house-line"></i> IOT
             </div>
         </div>
 
-        <!-- Menu điều hướng giữa các màn hình -->
         <nav class="nav-list">
             <a class="nav-item active" data-view="dashboard" onclick="switchView('dashboard', this)">
                 <i class="ph ph-squares-four"></i> Tổng quan
@@ -77,14 +64,9 @@
         </nav>
     </aside>
 
-    <!-- ====================================================================
-         KHU VỰC HIỂN THỊ NỘI DUNG CHÍNH (MAIN WORKSPACE)
-         ==================================================================== -->
     <main class="main-wrapper">
-        <!-- Thanh Header trên cùng -->
         <header class="header">
             <div class="header-left">
-                <!-- Đèn nhấp nháy báo trạng thái kết nối phần cứng ESP32 -->
                 <div id="device-status-badge" class="device-status-badge">
                     <span class="pulse-dot"></span>
                     <span id="device-status-text">ESP32 ONLINE</span>
@@ -103,18 +85,12 @@
             </div>
         </header>
 
-        <!-- Vùng nội dung có thể cuộn được -->
         <div class="content-scroll">
             
-            <!-- ================================================================
-                 MÀN HÌNH 1: TỔNG QUAN (DASHBOARD)
-                 ================================================================ -->
             <div id="dashboard" class="view-section active">
                 <h1 class="dashboard-heading">Dashboard</h1>
                 
-                <!-- Ba thẻ đo chỉ số cảm biến thời gian thực -->
                 <div class="metrics-grid">
-                    <!-- Thẻ Nhiệt độ -->
                     <div class="simple-card bg-temp">
                         <div class="card-top-row">
                             <div class="simple-label"><i class="ph-fill ph-thermometer-simple" style="color: #ef4444;"></i> Nhiệt độ</div>
@@ -123,7 +99,6 @@
                         <div id="metric-temp" class="simple-value">30.0 <span class="unit-label">°C</span></div>
                     </div>
 
-                    <!-- Thẻ Độ ẩm -->
                     <div class="simple-card bg-humid">
                         <div class="card-top-row">
                             <div class="simple-label"><i class="ph-fill ph-drop" style="color: #3b82f6;"></i> Độ ẩm</div>
@@ -132,7 +107,6 @@
                         <div id="metric-humid" class="simple-value">74.0 <span class="unit-label">%</span></div>
                     </div>
 
-                    <!-- Thẻ Cường độ ánh sáng -->
                     <div class="simple-card bg-light">
                         <div class="card-top-row">
                             <div class="simple-label"><i class="ph-fill ph-sun" style="color: #f59e0b;"></i> Độ sáng</div>
@@ -142,9 +116,7 @@
                     </div>
                 </div>
 
-                <!-- Bố cục 2 cột: Cột trái vẽ Biểu đồ, Cột phải bảng công tắc bật/tắt thiết bị -->
                 <div class="dashboard-layout">
-                    <!-- Cột 1: Biểu đồ đường môi trường thời gian thực -->
                     <div class="card" style="display: flex; flex-direction: column;">
                         <div class="card-header" style="margin-bottom: 12px;">
                             <h2 class="card-title" style="color: var(--text-h); font-weight: 600;"><i class="ph-bold ph-chart-line-up" style="color: var(--brand);"></i> Biểu đồ Môi trường (Thời gian thực)</h2>
@@ -154,13 +126,11 @@
                         </div>
                     </div>
 
-                    <!-- Cột 2: Bảng điều khiển Bật / Tắt 3 đèn LED -->
                     <div class="card" style="align-self: start;">
                         <div class="card-header">
                             <h2 class="card-title"><i class="ph ph-sliders"></i> Thiết bị kết nối</h2>
                         </div>
                         <div class="device-list">
-                            <!-- Thiết bị 1: Đèn LED 1 -->
                             <div class="device-item active" id="devItem1">
                                 <div class="dev-info-left">
                                     <div class="dev-avatar"><i class="ph-fill ph-lightbulb"></i></div>
@@ -172,7 +142,6 @@
                                 <input type="checkbox" class="toggle" checked onchange="toggleDevice('devItem1', 'LED_01', this)">
                             </div>
                             
-                            <!-- Thiết bị 2: Đèn LED 2 -->
                             <div class="device-item" id="devItem2">
                                 <div class="dev-info-left">
                                     <div class="dev-avatar"><i class="ph-fill ph-lightbulb"></i></div>
@@ -184,7 +153,6 @@
                                 <input type="checkbox" class="toggle" onchange="toggleDevice('devItem2', 'LED_02', this)">
                             </div>
 
-                            <!-- Thiết bị 3: Đèn LED 3 -->
                             <div class="device-item" id="devItem3">
                                 <div class="dev-info-left">
                                     <div class="dev-avatar"><i class="ph-fill ph-lightbulb"></i></div>
@@ -200,16 +168,12 @@
                 </div>
             </div>
 
-            <!-- ================================================================
-                 MÀN HÌNH 2: DỮ LIỆU CẢM BIẾN (SENSORS)
-                 ================================================================ -->
             <div id="sensors" class="view-section">
                 <div class="card">
                     <div class="card-header">
                         <h2 class="card-title"><i class="ph ph-activity"></i> Dữ liệu cảm biến</h2>
                     </div>
 
-                    <!-- Thanh tìm kiếm & bộ lọc dữ liệu chuẩn theo Data sensor (2).png -->
                     <div class="toolbar">
                         <div class="toolbar-left">
                             <div class="search-box">
@@ -236,7 +200,6 @@
                         </div>
                     </div>
                     
-                    <!-- Bảng dữ liệu cảm biến -->
                     <div class="table-responsive">
                         <table class="data-table">
                             <thead>
@@ -248,31 +211,24 @@
                                 </tr>
                             </thead>
                             <tbody id="sensor-table-body">
-                                <!-- Dữ liệu được render tự động bởi src/pages/sensors.js -->
                             </tbody>
                         </table>
                     </div>
 
-                    <!-- Phân trang dữ liệu cảm biến -->
                     <div class="pagination-container">
                         <div id="sensor-pagination-info">Hiển thị 1 - 7 trong số 20 bản ghi</div>
                         <div class="pagination-controls" id="sensor-pagination-controls">
-                            <!-- Nút phân trang được render tự động bởi src/pages/sensors.js -->
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- ================================================================
-                 MÀN HÌNH 3: LỊCH SỬ ĐIỀU KHIỂN (HISTORY)
-                 ================================================================ -->
             <div id="history" class="view-section">
                 <div class="card">
                     <div class="card-header">
                         <h2 class="card-title"><i class="ph ph-clock-counter-clockwise"></i> Lịch sử điều khiển thiết bị</h2>
                     </div>
 
-                    <!-- Thanh tìm kiếm & lọc lịch sử chuẩn theo History (2).png -->
                     <div class="toolbar">
                         <div class="toolbar-left">
                             <div class="search-box">
@@ -300,7 +256,6 @@
                         </div>
                     </div>
                     
-                    <!-- Bảng danh sách nhật ký điều khiển -->
                     <div class="table-responsive">
                         <table class="data-table">
                             <thead>
@@ -313,24 +268,18 @@
                                 </tr>
                             </thead>
                             <tbody id="history-table-body">
-                                <!-- Dữ liệu được render tự động bởi src/pages/history.js -->
                             </tbody>
                         </table>
                     </div>
 
-                    <!-- Phân trang lịch sử điều khiển chuẩn như Data sensor -->
                     <div class="pagination-container">
                         <div id="history-pagination-info">Hiển thị 1 - 7 trong số 14 bản ghi</div>
                         <div class="pagination-controls" id="history-pagination-controls">
-                            <!-- Nút phân trang được render tự động bởi src/pages/history.js -->
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- ================================================================
-                 MÀN HÌNH 4: HỒ SƠ SINH VIÊN (PROFILE)
-                 ================================================================ -->
             <div id="profile" class="view-section">
                 <div class="profile-card">
                     <div class="profile-header-clean">
@@ -365,30 +314,17 @@
         </div>
     </main>
 
-    <!-- Khung chứa thông báo Toast nổi -->
     <div id="toast-container"></div>
 
-    <!-- ====================================================================
-         NẠP CÁC MODULE MÃ NGUỒN TỪ THƯ MỤC CHUẨN SRC/
-         ==================================================================== -->
-    <!-- 1. Cấu hình hệ thống & Dữ liệu ban đầu -->
     <script src="src/config/app.config.js"></script>
-
-    <!-- 2. Các thành phần giao diện dùng chung (UI Components) -->
     <script src="src/components/toast.component.js"></script>
     <script src="src/components/device.component.js"></script>
     <script src="src/components/chart.component.js"></script>
-
-    <!-- 3. Tầng giao tiếp mạng (REST API & WebSocket) -->
     <script src="src/api/http.service.js"></script>
     <script src="src/api/socket.service.js"></script>
-
-    <!-- 4. Logic nghiệp vụ theo từng màn hình (Pages) -->
     <script src="src/pages/dashboard.js"></script>
     <script src="src/pages/sensors.js"></script>
     <script src="src/pages/history.js"></script>
-
-    <!-- 5. Khởi động ứng dụng chính (App Orchestrator) -->
     <script src="src/app.js"></script>
 </body>
 </html>

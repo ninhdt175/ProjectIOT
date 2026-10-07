@@ -1,12 +1,4 @@
 /**
- * ==============================================================================
- * SOURCE PAGES: DASHBOARD VIEW (DASHBOARD.JS)
- * ==============================================================================
- * Logic nghiệp vụ riêng biệt cho màn hình Dashboard tổng quan
- * ==============================================================================
- */
-
-/**
  * Cập nhật số liệu cảm biến lên các thẻ hiển thị trên Dashboard
  * @param {number} temp - Nhiệt độ (°C)
  * @param {number} humid - Độ ẩm (%)
@@ -28,7 +20,6 @@ function updateDashboardMetrics(temp, humid, light) {
     }
 }
 
-// Khởi chạy biểu đồ khi DOM hoàn tất nạp
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof initEnvironmentChart === 'function') {
         initEnvironmentChart();

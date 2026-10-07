@@ -1,29 +1,17 @@
-/**
- * ==============================================================================
- * SOURCE CONFIG: APPLICATION CONFIGURATION (APP.CONFIG.JS)
- * ==============================================================================
- * Quản lý các hằng số, cấu hình cổng mạng và bộ dữ liệu khởi tạo mặc định
- * ==============================================================================
- */
-
 const APP_CONFIG = {
-    // Địa chỉ Backend Server (Node.js Express / Socket.IO)
     BACKEND_URL: window.location.origin,
 
-    // Cấu hình các chân điều khiển phần cứng trên mạch ESP32
     DEVICES: {
         LED_01: { name: 'Đèn LED 1', state: true, elementId: 'devItem1', pin: 2 },
         LED_02: { name: 'Đèn LED 2', state: false, elementId: 'devItem2', pin: 4 },
         LED_03: { name: 'Đèn LED 3', state: false, elementId: 'devItem3', pin: 5 }
     },
 
-    // Tài khoản thử nghiệm (khi chạy độc lập không có kết nối cơ sở dữ liệu)
     DEMO_ACCOUNTS: {
         'B23DCCN633': { name: 'Đỗ Trọng Ninh', studentId: 'B23DCCN633', role: 'Sinh viên' },
         'admin': { name: 'Quản trị viên', studentId: 'ADMIN_01', role: 'Admin' }
     },
 
-    // Dữ liệu mẫu ban đầu cho Bảng Cảm biến (Hỗ trợ phân trang 9 bản ghi/trang)
     DEFAULT_SENSORS: [
         { id: 1, sensor: 'DHT22_01', device: 'ESP32_01', type: 'temperature', value: '30.0 °C', rawVal: 30.0, time: '2026-08-24 13:45:33' },
         { id: 2, sensor: 'DHT22_01', device: 'ESP32_01', type: 'humidity', value: '74.0 %', rawVal: 74.0, time: '2026-08-24 13:45:33' },
@@ -47,7 +35,6 @@ const APP_CONFIG = {
         { id: 20, sensor: 'DHT22_01', device: 'ESP32_01', type: 'humidity', value: '80.0 %', rawVal: 80.0, time: '2026-08-24 13:15:30' }
     ],
 
-    // Dữ liệu mẫu ban đầu cho Bảng Lịch sử Điều khiển (Hỗ trợ phân trang 7 bản ghi/trang)
     DEFAULT_HISTORY: [
         { id: 1, time: 'Hôm nay, 13:40:05', device: 'Đèn LED 1 (LED_01)', deviceId: 'ESP32_01', action: 'ON', user: 'Đỗ Trọng Ninh', status: 'success' },
         { id: 2, time: 'Hôm nay, 13:15:20', device: 'Đèn LED 2 (LED_02)', deviceId: 'ESP32_01', action: 'OFF', user: 'Đỗ Trọng Ninh', status: 'success' },
@@ -66,6 +53,5 @@ const APP_CONFIG = {
     ]
 };
 
-// Xuất cấu hình ra window toàn cục
 window.APP_CONFIG = APP_CONFIG;
-window.CONFIG = APP_CONFIG; // Alias tương thích
+window.CONFIG = APP_CONFIG;
