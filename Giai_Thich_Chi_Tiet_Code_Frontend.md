@@ -381,17 +381,27 @@ Thành phần hiển thị đồ thị chuyên nghiệp trên thẻ `<canvas id=
   - Cơ chế **FIFO (First In, First Out)**: Giới hạn đúng 12 mốc thời gian hiển thị.
   - Tham số `'none'` trong `chart.update()` ngăn chặn biểu đồ tính toán lại toàn bộ hiệu ứng co giãn, giúp hiệu năng đạt 60 khung hình/giây (60 FPS).
 
-#### 7.2. Điều khiển công tắc đèn [`device.component.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/components/device.component.js)
-Xử lý sự kiện khi người dùng gạt công tắc bật/tắt thiết bị:
+#### 7.2. Điều khiển công tắc thiết bị với cơ chế Đang chờ (Pending State) [`device.component.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/components/device.component.js)
+Xử lý sự kiện khi người dùng gạt công tắc bật/tắt thiết bị theo mô hình **Pessimistic Acknowledged Command Flow**:
 * **Hàm `toggleDevice(itemId, deviceKey, checkbox)`:**
-  1. Kiểm tra trạng thái checkbox: `const isChecked = checkbox.checked`.
-  2. Đổi màu giao diện ô đèn ngay lập tức (thêm/xóa class `.active`).
-  3. Cập nhật trạng thái trong `AppState.devices[deviceKey].state`.
-  4. Bắn thông điệp WebSocket tới Backend:
+  1. **Chống spam click:** Kiểm tra `pendingDevices[deviceKey]`, nếu thiết bị đang chờ phản hồi từ lệnh trước thì chặn không cho gửi lệnh tiếp.
+  2. **Tạm thời giữ nguyên trạng thái công tắc:** Không tự ý bật/tắt ngay lập tức, `checkbox.checked = originalState` cho đến khi có xác nhận chính thức từ Backend.
+  3. **Kích hoạt giao diện Đang chờ (`is-pending`):** Thẻ thiết bị chuyển sang viền vàng cam nhẹ `#fde68a`, avatar đèn chuyển màu cảnh báo, hiển thị huy hiệu xoay `<i class="ph ph-spinner ph-spin"></i> Đang chờ...` và khóa nút gạt `disabled = true`.
+  4. **Ghi nhật ký lịch sử ở trạng thái `pending`:** Đẩy một bản ghi mới lên đầu danh sách `controlHistoryList` với `status: 'pending'` (hiển thị nhãn vàng cam "Đang chờ" trên bảng lịch sử).
+  5. **Bắn thông điệp WebSocket tới Backend:**
      ```javascript
-     AppState.socket.emit('device_control', { target: deviceKey, action: isChecked ? 'ON' : 'OFF' });
+     AppState.socket.emit('device_control', {
+         target: deviceKey,     // VD: 'LED_01'
+         action: action,        // 'ON' hoặc 'OFF'
+         requestId: requestId   // Mã yêu cầu duy nhất để đối soát
+     });
      ```
-  5. Tự động ghi nhật ký vào bảng lịch sử điều khiển thông qua `appendControlLog()`.
+  6. **Cơ chế Mock ACK dự phòng (800ms):** Khi chưa kết nối Backend thật, hệ thống tự động phản hồi thành công sau 800ms để kiểm thử trực quan trên giao diện mà không bị treo.
+* **Hàm `handleDeviceControlAck(response)`:**
+  - Nhận gói tin phản hồi: `{ target, action, status, requestId }`.
+  - Tắt trạng thái `is-pending`, mở khóa lại công tắc.
+  - **Nếu `status === 'success'`:** Chính thức chuyển công tắc và thẻ giao diện sang trạng thái mới (`checked = true/false`, thêm/xóa `.active`), cập nhật `AppState.devices[target].state`, và cập nhật bản ghi lịch sử tương ứng sang `'success'`.
+  - **Nếu `status === 'failed'`:** Giữ nguyên trạng thái cũ của công tắc (không bật/tắt), và cập nhật bản ghi lịch sử tương ứng sang `'failed'`.
 
 #### 7.3. Thông báo Toast nổi [`toast.component.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/components/toast.component.js)
 * **Hàm `showToast(message, type = 'info')`:**

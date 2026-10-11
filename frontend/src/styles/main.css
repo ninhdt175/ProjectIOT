@@ -527,6 +527,50 @@ body {
     border-color: #86efac;
 }
 
+.dev-action-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.device-pending-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #b45309;
+    background: #fef3c7;
+    border: 1px solid #fde68a;
+    padding: 3px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+    animation: pulsePending 1.5s infinite ease-in-out;
+}
+
+@keyframes pulsePending {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.75; transform: scale(0.97); }
+}
+
+.device-item.is-pending {
+    border-color: #fde68a !important;
+    background-color: #fffbeb !important;
+}
+
+.device-item.is-pending .dev-avatar {
+    background: #fef3c7 !important;
+    color: #d97706 !important;
+    border-color: #fde68a !important;
+}
+
+.toggle:disabled,
+.toggle.pending {
+    opacity: 0.55;
+    cursor: wait;
+    pointer-events: none;
+}
+
 
 .toolbar {
     display: flex;

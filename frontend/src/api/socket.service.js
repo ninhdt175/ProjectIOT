@@ -77,8 +77,21 @@ const SocketService = {
                     }
                 });
 
+                socket.on('device_control_ack', (data) => {
+                    if (typeof handleDeviceControlAck === 'function') {
+                        handleDeviceControlAck(data);
+                    }
+                });
+
                 socket.on('device_status', (data) => {
-                    if (data.target && window.AppState?.devices?.[data.target]) {
+                    if (typeof handleDeviceControlAck === 'function') {
+                        handleDeviceControlAck({
+                            target: data.target,
+                            action: data.action || (data.state === 'ON' || data.state === true ? 'ON' : 'OFF'),
+                            status: data.status || 'success',
+                            requestId: data.requestId
+                        });
+                    } else if (data.target && window.AppState?.devices?.[data.target]) {
                         const dev = window.AppState.devices[data.target];
                         const chk = document.querySelector(`#${dev.elementId} input.toggle`);
                         if (chk) {

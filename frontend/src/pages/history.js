@@ -214,6 +214,20 @@ function appendControlLog(log) {
 }
 
 /**
+ * Cập nhật trạng thái của bản ghi điều khiển (VD: từ 'pending' sang 'success' hoặc 'failed')
+ * @param {string|number} logId - ID bản ghi
+ * @param {string} newStatus - Trạng thái mới ('success' | 'failed' | 'pending')
+ */
+function updateControlLogStatus(logId, newStatus) {
+    if (!logId) return;
+    const item = controlHistoryList.find(log => log.id === logId);
+    if (item) {
+        item.status = newStatus;
+        renderControlHistoryTable();
+    }
+}
+
+/**
  * Đồng bộ dữ liệu từ Backend REST API
  */
 async function fetchControlHistoryFromAPI() {
@@ -250,6 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 window.renderControlHistoryTable = renderControlHistoryTable;
 window.appendControlLog = appendControlLog;
+window.updateControlLogStatus = updateControlLogStatus;
 window.handleManualFilterHistory = handleManualFilterHistory;
 window.resetHistoryFilters = resetHistoryFilters;
 window.goToHistoryPage = goToHistoryPage;

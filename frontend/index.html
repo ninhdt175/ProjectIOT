@@ -131,7 +131,12 @@
                                         <div class="dev-room">LED_01</div>
                                     </div>
                                 </div>
-                                <input type="checkbox" class="toggle" checked onchange="toggleDevice('devItem1', 'LED_01', this)">
+                                <div class="dev-action-right">
+                                    <span class="device-pending-tag" style="display: none;">
+                                        <i class="ph ph-spinner ph-spin"></i> Đang chờ...
+                                    </span>
+                                    <input type="checkbox" class="toggle" checked onchange="toggleDevice('devItem1', 'LED_01', this)">
+                                </div>
                             </div>
                             
                             <div class="device-item" id="devItem2">
@@ -142,7 +147,12 @@
                                         <div class="dev-room">LED_02</div>
                                     </div>
                                 </div>
-                                <input type="checkbox" class="toggle" onchange="toggleDevice('devItem2', 'LED_02', this)">
+                                <div class="dev-action-right">
+                                    <span class="device-pending-tag" style="display: none;">
+                                        <i class="ph ph-spinner ph-spin"></i> Đang chờ...
+                                    </span>
+                                    <input type="checkbox" class="toggle" onchange="toggleDevice('devItem2', 'LED_02', this)">
+                                </div>
                             </div>
 
                             <div class="device-item" id="devItem3">
@@ -153,7 +163,12 @@
                                         <div class="dev-room">LED_03</div>
                                     </div>
                                 </div>
-                                <input type="checkbox" class="toggle" onchange="toggleDevice('devItem3', 'LED_03', this)">
+                                <div class="dev-action-right">
+                                    <span class="device-pending-tag" style="display: none;">
+                                        <i class="ph ph-spinner ph-spin"></i> Đang chờ...
+                                    </span>
+                                    <input type="checkbox" class="toggle" onchange="toggleDevice('devItem3', 'LED_03', this)">
+                                </div>
                             </div>
                         </div>
                     </div>
