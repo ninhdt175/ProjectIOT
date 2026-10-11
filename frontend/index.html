@@ -54,10 +54,10 @@
             <a class="nav-item" data-view="history" onclick="switchView('history', this)">
                 <i class="ph ph-clock-counter-clockwise"></i> Lịch sử điều khiển
             </a>
-            <div style="margin-top: auto;"></div>
             <a class="nav-item" data-view="profile" onclick="switchView('profile', this)">
                 <i class="ph ph-user-circle"></i> Hồ sơ
             </a>
+            <div style="margin-top: auto;"></div>
             <a class="nav-item" style="color: var(--status-down); cursor: pointer;" onclick="logout()">
                 <i class="ph ph-sign-out"></i> Đăng xuất
             </a>
@@ -74,11 +74,7 @@
             </div>
             
             <div class="header-actions">
-                <button class="icon-btn" title="Thông báo" onclick="showToast('Hệ thống hoạt động bình thường, không có cảnh báo nghiêm trọng.', 'info')">
-                    <i class="ph ph-bell"></i>
-                    <span class="icon-badge"></span>
-                </button>
-                <div class="user-pill" onclick="switchView('profile', document.querySelectorAll('.nav-item')[3])">
+                <div class="user-pill" onclick="switchView('profile', document.querySelector('.nav-item[data-view=\'profile\']'))">
                     <img src="public/images/avatar.svg" alt="Avatar">
                     <span class="name">Đỗ Trọng Ninh</span>
                 </div>
@@ -177,16 +173,12 @@
                     <div class="toolbar">
                         <div class="toolbar-left">
                             <div class="search-box">
-                                <i class="ph ph-clock"></i>
-                                <input type="text" id="sensor-time-search-input" placeholder="Tìm theo thời gian (VD: 13:45, 2026-08-24)...">
+                                <i class="ph ph-magnifying-glass"></i>
+                                <input type="text" id="sensor-search-input" placeholder="Nhập giá trị / thời gian tìm kiếm...">
                             </div>
-                            <select id="sensor-name-filter" class="filter-select">
-                                <option value="ALL">Tất cả loại cảm biến</option>
-                                <option value="DHT22_01">DHT22_01</option>
-                                <option value="LDR_01">LDR_01</option>
-                            </select>
-                            <select id="sensor-type-filter" class="filter-select">
-                                <option value="ALL">Tất cả loại chỉ số</option>
+                            <select id="sensor-field-filter" class="filter-select">
+                                <option value="ALL">Tất cả thông tin</option>
+                                <option value="time">Thời gian</option>
                                 <option value="temperature">Nhiệt độ</option>
                                 <option value="humidity">Độ ẩm</option>
                                 <option value="light">Ánh sáng</option>
@@ -241,6 +233,11 @@
                                 <option value="LED_02">Đèn LED 2 (LED_02)</option>
                                 <option value="LED_03">Đèn LED 3 (LED_03)</option>
                             </select>
+                            <select id="history-action-filter" class="filter-select">
+                                <option value="ALL">Tất cả hành động</option>
+                                <option value="ON">BẬT (ON)</option>
+                                <option value="OFF">TẮT (OFF)</option>
+                            </select>
                             <select id="history-status-filter" class="filter-select">
                                 <option value="ALL">Tất cả trạng thái</option>
                                 <option value="success">Thành công</option>
@@ -262,7 +259,7 @@
                                 <tr>
                                     <th>THỜI GIAN THỰC HIỆN</th>
                                     <th>TÊN THIẾT BỊ</th>
-                                    <th>LỆNH</th>
+                                    <th>HÀNH ĐỘNG</th>
                                     <th>NGUỒN THỰC HIỆN</th>
                                     <th>TRẠNG THÁI MQTT</th>
                                 </tr>

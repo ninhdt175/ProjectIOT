@@ -1,24 +1,4 @@
-/**
- * ==============================================================================
- * SOURCE STYLES: MAIN STYLESHEET (MAIN.CSS)
- * ==============================================================================
- * Kiến trúc giao diện hệ thống IoT Dashboard:
- * 1. DESIGN TOKENS & CSS VARIABLES (:root)
- * 2. GLOBAL RESET & BASE STYLES
- * 3. LAYOUT ARCHITECTURE (Sidebar, Header, Main Scroll Area)
- * 4. UI COMPONENTS (Status Pulse Badge, Buttons, Icon Badges)
- * 5. SENSOR METRIC CARDS (Temperature, Humidity, Light)
- * 6. DASHBOARD VIEW (Grid, Device List, Switch Toggle)
- * 7. DATA TABLES & TOOLBAR (Search, Filter, Table Rows, Copy Time Button)
- * 8. STUDENT PROFILE CARD (Information Grid, Avatar)
- * 9. TOAST NOTIFICATIONS (Alert Popups)
- * 10. RESPONSIVE BREAKPOINTS (Mobile & Tablet)
- * ==============================================================================
- */
 
-/* ==============================================================================
- * 1. DESIGN TOKENS & CSS VARIABLES (:root)
- * ============================================================================== */
 :root {
     /* Brand Theme Colors */
     --brand: #2563eb;
@@ -47,9 +27,7 @@
     --status-warn: #f59e0b;  /* Orange - Warning */
 }
 
-/* ==============================================================================
- * 2. GLOBAL RESET & BASE STYLES
- * ============================================================================== */
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -85,9 +63,7 @@ body {
     background: #94a3b8;
 }
 
-/* ==============================================================================
- * 3. LAYOUT ARCHITECTURE (Sidebar, Header, Main Scroll Area)
- * ============================================================================== */
+
 .sidebar {
     width: 260px;
     background-color: var(--bg-sidebar);
@@ -234,9 +210,7 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* ==============================================================================
- * 4. UI COMPONENTS (Status Pulse Badge, Buttons, Icon Badges)
- * ============================================================================== */
+
 .device-status-badge {
     display: inline-flex;
     align-items: center;
@@ -340,9 +314,7 @@ body {
     border-color: #cbd5e1;
 }
 
-/* ==============================================================================
- * 5. SENSOR METRIC CARDS (Temperature, Humidity, Light)
- * ============================================================================== */
+
 .metrics-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -419,9 +391,7 @@ body {
     color: #64748b;
 }
 
-/* ==============================================================================
- * 6. DASHBOARD VIEW (Grid, Device List, Switch Toggle)
- * ============================================================================== */
+
 .dashboard-heading {
     font-size: 26px;
     font-weight: 700;
@@ -557,9 +527,7 @@ body {
     border-color: #86efac;
 }
 
-/* ==============================================================================
- * 7. DATA TABLES & TOOLBAR (Search, Filter, Table Rows, Copy Time Button)
- * ============================================================================== */
+
 .toolbar {
     display: flex;
     justify-content: space-between;
@@ -870,9 +838,7 @@ body {
     cursor: not-allowed;
 }
 
-/* ==============================================================================
- * 8. STUDENT PROFILE CARD (Information Grid, Avatar)
- * ============================================================================== */
+
 .profile-card {
     padding: 40px;
     max-width: 800px;
@@ -929,9 +895,7 @@ body {
     font-weight: 600;
 }
 
-/* ==============================================================================
- * 9. TOAST NOTIFICATIONS (Alert Popups)
- * ============================================================================== */
+
 #toast-container {
     position: fixed;
     bottom: 24px;
@@ -965,9 +929,7 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* ==============================================================================
- * 10. RESPONSIVE BREAKPOINTS (Mobile & Tablet)
- * ============================================================================== */
+
 @media (max-width: 1024px) {
     .dashboard-layout {
         grid-template-columns: 1fr;

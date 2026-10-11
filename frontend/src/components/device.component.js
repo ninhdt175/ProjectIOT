@@ -21,10 +21,6 @@ function toggleDevice(itemId, deviceKey, checkbox) {
     const action = isChecked ? 'ON' : 'OFF';
     const devName = (window.AppState?.devices?.[deviceKey]?.name) || deviceKey;
 
-    if (typeof showToast === 'function') {
-        showToast(`Đã gửi lệnh ${action} tới ${devName}`, 'info');
-    }
-
     if (window.AppState?.socket && window.AppState.socket.connected) {
         window.AppState.socket.emit('device_control', {
             target: deviceKey,

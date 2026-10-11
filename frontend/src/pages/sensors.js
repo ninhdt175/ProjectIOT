@@ -3,13 +3,43 @@ let sensorDataList = (window.APP_CONFIG && window.APP_CONFIG.DEFAULT_SENSORS)
     : [];
 
 let appliedSensorFilters = {
-    time: '',
-    name: 'ALL',
-    type: 'ALL'
+    search: '',
+    field: 'ALL'
 };
 
 let currentSensorPage = 1;
 const sensorPageSize = 7;
+
+function matchesSensorFilter(item) {
+    const search = appliedSensorFilters.search ? appliedSensorFilters.search.toLowerCase().trim() : '';
+    const field = appliedSensorFilters.field || 'ALL';
+
+    if (field === 'temperature' && item.type !== 'temperature') return false;
+    if (field === 'humidity' && item.type !== 'humidity') return false;
+    if (field === 'light' && item.type !== 'light') return false;
+
+    if (!search) return true;
+
+    if (field === 'time') {
+        return Boolean(item.time && item.time.toLowerCase().includes(search));
+    }
+
+    if (field === 'temperature' || field === 'humidity' || field === 'light') {
+        const valMatch = item.value && String(item.value).toLowerCase().includes(search);
+        const timeMatch = item.time && item.time.toLowerCase().includes(search);
+        const sensorMatch = item.sensor && item.sensor.toLowerCase().includes(search);
+        return Boolean(valMatch || timeMatch || sensorMatch);
+    }
+
+    const typeName = item.type === 'temperature' ? 'nhiệt độ' : (item.type === 'humidity' ? 'độ ẩm' : (item.type === 'light' ? 'ánh sáng' : ''));
+    return Boolean(
+        (item.time && item.time.toLowerCase().includes(search)) ||
+        (item.value && String(item.value).toLowerCase().includes(search)) ||
+        (item.sensor && item.sensor.toLowerCase().includes(search)) ||
+        (item.device && item.device.toLowerCase().includes(search)) ||
+        (typeName && typeName.includes(search))
+    );
+}
 
 /**
  * Hiển thị danh sách dữ liệu cảm biến lên giao diện bảng
@@ -20,15 +50,7 @@ function renderSensorTable() {
     const paginationControls = document.getElementById('sensor-pagination-controls');
     if (!tableBody) return;
 
-    const filtered = sensorDataList.filter(item => {
-        const matchesTime = !appliedSensorFilters.time || 
-                            (item.time && item.time.toLowerCase().includes(appliedSensorFilters.time));
-        const matchesName = (appliedSensorFilters.name === 'ALL') || 
-                            (item.sensor === appliedSensorFilters.name);
-        const matchesType = (appliedSensorFilters.type === 'ALL') || 
-                            (item.type === appliedSensorFilters.type);
-        return matchesTime && matchesName && matchesType;
-    });
+    const filtered = sensorDataList.filter(matchesSensorFilter);
 
     const totalItems = filtered.length;
     const totalPages = Math.max(1, Math.ceil(totalItems / sensorPageSize));
@@ -134,15 +156,7 @@ function renderSensorTable() {
  * @param {number} page - Số trang
  */
 function goToSensorPage(page) {
-    const filtered = sensorDataList.filter(item => {
-        const matchesTime = !appliedSensorFilters.time || 
-                            (item.time && item.time.toLowerCase().includes(appliedSensorFilters.time));
-        const matchesName = (appliedSensorFilters.name === 'ALL') || 
-                            (item.sensor === appliedSensorFilters.name);
-        const matchesType = (appliedSensorFilters.type === 'ALL') || 
-                            (item.type === appliedSensorFilters.type);
-        return matchesTime && matchesName && matchesType;
-    });
+    const filtered = sensorDataList.filter(matchesSensorFilter);
 
     const totalPages = Math.max(1, Math.ceil(filtered.length / sensorPageSize));
     if (page < 1 || page > totalPages) return;
@@ -155,14 +169,12 @@ function goToSensorPage(page) {
  * Xử lý khi người dùng bấm nút Lọc hoặc nhấn Enter
  */
 function handleManualFilterSensor() {
-    const timeVal = document.getElementById('sensor-time-search-input')?.value.toLowerCase().trim() || '';
-    const nameVal = document.getElementById('sensor-name-filter')?.value || 'ALL';
-    const typeVal = document.getElementById('sensor-type-filter')?.value || 'ALL';
+    const searchVal = document.getElementById('sensor-search-input')?.value.toLowerCase().trim() || '';
+    const fieldVal = document.getElementById('sensor-field-filter')?.value || 'ALL';
 
     appliedSensorFilters = {
-        time: timeVal,
-        name: nameVal,
-        type: typeVal
+        search: searchVal,
+        field: fieldVal
     };
     currentSensorPage = 1;
 
@@ -177,18 +189,15 @@ function handleManualFilterSensor() {
  * Đặt lại toàn bộ ô tìm kiếm và bộ lọc về mặc định
  */
 function resetSensorFilters() {
-    const timeInput = document.getElementById('sensor-time-search-input');
-    const nameSelect = document.getElementById('sensor-name-filter');
-    const typeSelect = document.getElementById('sensor-type-filter');
+    const searchInput = document.getElementById('sensor-search-input');
+    const fieldSelect = document.getElementById('sensor-field-filter');
 
-    if (timeInput) timeInput.value = '';
-    if (nameSelect) nameSelect.value = 'ALL';
-    if (typeSelect) typeSelect.value = 'ALL';
+    if (searchInput) searchInput.value = '';
+    if (fieldSelect) fieldSelect.value = 'ALL';
 
     appliedSensorFilters = {
-        time: '',
-        name: 'ALL',
-        type: 'ALL'
+        search: '',
+        field: 'ALL'
     };
     currentSensorPage = 1;
 
@@ -294,9 +303,9 @@ document.addEventListener('DOMContentLoaded', () => {
     renderSensorTable();
     fetchSensorDataFromAPI();
 
-    const timeSearchInput = document.getElementById('sensor-time-search-input');
-    if (timeSearchInput) {
-        timeSearchInput.addEventListener('keydown', (e) => {
+    const searchInput = document.getElementById('sensor-search-input');
+    if (searchInput) {
+        searchInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 handleManualFilterSensor();
             }

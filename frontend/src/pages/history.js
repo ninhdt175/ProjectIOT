@@ -5,11 +5,29 @@ let controlHistoryList = (window.APP_CONFIG && window.APP_CONFIG.DEFAULT_HISTORY
 let appliedHistoryFilters = {
     time: '',
     device: 'ALL',
+    action: 'ALL',
     status: 'ALL'
 };
 
 let currentHistoryPage = 1;
 const historyPageSize = 7;
+
+function matchesHistoryFilter(item) {
+    const matchesTime = !appliedHistoryFilters.time || 
+                        (item.time && item.time.toLowerCase().includes(appliedHistoryFilters.time));
+    
+    const matchesDevice = (appliedHistoryFilters.device === 'ALL') || 
+                          (item.device && item.device.includes(appliedHistoryFilters.device)) ||
+                          (item.deviceId && item.deviceId.includes(appliedHistoryFilters.device));
+
+    const matchesAction = (appliedHistoryFilters.action === 'ALL') || 
+                          (item.action === appliedHistoryFilters.action);
+
+    const matchesStatus = (appliedHistoryFilters.status === 'ALL') || 
+                          (item.status === appliedHistoryFilters.status);
+
+    return matchesTime && matchesDevice && matchesAction && matchesStatus;
+}
 
 /**
  * Hiển thị danh sách lịch sử điều khiển lên giao diện bảng
@@ -20,19 +38,7 @@ function renderControlHistoryTable() {
     const paginationControls = document.getElementById('history-pagination-controls');
     if (!tableBody) return;
 
-    const filtered = controlHistoryList.filter(item => {
-        const matchesTime = !appliedHistoryFilters.time || 
-                            (item.time && item.time.toLowerCase().includes(appliedHistoryFilters.time));
-        
-        const matchesDevice = (appliedHistoryFilters.device === 'ALL') || 
-                              (item.device && item.device.includes(appliedHistoryFilters.device)) ||
-                              (item.deviceId && item.deviceId.includes(appliedHistoryFilters.device));
-
-        const matchesStatus = (appliedHistoryFilters.status === 'ALL') || 
-                              (item.status === appliedHistoryFilters.status);
-
-        return matchesTime && matchesDevice && matchesStatus;
-    });
+    const filtered = controlHistoryList.filter(matchesHistoryFilter);
 
     const totalItems = filtered.length;
     const totalPages = Math.max(1, Math.ceil(totalItems / historyPageSize));
@@ -143,21 +149,9 @@ function renderControlHistoryTable() {
     }
 }
 
-/**
- * Chuyển tới số trang chỉ định cho bảng Lịch sử
- * @param {number} page - Số trang
- */
+//Chuyển tới số trang chỉ định cho bảng Lịch sử
 function goToHistoryPage(page) {
-    const filtered = controlHistoryList.filter(item => {
-        const matchesTime = !appliedHistoryFilters.time || 
-                            (item.time && item.time.toLowerCase().includes(appliedHistoryFilters.time));
-        const matchesDevice = (appliedHistoryFilters.device === 'ALL') || 
-                              (item.device && item.device.includes(appliedHistoryFilters.device)) ||
-                              (item.deviceId && item.deviceId.includes(appliedHistoryFilters.device));
-        const matchesStatus = (appliedHistoryFilters.status === 'ALL') || 
-                              (item.status === appliedHistoryFilters.status);
-        return matchesTime && matchesDevice && matchesStatus;
-    });
+    const filtered = controlHistoryList.filter(matchesHistoryFilter);
 
     const totalPages = Math.max(1, Math.ceil(filtered.length / historyPageSize));
     if (page < 1 || page > totalPages) return;
@@ -166,17 +160,17 @@ function goToHistoryPage(page) {
     renderControlHistoryTable();
 }
 
-/**
- * Xử lý khi người dùng bấm nút Lọc hoặc nhấn Enter
- */
+//Xử lý khi người dùng bấm nút Lọc hoặc nhấn Enter
 function handleManualFilterHistory() {
     const timeVal = document.getElementById('history-time-search-input')?.value.toLowerCase().trim() || '';
     const deviceVal = document.getElementById('history-device-filter')?.value || 'ALL';
+    const actionVal = document.getElementById('history-action-filter')?.value || 'ALL';
     const statusVal = document.getElementById('history-status-filter')?.value || 'ALL';
 
     appliedHistoryFilters = {
         time: timeVal,
         device: deviceVal,
+        action: actionVal,
         status: statusVal
     };
     currentHistoryPage = 1;
@@ -188,21 +182,22 @@ function handleManualFilterHistory() {
     }
 }
 
-/**
- * Đặt lại toàn bộ ô tìm kiếm và bộ lọc về mặc định
- */
+//Đặt lại toàn bộ ô tìm kiếm và bộ lọc về mặc định
 function resetHistoryFilters() {
     const timeInput = document.getElementById('history-time-search-input');
     const deviceSelect = document.getElementById('history-device-filter');
+    const actionSelect = document.getElementById('history-action-filter');
     const statusSelect = document.getElementById('history-status-filter');
 
     if (timeInput) timeInput.value = '';
     if (deviceSelect) deviceSelect.value = 'ALL';
+    if (actionSelect) actionSelect.value = 'ALL';
     if (statusSelect) statusSelect.value = 'ALL';
 
     appliedHistoryFilters = {
         time: '',
         device: 'ALL',
+        action: 'ALL',
         status: 'ALL'
     };
     currentHistoryPage = 1;
