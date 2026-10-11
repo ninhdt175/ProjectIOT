@@ -1,3 +1,4 @@
+// Đối tượng Chart.js toàn cục dùng để vẽ và cập nhật biểu đồ thời gian thực
 let realEnvironmentChart = null;
 
 /**
@@ -9,18 +10,20 @@ function initEnvironmentChart() {
 
     const ctx = canvas.getContext('2d');
 
+    // Tạo hiệu ứng chuyển sắc (Linear Gradient) tạo nền mờ dưới đường đồ thị
     const gradientTemp = ctx.createLinearGradient(0, 0, 0, 320);
-    gradientTemp.addColorStop(0, 'rgba(239, 68, 68, 0.25)');
+    gradientTemp.addColorStop(0, 'rgba(239, 68, 68, 0.25)'); // Đỏ (Nhiệt độ)
     gradientTemp.addColorStop(1, 'rgba(239, 68, 68, 0.0)');
 
     const gradientHumid = ctx.createLinearGradient(0, 0, 0, 320);
-    gradientHumid.addColorStop(0, 'rgba(59, 130, 246, 0.25)');
+    gradientHumid.addColorStop(0, 'rgba(59, 130, 246, 0.25)'); // Xanh dương (Độ ẩm)
     gradientHumid.addColorStop(1, 'rgba(59, 130, 246, 0.0)');
 
     const gradientLight = ctx.createLinearGradient(0, 0, 0, 320);
-    gradientLight.addColorStop(0, 'rgba(245, 158, 11, 0.25)');
+    gradientLight.addColorStop(0, 'rgba(245, 158, 11, 0.25)'); // Vàng cam (Ánh sáng)
     gradientLight.addColorStop(1, 'rgba(245, 158, 11, 0.0)');
 
+    // Dữ liệu mốc khởi tạo ban đầu cho đồ thị
     const initialLabels = ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', 'Bây giờ'];
     const initialTemp = [26.0, 25.2, 27.5, 31.0, 32.4, 30.5, 30.0];
     const initialHumid = [75.0, 78.0, 70.0, 60.0, 62.5, 70.0, 74.0];
@@ -160,7 +163,8 @@ function initEnvironmentChart() {
 
 /**
  * Đẩy điểm dữ liệu mới vào Biểu đồ theo thời gian thực
- * @param {string} timeLabel - Chuỗi thời gian (VD: "14:25:30")
+ * Áp dụng hàng đợi trượt (Sliding Window): giữ tối đa 12 điểm dữ liệu gần nhất
+ * @param {string} timeLabel - Chuỗi nhãn thời gian (VD: "14:25:30")
  * @param {number} temp - Nhiệt độ (°C)
  * @param {number} humid - Độ ẩm (%)
  * @param {number} light - Cường độ ánh sáng (lux)
@@ -170,6 +174,7 @@ function updateChartRealtime(timeLabel, temp, humid, light) {
 
     const maxDataPoints = 12;
 
+    // Nếu vượt quá giới hạn mốc điểm, xóa điểm cũ nhất ở đầu mảng
     if (realEnvironmentChart.data.labels.length >= maxDataPoints) {
         realEnvironmentChart.data.labels.shift();
         realEnvironmentChart.data.datasets[0].data.shift();
@@ -177,13 +182,17 @@ function updateChartRealtime(timeLabel, temp, humid, light) {
         realEnvironmentChart.data.datasets[2].data.shift();
     }
 
+    // Đẩy giá trị mới vào cuối mảng dữ liệu
     realEnvironmentChart.data.labels.push(timeLabel);
     realEnvironmentChart.data.datasets[0].data.push(temp);
     realEnvironmentChart.data.datasets[1].data.push(humid);
     realEnvironmentChart.data.datasets[2].data.push(light);
 
+    // Cập nhật biểu đồ mượt mà không chạy lại toàn bộ animation
     realEnvironmentChart.update('none');
 }
 
+// Xuất các hàm điều khiển biểu đồ ra phạm vi toàn cục
 window.initEnvironmentChart = initEnvironmentChart;
 window.updateChartRealtime = updateChartRealtime;
+

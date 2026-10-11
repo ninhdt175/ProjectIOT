@@ -1,12 +1,18 @@
+/**
+ * Cấu hình toàn cục cho ứng dụng Front-End IoT
+ */
 const APP_CONFIG = {
+    // Địa chỉ Backend Server (mặc định lấy theo origin hiện tại của trình duyệt)
     BACKEND_URL: window.location.origin,
 
+    // Danh sách thiết bị điều khiển, trạng thái ban đầu, ID phần tử HTML và chân GPIO ESP32
     DEVICES: {
         LED_01: { name: 'Đèn LED 1', state: true, elementId: 'devItem1', pin: 2 },
         LED_02: { name: 'Đèn LED 2', state: false, elementId: 'devItem2', pin: 4 },
         LED_03: { name: 'Đèn LED 3', state: false, elementId: 'devItem3', pin: 5 }
     },
 
+    // Dữ liệu mẫu cảm biến dùng khi chạy độc lập hoặc khởi tạo bảng
     DEFAULT_SENSORS: [
         { id: 1, sensor: 'DHT22_01', device: 'ESP32_01', type: 'temperature', value: '30.0 °C', rawVal: 30.0, time: '2026-08-24 13:45:33' },
         { id: 2, sensor: 'DHT22_01', device: 'ESP32_01', type: 'humidity', value: '74.0 %', rawVal: 74.0, time: '2026-08-24 13:45:33' },
@@ -30,6 +36,7 @@ const APP_CONFIG = {
         { id: 20, sensor: 'DHT22_01', device: 'ESP32_01', type: 'humidity', value: '80.0 %', rawVal: 80.0, time: '2026-08-24 13:15:30' }
     ],
 
+    // Dữ liệu mẫu nhật ký điều khiển dùng khi chạy độc lập hoặc khởi tạo bảng
     DEFAULT_HISTORY: [
         { id: 1, time: 'Hôm nay, 13:40:05', device: 'Đèn LED 1 (LED_01)', deviceId: 'ESP32_01', action: 'ON', user: 'Đỗ Trọng Ninh', status: 'success' },
         { id: 2, time: 'Hôm nay, 13:15:20', device: 'Đèn LED 2 (LED_02)', deviceId: 'ESP32_01', action: 'OFF', user: 'Đỗ Trọng Ninh', status: 'success' },

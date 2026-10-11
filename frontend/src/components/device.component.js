@@ -152,6 +152,8 @@ function handleDeviceControlAck(response) {
     }
 }
 
+// Xuất các hàm điều khiển thiết bị ra phạm vi toàn cục
 window.toggleDevice = toggleDevice;
 window.handleDeviceControlAck = handleDeviceControlAck;
 window.setDevicePendingState = setDevicePendingState;
+
