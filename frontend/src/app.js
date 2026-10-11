@@ -53,45 +53,8 @@ function restoreActiveView() {
     }
 }
 
-/**
- * Kiểm tra phiên đăng nhập người dùng từ LocalStorage
- */
-function checkAuth() {
-    const userStr = localStorage.getItem('currentUser');
-    if (userStr) {
-        try {
-            const user = JSON.parse(userStr);
-            const nameElements = document.querySelectorAll('.user-pill .name, .profile-header-clean h2');
-            nameElements.forEach(el => {
-                if (user.name) el.textContent = user.name;
-            });
-        } catch (e) {
-            console.error('Lỗi phân tích dữ liệu người dùng:', e);
-        }
-    }
-}
-
-/**
- * Xử lý đăng xuất người dùng và dọn dẹp phiên làm việc
- */
-function logout() {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('currentUser');
-    try {
-        sessionStorage.removeItem('activeView');
-    } catch (e) {}
-
-    if (typeof showToast === 'function') {
-        showToast('Đang đăng xuất khỏi hệ thống...', 'info');
-    }
-    setTimeout(() => {
-        window.location.href = 'login.html';
-    }, 600);
-}
-
 document.addEventListener('DOMContentLoaded', () => {
     restoreActiveView();
-    checkAuth();
     if (window.SocketService && typeof window.SocketService.initConnection === 'function') {
         window.SocketService.initConnection();
     }
@@ -99,5 +62,3 @@ document.addEventListener('DOMContentLoaded', () => {
 
 window.switchView = switchView;
 window.restoreActiveView = restoreActiveView;
-window.checkAuth = checkAuth;
-window.logout = logout;

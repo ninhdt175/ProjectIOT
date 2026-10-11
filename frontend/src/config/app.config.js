@@ -7,11 +7,6 @@ const APP_CONFIG = {
         LED_03: { name: 'Đèn LED 3', state: false, elementId: 'devItem3', pin: 5 }
     },
 
-    DEMO_ACCOUNTS: {
-        'B23DCCN633': { name: 'Đỗ Trọng Ninh', studentId: 'B23DCCN633', role: 'Sinh viên' },
-        'admin': { name: 'Quản trị viên', studentId: 'ADMIN_01', role: 'Admin' }
-    },
-
     DEFAULT_SENSORS: [
         { id: 1, sensor: 'DHT22_01', device: 'ESP32_01', type: 'temperature', value: '30.0 °C', rawVal: 30.0, time: '2026-08-24 13:45:33' },
         { id: 2, sensor: 'DHT22_01', device: 'ESP32_01', type: 'humidity', value: '74.0 %', rawVal: 74.0, time: '2026-08-24 13:45:33' },

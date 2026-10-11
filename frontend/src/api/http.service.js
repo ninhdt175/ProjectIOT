@@ -1,26 +1,5 @@
 const HttpService = {
     /**
-     * Gửi yêu cầu đăng nhập tài khoản
-     * @param {string} username - Tên đăng nhập
-     * @param {string} password - Mật khẩu
-     */
-    async login(username, password) {
-        try {
-            const res = await fetch('/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password })
-            });
-            if (res.ok) {
-                return await res.json();
-            }
-            return null;
-        } catch (e) {
-            return null;
-        }
-    },
-
-    /**
      * Lấy danh sách lịch sử dữ liệu cảm biến
      * @param {number} page - Trang số
      * @param {number} limit - Số bản ghi trên 1 trang

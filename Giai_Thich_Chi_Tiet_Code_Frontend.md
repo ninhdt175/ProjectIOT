@@ -26,7 +26,6 @@
    - [8.1. Màn hình Tổng quan `dashboard.js`](#81-màn-hình-tổng-quan-dashboardjs)
    - [8.2. Màn hình Cảm biến `sensors.js` (Bộ lọc 2 giai đoạn, Phân trang 7 dòng, Clipboard)](#82-màn-hình-cảm-biến-sensorsjs-bộ-lọc-2-giai-đoạn-phân-trang-7-dòng-clipboard)
    - [8.3. Màn hình Lịch sử `history.js` (Phân trang 7 dòng, 3 trạng thái điều khiển)](#83-màn-hình-lịch-sử-historyjs-phân-trang-7-dòng-3-trạng-thái-điều-khiển)
-   - [8.4. Màn hình Xác thực `login.html` & `src/pages/login.js`](#84-màn-hình-xác-thực-loginhtml--srcpagesloginjs)
 9. [Luồng dữ liệu thời gian thực từ ESP32 đến Giao diện (Sequence Diagram)](#9-luồng-dữ-liệu-thời-gian-thực-từ-esp32-đến-giao-diện-sequence-diagram)
 10. [Bộ 10 câu hỏi vấn đáp chuyên sâu Front-End khi bảo vệ đồ án](#10-bộ-10-câu-hỏi-vấn-đáp-chuyên-sâu-front-end-khi-bảo-vệ-đồ-án)
 
@@ -47,7 +46,6 @@ flowchart TD
         P_Dash["src/pages/dashboard.js<br>(Thẻ số đo & Khởi tạo biểu đồ)"]
         P_Sens["src/pages/sensors.js<br>(Phân trang 7 dòng, Lọc, Clipboard)"]
         P_Hist["src/pages/history.js<br>(Phân trang 7 dòng, 3 trạng thái)"]
-        P_Log["src/pages/login.js<br>(Xác thực JWT / Demo & Chuyển hướng)"]
     end
 
     subgraph Components ["Tầng Thành Phần Dùng Chung (Components Layer)"]
@@ -84,29 +82,26 @@ flowchart TD
 ```
 frontend/
 ├── index.html                   # Khung xương HTML5 chính, nạp toàn bộ màn hình và module JS
-├── login.html                   # Màn hình đăng nhập tài khoản người dùng
 ├── public/
 │   └── images/
 │       └── avatar.svg           # Ảnh đại diện sinh viên (SVG vector tối ưu)
 └── src/
-    ├── app.js                   # [Core] Điều phối ứng dụng, quản lý AppState, chuyển màn hình, Auth
+    ├── app.js                   # [Core] Điều phối ứng dụng, quản lý AppState, chuyển màn hình
     ├── config/
-    │   └── app.config.js        # [Config] Quản lý hằng số, chân ESP32, tài khoản demo, dữ liệu mẫu
+    │   └── app.config.js        # [Config] Quản lý hằng số, chân ESP32, dữ liệu mẫu
     ├── api/
-    │   ├── http.service.js      # [Network] Tầng gọi REST API (fetch async/await: login, history)
+    │   ├── http.service.js      # [Network] Tầng gọi REST API (fetch async/await: history)
     │   └── socket.service.js    # [Network] Tầng WebSocket thời gian thực (Socket.IO client, giả lập data)
     ├── components/
     │   ├── chart.component.js   # [UI] Biểu đồ môi trường đa trục thời gian thực (Chart.js)
-    │   ├── device.component.js  # [UI] Công tắc bật/tắt thiết bị đèn LED và gửi lệnh qua socket
+    │   ├── device.component.js  # [UI] Công tắc bật/tắt thiết bị đèn LED, trạng thái Đang chờ (Pending), ACK
     │   └── toast.component.js   # [UI] Hệ thống thông báo Toast nổi tự hủy sau 3.5 giây
     ├── pages/
     │   ├── dashboard.js         # [View] Cập nhật số đo các thẻ cảm biến trên màn hình Tổng quan
-    │   ├── sensors.js           # [View] Bảng dữ liệu cảm biến, bộ lọc 3 tiêu chí, phân trang 7 dòng, Copy
-    │   ├── history.js           # [View] Bảng lịch sử điều khiển, lọc theo trạng thái, phân trang 7 dòng
-    │   └── login.js             # [View] Xử lý form đăng nhập, ẩn/hiện mật khẩu, lưu JWT vào LocalStorage
+    │   ├── sensors.js           # [View] Bảng dữ liệu cảm biến, bộ lọc tích hợp, phân trang 7 dòng, Copy
+    │   └── history.js           # [View] Bảng lịch sử điều khiển, lọc hành động/trạng thái, phân trang 7 dòng
     └── styles/
-        ├── main.css             # Định kiểu giao diện chính, biến màu CSS, bảng, biểu đồ, No-Scroll layout
-        └── login.css            # Định kiểu giao diện thẻ đăng nhập và hiệu ứng form
+        └── main.css             # Định kiểu giao diện chính, biến màu CSS, bảng, biểu đồ, No-Scroll layout
 ```
 
 ---
@@ -117,30 +112,27 @@ frontend/
 | :--- | :--- | :--- | :--- |
 | [`switchView()`](file:///D:/Code/VSCode/projectIOT/frontend/src/app.js#L14) | [`src/app.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/app.js) | `viewId`, `element` | **Chuyển đổi màn hình hiển thị:** Xóa class `.active` khỏi toàn bộ menu và section, thêm `.active` cho màn hình mục tiêu (`dashboard`, `sensors`, `history`, `profile`), và lưu `viewId` vào `sessionStorage` để không bị mất trang khi nhấn F5. |
 | [`restoreActiveView()`](file:///D:/Code/VSCode/projectIOT/frontend/src/app.js#L38) | [`src/app.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/app.js) | Không có | **Khôi phục trang khi reload (F5):** Đọc `activeView` từ `sessionStorage`, gọi `switchView()` tới trang đó, và xóa thẻ `#early-view-style` ở `<head>` để bàn giao quyền render mượt mà không chớp nháy (Zero-Flicker). |
-| [`checkAuth()`](file:///D:/Code/VSCode/projectIOT/frontend/src/app.js#L57) | [`src/app.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/app.js) | Không có | **Kiểm tra phiên đăng nhập:** Đọc `currentUser` từ `localStorage`, parse JSON và tự động gán tên sinh viên lên thẻ Header và trang Profile. |
-| [`logout()`](file:///D:/Code/VSCode/projectIOT/frontend/src/app.js#L75) | [`src/app.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/app.js) | Không có | **Đăng xuất:** Xóa `authToken`, `currentUser` khỏi `localStorage`, xóa `activeView` khỏi `sessionStorage`, hiện Toast thông báo và chuyển hướng về `login.html`. |
-| [`HttpService.login()`](file:///D:/Code/VSCode/projectIOT/frontend/src/api/http.service.js#L7) | [`src/api/http.service.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/api/http.service.js) | `username`, `password` | Gửi HTTP POST tới `/api/auth/login` để xác thực tài khoản và nhận Token JWT từ Backend. |
-| [`HttpService.getSensorHistory()`](file:///D:/Code/VSCode/projectIOT/frontend/src/api/http.service.js#L27) | [`src/api/http.service.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/api/http.service.js) | `page`, `limit` | Gửi HTTP GET tới `/api/sensors/history` để lấy danh sách dữ liệu đo từ cơ sở dữ liệu PostgreSQL. |
-| [`HttpService.getControlHistory()`](file:///D:/Code/VSCode/projectIOT/frontend/src/api/http.service.js#L44) | [`src/api/http.service.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/api/http.service.js) | `page`, `limit` | Gửi HTTP GET tới `/api/controls/history` để lấy nhật ký bật/tắt thiết bị từ cơ sở dữ liệu. |
-| [`SocketService.initConnection()`](file:///D:/Code/VSCode/projectIOT/frontend/src/api/socket.service.js#L30) | [`src/api/socket.service.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/api/socket.service.js) | Không có | **Khởi tạo kết nối WebSocket:** Kết nối tới Backend qua thư viện Socket.IO, đăng ký lắng nghe 4 sự kiện: `connect`, `disconnect`, `sensor_data`, và `device_status`. Nếu Backend chưa bật, tự động fallback sang chế độ mô phỏng vi sai. |
+| [`HttpService.getSensorHistory()`](file:///D:/Code/VSCode/projectIOT/frontend/src/api/http.service.js#L7) | [`src/api/http.service.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/api/http.service.js) | `page`, `limit` | Gửi HTTP GET tới `/api/sensors/history` để lấy danh sách dữ liệu đo từ cơ sở dữ liệu PostgreSQL. |
+| [`HttpService.getControlHistory()`](file:///D:/Code/VSCode/projectIOT/frontend/src/api/http.service.js#L24) | [`src/api/http.service.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/api/http.service.js) | `page`, `limit` | Gửi HTTP GET tới `/api/controls/history` để lấy nhật ký bật/tắt thiết bị từ cơ sở dữ liệu. |
+| [`SocketService.initConnection()`](file:///D:/Code/VSCode/projectIOT/frontend/src/api/socket.service.js#L30) | [`src/api/socket.service.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/api/socket.service.js) | Không có | **Khởi tạo kết nối WebSocket:** Kết nối tới Backend qua thư viện Socket.IO, đăng ký lắng nghe 5 sự kiện: `connect`, `disconnect`, `sensor_data`, `device_control_ack`, và `device_status`. Nếu Backend chưa bật, tự động fallback sang chế độ mô phỏng vi sai. |
 | [`SocketService.setDeviceOnlineStatus()`](file:///D:/Code/VSCode/projectIOT/frontend/src/api/socket.service.js#L6) | [`src/api/socket.service.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/api/socket.service.js) | `isOnline` (`boolean`) | Cập nhật nhãn trạng thái và hiệu ứng đèn nhấp nháy xanh (`ESP32 ONLINE`) hoặc xám/đỏ (`ESP32 OFFLINE`) trên thanh Header. |
-| [`SocketService.startSimulatedTelemetry()`](file:///D:/Code/VSCode/projectIOT/frontend/src/api/socket.service.js#L104) | [`src/api/socket.service.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/api/socket.service.js) | Không có | **Chế độ kiểm thử độc lập:** Chạy hàm `setInterval` mỗi 2.5 giây, sinh dữ liệu nhiệt độ (22-38°C), độ ẩm (40-95%), ánh sáng (50-3500 lux) ngẫu nhiên theo đồ thị vi sai thực tế để phục vụ bảo vệ đồ án khi không có phần cứng. |
+| [`SocketService.startSimulatedTelemetry()`](file:///D:/Code/VSCode/projectIOT/frontend/src/api/socket.service.js#L117) | [`src/api/socket.service.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/api/socket.service.js) | Không có | **Chế độ kiểm thử độc lập:** Chạy hàm `setInterval` mỗi 2.5 giây, sinh dữ liệu nhiệt độ (22-38°C), độ ẩm (40-95%), ánh sáng (50-3500 lux) ngẫu nhiên theo đồ thị vi sai thực tế để phục vụ bảo vệ đồ án khi không có phần cứng. |
 | [`initEnvironmentChart()`](file:///D:/Code/VSCode/projectIOT/frontend/src/components/chart.component.js#L6) | [`src/components/chart.component.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/components/chart.component.js) | Không có | Khởi tạo biểu đồ đường đa trục (Dual-Axis) Chart.js trên `<canvas id="realChart">`, thiết lập gradient màu mờ, trục trái cho Nhiệt độ/Độ ẩm (0-100), trục phải cho Ánh sáng (0-4000 lux). |
 | [`updateChartRealtime()`](file:///D:/Code/VSCode/projectIOT/frontend/src/components/chart.component.js#L170) | [`src/components/chart.component.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/components/chart.component.js) | `timeLabel`, `temp`, `humid`, `light` | Đẩy điểm đo mới vào cuối mảng dữ liệu của Chart, dùng cơ chế FIFO giữ tối đa 12 điểm, và gọi `chart.update('none')` để cập nhật tức thì với hiệu năng 60 FPS không giật lag. |
-| [`toggleDevice()`](file:///D:/Code/VSCode/projectIOT/frontend/src/components/device.component.js#L7) | [`src/components/device.component.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/components/device.component.js) | `itemId`, `deviceKey`, `checkbox` | Xử lý khi click công tắc đèn: đổi màu giao diện `.active`, cập nhật `AppState.devices`, phát tín hiệu `device_control` qua Socket.IO tới Backend, hiện Toast và tự động ghi nhật ký điều khiển. |
+| [`toggleDevice()`](file:///D:/Code/VSCode/projectIOT/frontend/src/components/device.component.js#L46) | [`src/components/device.component.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/components/device.component.js) | `itemId`, `deviceKey`, `checkbox` | Xử lý khi click công tắc: giữ nguyên vị trí cũ, kích hoạt trạng thái Đang chờ (`is-pending`), khóa nút, ghi log `pending` và phát tín hiệu `device_control` qua Socket.IO tới Backend. |
+| [`handleDeviceControlAck()`](file:///D:/Code/VSCode/projectIOT/frontend/src/components/device.component.js#L118) | [`src/components/device.component.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/components/device.component.js) | `response` | Xử lý phản hồi từ Backend: tắt trạng thái `is-pending`. Nếu thành công thì BẬT/TẮT nút và chuyển log sang `success`; nếu thất bại thì giữ nguyên và chuyển log sang `failed`. |
 | [`showToast()`](file:///D:/Code/VSCode/projectIOT/frontend/src/components/toast.component.js#L6) | [`src/components/toast.component.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/components/toast.component.js) | `message`, `type` | Sinh động phần tử HTML thông báo nổi (`info`, `success`, `warning`, `error`), gắn vào `#toast-container` và tự động mờ dần biến mất sau 3.5 giây. |
 | [`updateDashboardMetrics()`](file:///D:/Code/VSCode/projectIOT/frontend/src/pages/dashboard.js#L7) | [`src/pages/dashboard.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/pages/dashboard.js) | `temp`, `humid`, `light` | Cập nhật trực tiếp số liệu vào DOM của 3 thẻ: `#metric-temp`, `#metric-humid`, `#metric-light`. |
-| [`renderSensorTable()`](file:///D:/Code/VSCode/projectIOT/frontend/src/pages/sensors.js#L18) | [`src/pages/sensors.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/pages/sensors.js) | Không có | Lọc mảng `sensorDataList` theo `appliedSensorFilters`, cắt dữ liệu theo trang hiện tại (7 bản ghi/trang), tự động thêm dòng trống `.empty-row` để giữ cố định vị trí phân trang, và hiển thị bảng. |
-| [`goToSensorPage()`](file:///D:/Code/VSCode/projectIOT/frontend/src/pages/sensors.js#L142) | [`src/pages/sensors.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/pages/sensors.js) | `page` (`number`) | Kiểm tra tính hợp lệ của số trang và cập nhật `currentSensorPage`, sau đó gọi lại `renderSensorTable()`. |
-| [`handleManualFilterSensor()`](file:///D:/Code/VSCode/projectIOT/frontend/src/pages/sensors.js#L164) | [`src/pages/sensors.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/pages/sensors.js) | Không có | Đọc giá trị ô nhập thời gian, select loại cảm biến, select loại chỉ số $\rightarrow$ gán vào `appliedSensorFilters`, đưa `currentSensorPage = 1` và vẽ lại bảng. |
-| [`resetSensorFilters()`](file:///D:/Code/VSCode/projectIOT/frontend/src/pages/sensors.js#L187) | [`src/pages/sensors.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/pages/sensors.js) | Không có | Đưa toàn bộ form tìm kiếm về rỗng / `"ALL"`, xóa sạch bộ lọc áp dụng và tải lại dữ liệu từ trang 1. |
-| [`appendSensorRecord()`](file:///D:/Code/VSCode/projectIOT/frontend/src/pages/sensors.js#L215) | [`src/pages/sensors.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/pages/sensors.js) | `record` (`object`) | Chèn bản ghi cảm biến mới nhất nhận từ WebSocket vào đầu mảng `sensorDataList` (`unshift`) và vẽ lại bảng theo thời gian thực. |
-| [`copyTimeToClipboard()`](file:///D:/Code/VSCode/projectIOT/frontend/src/pages/sensors.js#L238) | [`src/pages/sensors.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/pages/sensors.js) | `timeStr`, `btn` | Sao chép chuỗi mốc thời gian vào Clipboard bằng `navigator.clipboard.writeText`, đổi biểu tượng nút thành dấu tích xanh `ph-check` trong 1.8 giây và hiện Toast xác nhận. |
-| [`renderControlHistoryTable()`](file:///D:/Code/VSCode/projectIOT/frontend/src/pages/history.js#L18) | [`src/pages/history.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/pages/history.js) | Không có | Lọc và hiển thị danh sách nhật ký điều khiển gồm 3 trạng thái (`success`, `pending`, `failed`), phân trang cố định 7 dòng/trang. |
-| [`handleManualFilterHistory()`](file:///D:/Code/VSCode/projectIOT/frontend/src/pages/history.js#L180) | [`src/pages/history.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/pages/history.js) | Không có | Áp dụng bộ lọc lịch sử theo mốc thời gian, tên thiết bị, và trạng thái điều khiển khi người dùng nhấn nút "Lọc" hoặc nhấn phím Enter. |
-| [`appendControlLog()`](file:///D:/Code/VSCode/projectIOT/frontend/src/pages/history.js#L231) | [`src/pages/history.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/pages/history.js) | `log` (`object`) | Chèn một lượt bật/tắt thiết bị mới vào đầu danh sách lịch sử `controlHistoryList` và vẽ lại bảng. |
-| [`togglePasswordVisibility()`](file:///D:/Code/VSCode/projectIOT/frontend/src/pages/login.js#L4) | [`src/pages/login.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/pages/login.js) | Không có | Chuyển đổi thuộc tính `type="password"` $\leftrightarrow$ `type="text"` của ô nhập mật khẩu và đổi icon mắt `ph-eye` $\leftrightarrow$ `ph-eye-slash`. |
-| [`handleLogin()`](file:///D:/Code/VSCode/projectIOT/frontend/src/pages/login.js#L22) | [`src/pages/login.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/pages/login.js) | `event` | Bắt sự kiện submit form đăng nhập, gọi `HttpService.login()` (hoặc kiểm tra `DEMO_ACCOUNTS`), lưu `authToken` & `currentUser` vào `localStorage`, và chuyển hướng sang `index.html`. |
+| [`renderSensorTable()`](file:///D:/Code/VSCode/projectIOT/frontend/src/pages/sensors.js#L48) | [`src/pages/sensors.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/pages/sensors.js) | Không có | Lọc mảng `sensorDataList` theo `appliedSensorFilters`, cắt dữ liệu theo trang hiện tại (7 bản ghi/trang), tự động thêm dòng trống `.empty-row` để giữ cố định vị trí phân trang, và hiển thị bảng. |
+| [`goToSensorPage()`](file:///D:/Code/VSCode/projectIOT/frontend/src/pages/sensors.js#L148) | [`src/pages/sensors.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/pages/sensors.js) | `page` (`number`) | Kiểm tra tính hợp lệ của số trang và cập nhật `currentSensorPage`, sau đó gọi lại `renderSensorTable()`. |
+| [`handleManualFilterSensor()`](file:///D:/Code/VSCode/projectIOT/frontend/src/pages/sensors.js#L159) | [`src/pages/sensors.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/pages/sensors.js) | Không có | Đọc ô tìm kiếm và dropdown chọn trường $\rightarrow$ gán vào `appliedSensorFilters`, đưa `currentSensorPage = 1` và vẽ lại bảng. |
+| [`resetSensorFilters()`](file:///D:/Code/VSCode/projectIOT/frontend/src/pages/sensors.js#L176) | [`src/pages/sensors.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/pages/sensors.js) | Không có | Đưa form tìm kiếm và dropdown về mặc định `"ALL"`, xóa sạch bộ lọc áp dụng và tải lại dữ liệu từ trang 1. |
+| [`appendSensorRecord()`](file:///D:/Code/VSCode/projectIOT/frontend/src/pages/sensors.js#L196) | [`src/pages/sensors.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/pages/sensors.js) | `record` (`object`) | Chèn bản ghi cảm biến mới nhất nhận từ WebSocket vào đầu mảng `sensorDataList` (`unshift`) và vẽ lại bảng theo thời gian thực. |
+| [`copyTimeToClipboard()`](file:///D:/Code/VSCode/projectIOT/frontend/src/pages/sensors.js#L219) | [`src/pages/sensors.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/pages/sensors.js) | `timeStr`, `btn` | Sao chép chuỗi mốc thời gian vào Clipboard bằng `navigator.clipboard.writeText`, đổi biểu tượng nút thành dấu tích xanh `ph-check` trong 1.8 giây và hiện Toast xác nhận. |
+| [`renderControlHistoryTable()`](file:///D:/Code/VSCode/projectIOT/frontend/src/pages/history.js#L36) | [`src/pages/history.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/pages/history.js) | Không có | Lọc và hiển thị danh sách nhật ký điều khiển gồm 3 trạng thái (`success`, `pending`, `failed`), phân trang cố định 7 dòng/trang. |
+| [`handleManualFilterHistory()`](file:///D:/Code/VSCode/projectIOT/frontend/src/pages/history.js#L162) | [`src/pages/history.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/pages/history.js) | Không có | Áp dụng bộ lọc lịch sử theo thời gian, thiết bị, hành động (BẬT/TẮT) và trạng thái điều khiển. |
+| [`appendControlLog()`](file:///D:/Code/VSCode/projectIOT/frontend/src/pages/history.js#L198) | [`src/pages/history.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/pages/history.js) | `log` (`object`) | Chèn một lượt bật/tắt thiết bị mới vào đầu danh sách lịch sử `controlHistoryList` và vẽ lại bảng. |
+| [`updateControlLogStatus()`](file:///D:/Code/VSCode/projectIOT/frontend/src/pages/history.js#L210) | [`src/pages/history.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/pages/history.js) | `logId`, `newStatus` | Cập nhật trạng thái bản ghi lịch sử điều khiển từ `pending` sang `success` hoặc `failed`. |
 
 ---
 
@@ -322,10 +314,6 @@ const AppState = {
 * Kích hoạt `switchView()` tới màn hình này.
 * Tìm và xóa thẻ `<style id="early-view-style">` được tạo sớm ở `<head>` để bàn giao quyền kiểm soát giao diện cho CSS chính.
 
-#### 5.4. Xác thực và Đăng xuất (`checkAuth()`, `logout()`)
-* `checkAuth()`: Đọc `currentUser` từ `localStorage`. Trích xuất tên sinh viên `"Đỗ Trọng Ninh"` và hiển thị lên góc phải Header cũng như trang Hồ sơ cá nhân.
-* `logout()`: Xóa sạch `authToken` và `currentUser` khỏi `localStorage`, xóa `activeView` khỏi `sessionStorage`, hiện thông báo Toast và chuyển hướng người dùng về `login.html`.
-
 ---
 
 ### 6. TẦNG GIAO TIẾP MẠNG `src/api/` (WEBSOCKET SOCKET.IO & HTTP REST)
@@ -345,14 +333,13 @@ Quản lý luồng dữ liệu 2 chiều giữa Web và Backend qua Socket.IO:
   - Gọi `updateDashboardMetrics()` cập nhật 3 ô Nhiệt độ, Độ ẩm, Ánh sáng.
   - Gọi `updateChartRealtime()` để đẩy điểm đo mới nhất lên Biểu đồ.
   - Gọi `appendSensorRecord()` để tự động bổ sung dòng dữ liệu mới vào Bảng cảm biến.
-* **Lắng nghe phản hồi trạng thái thiết bị (`device_status`):**
-  - Đồng bộ công tắc trên màn hình nếu thiết bị được điều khiển từ nút bấm vật lý trên mạch ESP32.
+* **Lắng nghe phản hồi trạng thái thiết bị (`device_status`, `device_control_ack`):**
+  - Nhận xác nhận điều khiển (ACK) từ Backend để chuyển đổi trạng thái công tắc và cập nhật lịch sử.
 * **Chế độ mô phỏng vi sai ngẫu nhiên (`startSimulatedTelemetry`):**
   - Nếu không có Backend hoặc chưa cắm phần cứng, hàm này tự động kích hoạt `setInterval` mỗi 2.5 giây, sinh dữ liệu đo môi trường biến thiên ngẫu nhiên theo đồ thị thực tế (nhiệt độ 22 - 38°C, độ ẩm 40 - 95%, ánh sáng 50 - 3500 lux) giúp bảo vệ đồ án luôn trơn tru.
 
 #### 6.2. Tệp RESTful API [`src/api/http.service.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/api/http.service.js)
 * Sử dụng API hiện đại `fetch()` kết hợp `async / await` để gửi nhận dữ liệu JSON với Backend:
-  - `login(username, password)`: Gửi POST `/api/auth/login`.
   - `getSensorHistory(page, limit)`: Gửi GET `/api/sensors/history`.
   - `getControlHistory(page, limit)`: Gửi GET `/api/controls/history`.
 
@@ -449,14 +436,6 @@ Quản lý bảng nhật ký điều khiển thiết bị:
   - `pending`: Huy hiệu màu vàng hổ phách (`badge-yellow`), nhãn "Đang chờ".
   - `failed`: Huy hiệu màu đỏ cam (`badge-red`), nhãn "Thất bại".
 * **Tự động thêm nhật ký:** Khi người dùng bật/tắt thiết bị, hàm `appendControlLog(log)` sẽ đẩy bản ghi mới lên đầu danh sách (`unshift`) và cắt bỏ bản ghi cũ nếu danh sách vượt quá 50 mục.
-
-#### 8.4. Màn hình Xác thực [`login.html`](file:///D:/Code/VSCode/projectIOT/frontend/login.html) & [`login.js`](file:///D:/Code/VSCode/projectIOT/frontend/src/pages/login.js)
-* **Ẩn / Hiện mật khẩu (`togglePasswordVisibility`):** Chuyển đổi qua lại giữa `type="password"` và `type="text"`, đổi icon Phosphor từ `ph-eye` sang `ph-eye-slash`.
-* **Cơ chế Xác thực Kép (Dual Authentication Strategy):**
-  1. Thử gửi POST API tới Backend thông qua `HttpService.login(username, password)`. Nếu Backend trả về JWT Token, lưu vào `localStorage.setItem('authToken', ...)`.
-  2. Nếu Backend chưa chạy, hệ thống tự động đối chiếu với danh bạ tài khoản mẫu `APP_CONFIG.DEMO_ACCOUNTS` (tài khoản `B23DCCN633` - Đỗ Trọng Ninh hoặc `admin`).
-  3. Lưu thông tin người dùng vào `localStorage.setItem('currentUser', ...)`.
-  4. Hiệu ứng nút bấm: Khi bấm Đăng nhập, nút tự động chuyển sang icon xoay `ph-spinner` với chữ "Đang xác thực...", sau đó chuyển hướng sang `index.html`.
 
 ---
 
