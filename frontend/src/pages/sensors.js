@@ -179,10 +179,6 @@ function handleManualFilterSensor() {
     currentSensorPage = 1;
 
     renderSensorTable();
-
-    if (typeof showToast === 'function') {
-        showToast('Đã áp dụng bộ lọc dữ liệu cảm biến', 'info');
-    }
 }
 
 /**
@@ -202,10 +198,6 @@ function resetSensorFilters() {
     currentSensorPage = 1;
 
     renderSensorTable();
-
-    if (typeof showToast === 'function') {
-        showToast('Đã đặt lại toàn bộ bộ lọc cảm biến', 'info');
-    }
 }
 
 /**

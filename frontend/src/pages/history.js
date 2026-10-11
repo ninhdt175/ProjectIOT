@@ -176,10 +176,6 @@ function handleManualFilterHistory() {
     currentHistoryPage = 1;
 
     renderControlHistoryTable();
-
-    if (typeof showToast === 'function') {
-        showToast('Đã áp dụng bộ lọc lịch sử điều khiển', 'info');
-    }
 }
 
 //Đặt lại toàn bộ ô tìm kiếm và bộ lọc về mặc định
@@ -203,10 +199,6 @@ function resetHistoryFilters() {
     currentHistoryPage = 1;
 
     renderControlHistoryTable();
-
-    if (typeof showToast === 'function') {
-        showToast('Đã đặt lại toàn bộ bộ lọc lịch sử', 'info');
-    }
 }
 
 /**

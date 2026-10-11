@@ -182,7 +182,7 @@ Khi ESP32 gửi gói tin lên Mosquitto Broker, Frontend tiếp nhận và hiể
 Tệp [`frontend/index.html`](file:///D:/Code/VSCode/projectIOT/frontend/index.html) đóng vai trò bộ khung duy nhất nạp toàn bộ màn hình của ứng dụng.
 
 #### 2.1. Cấu trúc ngữ nghĩa (Semantic HTML5)
-* `<aside class="sidebar">`: Thanh điều hướng menu cố định bên trái gồm: Logo, Tổng quan, Dữ liệu cảm biến, Lịch sử điều khiển, Hồ sơ (đặt ngay bên dưới Lịch sử điều khiển), và Đăng xuất (được đẩy xuống đáy sidebar bằng thẻ đệm `margin-top: auto`).
+* `<aside class="sidebar">`: Thanh điều hướng menu cố định bên trái gồm 4 mục quản trị trực quan: Logo, Tổng quan, Dữ liệu cảm biến, Lịch sử điều khiển và Hồ sơ (đặt ngay bên dưới Lịch sử điều khiển).
 * `<main class="main-wrapper">`: Khung nội dung chính chiếm toàn bộ phần diện tích còn lại.
 * `<header class="header">`: Thanh đầu trang cao `64px` tinh gọn, chứa:
   - Huy hiệu đèn trạng thái nhấp nháy `#device-status-badge` (`ESP32 ONLINE`).
