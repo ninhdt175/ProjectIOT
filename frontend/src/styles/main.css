@@ -1,39 +1,33 @@
-/* ==========================================================================
-   1. BẢNG BIẾN TOÀN CỤC (:root)
-   Định nghĩa bảng màu, kích thước viền, bóng đổ và màu trạng thái hệ thống
-   ========================================================================== */
+/* Biến toàn cục */
 :root {
-    /* Màu sắc thương hiệu (Brand Theme Colors) */
-    --brand: #2563eb;          /* Màu chủ đạo (Xanh dương) */
-    --brand-hover: #1d4ed8;    /* Màu khi hover */
-    --brand-light: #eff6ff;    /* Màu nền nhạt làm nổi bật mục đang chọn */
+    /* Theme màu chính */
+    --brand: #2563eb;
+    --brand-hover: #1d4ed8;
+    --brand-light: #eff6ff;
 
-    /* Màu nền giao diện (Backgrounds) */
-    --bg-main: #f8fafc;        /* Nền tổng thể toàn trang */
-    --bg-surface: #ffffff;     /* Nền các thẻ card, container */
-    --bg-sidebar: #ffffff;     /* Nền thanh điều hướng sidebar */
+    /* Nền giao diện */
+    --bg-main: #f8fafc;
+    --bg-surface: #ffffff;
+    --bg-sidebar: #ffffff;
 
-    /* Màu chữ & Kiểu chữ (Typography Colors) */
-    --text-h: #0f172a;         /* Tiêu đề chính (Headings) */
-    --text-p: #334155;         /* Nội dung văn bản thường (Paragraphs) */
-    --text-muted: #64748b;     /* Nhãn phụ, chữ mờ (Secondary / Muted labels) */
+    /* Màu chữ */
+    --text-h: #0f172a;
+    --text-p: #334155;
+    --text-muted: #64748b;
 
-    /* Đường viền & Đổ bóng (Borders & Box Shadows) */
-    --border-light: #e2e8f0;   /* Màu viền kẻ mảnh */
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);                                      /* Đổ bóng nhỏ */
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05); /* Đổ bóng vừa */
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04); /* Đổ bóng lớn */
+    /* Viền & Đổ bóng */
+    --border-light: #e2e8f0;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
 
-    /* Màu trạng thái phần cứng và hoạt động (Hardware & Operational Status) */
-    --status-up: #10b981;      /* Xanh lá - Trạng thái Online / BẬT (ON) */
-    --status-down: #ef4444;    /* Đỏ - Trạng thái Offline / TẮT (OFF) */
-    --status-warn: #f59e0b;    /* Vàng cam - Cảnh báo / Đang chờ (Pending) */
+    /* Màu trạng thái */
+    --status-up: #10b981;
+    --status-down: #ef4444;
+    --status-warn: #f59e0b;
 }
 
-
-/* ==========================================================================
-   2. THIẾT LẬP CƠ BẢN & THANH CUỘN (Reset & Scrollbar)
-   ========================================================================== */
+/* Reset & Layout chung */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -46,11 +40,11 @@ body {
     color: var(--text-p);
     display: flex;
     height: 100vh;
-    overflow: hidden; /* Cố định chiều cao màn hình, nội dung cuộn bên trong .content-scroll */
+    overflow: hidden;
     -webkit-font-smoothing: antialiased;
 }
 
-/* Tùy chỉnh thanh cuộn trình duyệt thanh lịch, gọn gàng */
+/* Thanh cuộn (scrollbar) */
 ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -69,10 +63,7 @@ body {
     background: #94a3b8;
 }
 
-
-/* ==========================================================================
-   3. THANH ĐIỀU HƯỚNG BÊN TRÁI (Sidebar & Navigation Menu)
-   ========================================================================== */
+/* Sidebar */
 .sidebar {
     width: 260px;
     background-color: var(--bg-sidebar);
@@ -109,7 +100,6 @@ body {
     flex: 1;
 }
 
-/* Các mục menu điều hướng */
 .nav-item {
     display: flex;
     align-items: center;
@@ -134,17 +124,13 @@ body {
     color: var(--text-h);
 }
 
-/* Mục menu đang được kích hoạt (Active) */
 .nav-item.active {
     background-color: var(--brand-light);
     color: var(--brand);
     font-weight: 600;
 }
 
-
-/* ==========================================================================
-   4. KHUNG NỘI DUNG CHÍNH & THANH HEADER (Main Wrapper & Header)
-   ========================================================================== */
+/* Header & Topbar */
 .main-wrapper {
     flex: 1;
     display: flex;
@@ -153,7 +139,6 @@ body {
     position: relative;
 }
 
-/* Thanh Header trên cùng */
 .header {
     height: 64px;
     background-color: var(--bg-surface);
@@ -165,19 +150,13 @@ body {
     flex-shrink: 0;
 }
 
-.header-left {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-}
-
+.header-left,
 .header-actions {
     display: flex;
     align-items: center;
     gap: 16px;
 }
 
-/* Thẻ thông tin người dùng thu gọn góc phải Header */
 .user-pill {
     display: flex;
     align-items: center;
@@ -207,37 +186,28 @@ body {
     font-size: 13px;
 }
 
-
-/* ==========================================================================
-   5. VÙNG CUỘN NỘI DUNG & HIỆU ỨNG CHUYỂN TAB (Content & View Sections)
-   ========================================================================== */
+/* Khu vực hiển thị nội dung & chuyển tab */
 .content-scroll {
     padding: 16px 24px;
     overflow-y: auto;
     flex: 1;
 }
 
-/* Khối màn hình của từng tab (ẩn theo mặc định) */
 .view-section {
     display: none;
     animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Màn hình tab đang hoạt động */
 .view-section.active {
     display: block;
 }
 
-/* Hiệu ứng chuyển động mượt mà khi đổi tab */
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
-
-/* ==========================================================================
-   6. HUY HIỆU TRẠNG THÁI PHẦN CỨNG ESP32 (Hardware Status Badge)
-   ========================================================================== */
+/* Trạng thái kết nối phần cứng ESP32 */
 .device-status-badge {
     display: inline-flex;
     align-items: center;
@@ -251,7 +221,6 @@ body {
     border: 1px solid #a7f3d0;
 }
 
-/* Chấm tròn trạng thái có hiệu ứng nhịp đập khi Online */
 .pulse-dot {
     width: 8px;
     height: 8px;
@@ -261,7 +230,6 @@ body {
     animation: pulse 1.6s infinite cubic-bezier(0.66, 0, 0, 1);
 }
 
-/* Giao diện huy hiệu khi mất kết nối (Offline) */
 .device-status-badge.offline {
     background: #fef2f2;
     color: #991b1b;
@@ -274,47 +242,13 @@ body {
     animation: none;
 }
 
-/* Animation sóng xung lan tỏa cho chấm tròn Online */
 @keyframes pulse {
     to {
         box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
     }
 }
 
-
-/* ==========================================================================
-   7. CÁC NÚT BẤM CƠ BẢN (Buttons)
-   ========================================================================== */
-.icon-btn {
-    position: relative;
-    color: var(--text-muted);
-    font-size: 20px;
-    cursor: pointer;
-    padding: 8px;
-    border-radius: 8px;
-    transition: color 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
-    border: none;
-}
-
-.icon-btn:hover {
-    color: var(--text-h);
-}
-
-.icon-badge {
-    position: absolute;
-    top: -2px;
-    right: -2px;
-    width: 8px;
-    height: 8px;
-    background: var(--status-down);
-    border-radius: 50%;
-}
-
-/* Nút bấm chuẩn */
+/* Nút bấm (Buttons) */
 .btn {
     display: inline-flex;
     align-items: center;
@@ -328,7 +262,6 @@ body {
     border: 1px solid transparent;
 }
 
-/* Nút chính (Màu thương hiệu) */
 .btn-primary {
     background: var(--brand);
     color: #ffffff;
@@ -338,7 +271,6 @@ body {
     background: var(--brand-hover);
 }
 
-/* Nút phụ viền mảnh */
 .btn-outline {
     background: #ffffff;
     border-color: var(--border-light);
@@ -351,10 +283,7 @@ body {
     border-color: #cbd5e1;
 }
 
-
-/* ==========================================================================
-   8. KHỐI THẺ CHỈ SỐ MÔI TRƯỜNG TRÊN DASHBOARD (Metrics Cards)
-   ========================================================================== */
+/* Thẻ chỉ số môi trường (Dashboard) */
 .metrics-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -362,7 +291,6 @@ body {
     margin-bottom: 32px;
 }
 
-/* Khối thẻ chỉ số cơ bản */
 .simple-card {
     border-radius: 16px;
     padding: 24px;
@@ -379,19 +307,16 @@ body {
     box-shadow: var(--shadow-md);
 }
 
-/* Thẻ Nhiệt độ (Hồng đỏ nhạt) */
 .bg-temp {
     background-color: #fff1f2;
     border-color: #ffe4e6;
 }
 
-/* Thẻ Độ ẩm (Xanh dương nhạt) */
 .bg-humid {
     background-color: #ebf4fc;
     border-color: #dbeafe;
 }
 
-/* Thẻ Ánh sáng (Vàng nhạt) */
 .bg-light {
     background-color: #fffbeb;
     border-color: #fef3c7;
@@ -418,7 +343,6 @@ body {
     color: var(--text-muted);
 }
 
-/* Giá trị số đo lớn */
 .simple-value {
     font-size: 34px;
     font-weight: 700;
@@ -430,17 +354,13 @@ body {
     gap: 6px;
 }
 
-/* Nhãn đơn vị đo (°C, %, lux) */
 .unit-label {
     font-size: 20px;
     font-weight: 500;
     color: #64748b;
 }
 
-
-/* ==========================================================================
-   9. BỐ CỤC DASHBOARD & CARD NỘI DUNG (Dashboard Layout & Cards)
-   ========================================================================== */
+/* Bố cục Dashboard & Card */
 .dashboard-heading {
     font-size: 26px;
     font-weight: 700;
@@ -449,14 +369,12 @@ body {
     margin-bottom: 24px;
 }
 
-/* Lưới Dashboard: Biểu đồ chiếm 2 phần, Danh sách thiết bị chiếm 1 phần */
 .dashboard-layout {
     display: grid;
     grid-template-columns: 2fr 1fr;
     gap: 24px;
 }
 
-/* Khung card trắng tiêu chuẩn */
 .card {
     background: var(--bg-surface);
     border: 1px solid var(--border-light);
@@ -481,17 +399,13 @@ body {
     gap: 8px;
 }
 
-
-/* ==========================================================================
-   10. DANH SÁCH & CÔNG TẮC ĐIỀU KHIỂN THIẾT BỊ (Device Control)
-   ========================================================================== */
+/* Điều khiển thiết bị */
 .device-list {
     display: flex;
     flex-direction: column;
     gap: 12px;
 }
 
-/* Hàng thiết bị đơn lẻ */
 .device-item {
     display: flex;
     align-items: center;
@@ -513,7 +427,6 @@ body {
     gap: 14px;
 }
 
-/* Khung icon / avatar thiết bị */
 .dev-avatar {
     width: 42px;
     height: 42px;
@@ -540,7 +453,7 @@ body {
     color: var(--text-muted);
 }
 
-/* Công tắc Switch gạt */
+/* Switch bật/tắt thiết bị */
 .toggle {
     appearance: none;
     width: 46px;
@@ -553,7 +466,6 @@ body {
     transition: background 0.3s;
 }
 
-/* Nút tròn di chuyển bên trong công tắc */
 .toggle::after {
     content: '';
     position: absolute;
@@ -567,7 +479,6 @@ body {
     transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
 }
 
-/* Trạng thái khi công tắc BẬT (Checked) */
 .toggle:checked {
     background: var(--status-up);
 }
@@ -576,7 +487,6 @@ body {
     transform: translateX(20px);
 }
 
-/* Giao diện hàng thiết bị khi đang BẬT */
 .device-item.active {
     background-color: #f0fdf4;
     border-color: #bbf7d0;
@@ -594,7 +504,7 @@ body {
     gap: 10px;
 }
 
-/* Nhãn trạng thái "Đang chờ..." kèm icon xoay tròn */
+/* Trạng thái đang chờ (pending) khi bấm công tắc */
 .device-pending-tag {
     display: inline-flex;
     align-items: center;
@@ -610,13 +520,11 @@ body {
     animation: pulsePending 1.5s infinite ease-in-out;
 }
 
-/* Hiệu ứng nhịp thở cho nhãn pending */
 @keyframes pulsePending {
     0%, 100% { opacity: 1; transform: scale(1); }
     50% { opacity: 0.75; transform: scale(0.97); }
 }
 
-/* Hàng thiết bị khi đang ở trạng thái Pending */
 .device-item.is-pending {
     border-color: #fde68a !important;
     background-color: #fffbeb !important;
@@ -628,7 +536,6 @@ body {
     border-color: #fde68a !important;
 }
 
-/* Vô hiệu hóa công tắc và hiển thị con trỏ chờ khi đang xử lý */
 .toggle:disabled,
 .toggle.pending {
     opacity: 0.55;
@@ -636,10 +543,7 @@ body {
     pointer-events: none;
 }
 
-
-/* ==========================================================================
-   11. THANH CÔNG CỤ TÌM KIẾM & BỘ LỌC (Toolbar & Filters)
-   ========================================================================== */
+/* Bộ lọc & Tìm kiếm */
 .toolbar {
     display: flex;
     justify-content: space-between;
@@ -657,7 +561,6 @@ body {
     flex-wrap: wrap;
 }
 
-/* Khung ô tìm kiếm */
 .search-box {
     position: relative;
     flex: 1;
@@ -689,7 +592,6 @@ body {
     box-shadow: 0 0 0 3px var(--brand-light);
 }
 
-/* Hộp chọn bộ lọc thả xuống (Dropdown filter) */
 .filter-select {
     padding: 9px 14px;
     border: 1px solid var(--border-light);
@@ -707,17 +609,13 @@ body {
     border-color: var(--brand);
 }
 
-
-/* ==========================================================================
-   12. BẢNG DỮ LIỆU CẢM BIẾN & LỊCH SỬ (Data Tables)
-   ========================================================================== */
+/* Bảng dữ liệu */
 .data-table {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
 }
 
-/* Hàng tiêu đề bảng */
 .data-table th {
     text-align: left;
     padding: 10px 20px;
@@ -732,7 +630,6 @@ body {
     white-space: nowrap;
 }
 
-/* Ô nội dung bảng */
 .data-table td {
     padding: 14px 20px;
     font-size: 13px;
@@ -743,7 +640,6 @@ body {
     white-space: nowrap;
 }
 
-/* Card chứa bảng dữ liệu (thiết lập vừa vặn màn hình không bị cuộn trang) */
 #sensors .card,
 #history .card {
     display: flex;
@@ -763,37 +659,32 @@ body {
     flex-shrink: 0;
 }
 
-/* Khung cuộn ngang bảo vệ bảng khi màn hình hẹp */
 .table-responsive {
     overflow-x: auto;
     width: 100%;
 }
 
-/* Cố định chiều cao tuyệt đối cho bảng: 40px header + 7 hàng * 63px = 481px vừa vặn 1 màn hình */
+/* Cố định chiều cao (40px header + 7 hàng * 63px = 481px) để trang không bị nhảy thanh cuộn */
 #sensors .table-responsive,
 #history .table-responsive {
     min-height: 481px;
     height: 481px;
 }
 
-/* Hàng trống đệm chiều cao khi dữ liệu ít hơn 7 dòng */
+/* Dòng trống đệm giữ chiều cao khi ít hơn 7 dòng */
 .empty-row td {
     height: 60px;
     padding: 14px 20px;
-    border-bottom: 1px solid transparent; /* Ẩn đường viền dưới của hàng trống */
+    border-bottom: 1px solid transparent;
     user-select: none;
     pointer-events: none;
 }
 
-/* Hiệu ứng di chuột qua hàng bảng */
 .data-table tbody tr:hover {
     background-color: #f8fafc;
 }
 
-
-/* ==========================================================================
-   13. HUY HIỆU TRẠNG THÁI & PHÂN LOẠI (Badges & Tags)
-   ========================================================================== */
+/* Badge trạng thái & Tag cảm biến */
 .status-badge {
     display: inline-flex;
     align-items: center;
@@ -811,7 +702,6 @@ body {
     border-radius: 50%;
 }
 
-/* Trạng thái Thành công (Xanh lá) */
 .badge-green {
     background: #ecfdf5;
     color: #059669;
@@ -821,7 +711,6 @@ body {
     background: #10b981;
 }
 
-/* Trạng thái Thất bại (Đỏ) */
 .badge-red {
     background: #fef2f2;
     color: #dc2626;
@@ -831,7 +720,6 @@ body {
     background: #ef4444;
 }
 
-/* Trạng thái Đang chờ (Vàng cam) */
 .badge-yellow,
 .badge-pending {
     background: #fffbeb;
@@ -843,7 +731,6 @@ body {
     background: #f59e0b;
 }
 
-/* Thẻ loại cảm biến */
 .type-tag {
     display: inline-block;
     padding: 5px 12px;
@@ -853,31 +740,25 @@ body {
     border: 1px solid transparent;
 }
 
-/* Thẻ Nhiệt độ */
 .tag-temp {
     background: #fff1f2;
     color: #be123c;
     border-color: #ffe4e6;
 }
 
-/* Thẻ Độ ẩm */
 .tag-humid {
     background: #f0fdfa;
     color: #0f766e;
     border-color: #ccfbf1;
 }
 
-/* Thẻ Ánh sáng */
 .tag-light {
     background: #fffbeb;
     color: #b45309;
     border-color: #fef3c7;
 }
 
-
-/* ==========================================================================
-   14. Ô HIỂN THỊ THỜI GIAN & NÚT SAO CHÉP (Time Cell & Copy Button)
-   ========================================================================== */
+/* Ô hiển thị thời gian & nút copy */
 .time-cell {
     display: inline-flex;
     align-items: center;
@@ -888,7 +769,6 @@ body {
     white-space: nowrap;
 }
 
-/* Nút sao chép mốc thời gian vào Clipboard */
 .btn-copy-time {
     display: inline-flex;
     align-items: center;
@@ -918,17 +798,13 @@ body {
     transform: translateY(0);
 }
 
-/* Trạng thái đã sao chép thành công */
 .btn-copy-time.copied {
     color: #059669;
     background: #ecfdf5;
     border-color: #a7f3d0;
 }
 
-
-/* ==========================================================================
-   15. THANH ĐIỀU HƯỚNG PHÂN TRANG (Pagination)
-   ========================================================================== */
+/* Phân trang */
 .pagination-container {
     display: flex;
     justify-content: space-between;
@@ -949,7 +825,6 @@ body {
     gap: 6px;
 }
 
-/* Nút bấm số trang */
 .page-btn {
     width: 32px;
     height: 32px;
@@ -971,7 +846,6 @@ body {
     color: var(--text-h);
 }
 
-/* Trang đang được chọn */
 .page-btn.active {
     background: var(--brand);
     border-color: var(--brand);
@@ -983,10 +857,7 @@ body {
     cursor: not-allowed;
 }
 
-
-/* ==========================================================================
-   16. MÀN HÌNH HỒ SƠ CÁ NHÂN (Profile Page)
-   ========================================================================== */
+/* Hồ sơ cá nhân */
 .profile-card {
     padding: 40px;
     max-width: 800px;
@@ -1015,7 +886,6 @@ body {
     border: 1px solid var(--border-light);
 }
 
-/* Lưới hiển thị các ô thông tin sinh viên */
 .info-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -1044,10 +914,7 @@ body {
     font-weight: 600;
 }
 
-
-/* ==========================================================================
-   17. HỆ THỐNG THÔNG BÁO TOAST (Toast Notifications)
-   ========================================================================== */
+/* Toast thông báo */
 #toast-container {
     position: fixed;
     bottom: 24px;
@@ -1076,17 +943,12 @@ body {
 .toast-warning { background: #92400e; }
 .toast-error { background: #991b1b; }
 
-/* Hiệu ứng trượt lên khi toast xuất hiện */
 @keyframes toastIn {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
-
-/* ==========================================================================
-   18. THIẾT KẾ TƯƠNG THÍCH ĐA THIẾT BỊ (Responsive Media Queries)
-   ========================================================================== */
-/* Giao diện Tablet (Màn hình tối đa 1024px) */
+/* Responsive */
 @media (max-width: 1024px) {
     .dashboard-layout {
         grid-template-columns: 1fr;
@@ -1096,7 +958,6 @@ body {
     }
 }
 
-/* Giao diện Mobile (Màn hình tối đa 768px) */
 @media (max-width: 768px) {
     body {
         flex-direction: column;
