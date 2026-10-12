@@ -118,6 +118,5 @@ const APP_CONFIG = {
 // -----------------------------------------------------------------------------
 // Gán đối tượng cấu hình vào đối tượng window của trình duyệt.
 // Nhờ đó, bất kỳ tập tin JavaScript nào được nạp sau file này trong file index.html
-// đều có thể đọc dữ liệu trực tiếp thông qua window.APP_CONFIG hoặc window.CONFIG.
+// đều có thể đọc dữ liệu trực tiếp thông qua window.APP_CONFIG.
 window.APP_CONFIG = APP_CONFIG;
-window.CONFIG = APP_CONFIG;

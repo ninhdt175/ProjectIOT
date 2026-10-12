@@ -342,11 +342,6 @@ function copyTimeToClipboard(timeStr, btn) {
             btn.title = 'Sao chép thời gian';
         }, 1800);
     }
-
-    // Hiển thị thông báo Toast xác nhận
-    if (typeof showToast === 'function') {
-        showToast(`Đã sao chép "${timeStr}" vào bộ nhớ tạm`, 'success');
-    }
 }
 
 // Phương thức sao chép dự phòng (Fallback Copy) dành cho môi trường HTTP hoặc trình duyệt đời cũ:

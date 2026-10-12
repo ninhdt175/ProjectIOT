@@ -72,20 +72,12 @@ const SocketService = {
                 socket.on('connect', () => {
                     // Chuyển đèn báo ESP32 trên giao diện sang trạng thái ONLINE
                     this.setDeviceOnlineStatus(true);
-                    // Hiển thị thông báo Toast góc dưới màn hình báo thành công
-                    if (typeof showToast === 'function') {
-                        showToast('Đã kết nối máy chủ thời gian thực', 'success');
-                    }
                 });
 
                 // SỰ KIỆN 2: 'disconnect' - Kích hoạt khi mất kết nối mạng hoặc máy chủ Backend tắt
                 socket.on('disconnect', () => {
                     // Chuyển đèn báo ESP32 sang trạng thái OFFLINE
                     this.setDeviceOnlineStatus(false);
-                    // Hiển thị thông báo Toast cảnh báo lỗi
-                    if (typeof showToast === 'function') {
-                        showToast('Mất kết nối máy chủ', 'error');
-                    }
                 });
 
                 // SỰ KIỆN 3: 'sensor_data' - Lắng nghe gói tin số liệu đo đạc gửi định kỳ từ ESP32 qua MQTT

@@ -418,25 +418,20 @@
         </div>
     </main>
 
-    <!-- KHUNG CHỨA CÁC THÔNG BÁO DẠNG TOAST NỔI (Được điều khiển bởi toast.component.js) -->
-    <div id="toast-container"></div>
-
     <!-- =======================================================================
          THỨ TỰ NẠP CÁC TẬP TIN JAVASCRIPT (SCRIPT LOADING ORDER)
          LƯU Ý QUAN TRỌNG VỀ THỨ TỰ:
          1. app.config.js: Nạp đầu tiên để khởi tạo biến cấu hình APP_CONFIG toàn cục.
-         2. toast.component.js: Cung cấp hàm showToast cho các module sau sử dụng.
-         3. device.component.js: Cung cấp các hàm điều khiển bật/tắt thiết bị.
-         4. chart.component.js: Cung cấp hàm khởi tạo và cập nhật đồ thị Chart.js.
-         5. http.service.js: Dịch vụ gọi REST API lấy dữ liệu quá khứ.
-         6. socket.service.js: Dịch vụ WebSocket lắng nghe dữ liệu thời gian thực.
-         7. dashboard.js: Quản lý giao diện và cập nhật chỉ số trên Dashboard.
-         8. sensors.js: Quản lý bảng dữ liệu cảm biến, tìm kiếm, lọc và phân trang.
-         9. history.js: Quản lý bảng lịch sử điều khiển, lọc 4 tiêu chí.
-         10. app.js: Nạp cuối cùng để khôi phục trạng thái tab, kích hoạt kết nối và khởi chạy ứng dụng.
+         2. device.component.js: Cung cấp các hàm điều khiển bật/tắt thiết bị.
+         3. chart.component.js: Cung cấp hàm khởi tạo và cập nhật đồ thị Chart.js.
+         4. http.service.js: Dịch vụ gọi REST API lấy dữ liệu quá khứ.
+         5. socket.service.js: Dịch vụ WebSocket lắng nghe dữ liệu thời gian thực.
+         6. dashboard.js: Quản lý giao diện và cập nhật chỉ số trên Dashboard.
+         7. sensors.js: Quản lý bảng dữ liệu cảm biến, tìm kiếm, lọc và phân trang.
+         8. history.js: Quản lý bảng lịch sử điều khiển, lọc 4 tiêu chí.
+         9. app.js: Nạp cuối cùng để khôi phục trạng thái tab, kích hoạt kết nối và khởi chạy ứng dụng.
     ======================================================================== -->
     <script src="src/config/app.config.js"></script>
-    <script src="src/components/toast.component.js"></script>
     <script src="src/components/device.component.js"></script>
     <script src="src/components/chart.component.js"></script>
     <script src="src/api/http.service.js"></script>

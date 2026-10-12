@@ -15,11 +15,10 @@
     --text-p: #334155;       /* Màu chữ thân bài (Paragraph) cho nội dung thông thường */
     --text-muted: #64748b;   /* Màu chữ xám nhạt cho nhãn mô tả phụ, đơn vị đo, thời gian */
 
-    /* Màu đường viền và hiệu ứng bóng đổ (Borders & Shadows) tạo chiều sâu nổi khối */
+    /* Viền & Đổ bóng (Borders & Shadows) tạo chiều sâu nổi khối */
     --border-light: #e2e8f0; /* Đường kẻ viền mờ ngăn cách các khối và ô bảng */
     --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* Đổ bóng nhẹ cho thẻ card */
     --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05); /* Đổ bóng trung bình khi hover */
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04); /* Đổ bóng nổi bật cho Toast thông báo */
 
     /* Màu sắc trạng thái hệ thống và thiết bị */
     --status-up: #10b981;    /* Màu xanh lá: Trạng thái Online, thiết bị BẬT (ON), lệnh thành công */
@@ -952,49 +951,7 @@ body {
     font-weight: 600;
 }
 
-/* 19. Thông báo nổi Toast (Toast Notifications) */
-#toast-container {
-    position: fixed;
-    bottom: 24px;            /* Nằm cách đáy màn hình 24px */
-    right: 24px;             /* Nằm cách lề phải màn hình 24px */
-    z-index: 9999;           /* Đảm bảo luôn nổi trên cùng tất cả các phần tử khác */
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.toast {
-    background: #0f172a;     /* Nền tối mặc định */
-    color: #ffffff;
-    padding: 12px 18px;
-    border-radius: 8px;
-    box-shadow: var(--shadow-lg);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 13px;
-    animation: toastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); /* Hiệu ứng trượt lên nhẹ */
-    min-width: 260px;
-}
-
-/* Màu Toast theo ngữ cảnh: */
-.toast-success { background: #065f46; } /* Xanh lá đậm */
-.toast-warning { background: #92400e; } /* Vàng cam đậm */
-.toast-error   { background: #991b1b; } /* Đỏ đậm */
-
-/* Hoạt ảnh Toast trượt từ dưới lên */
-@keyframes toastIn {
-    from { 
-        opacity: 0; 
-        transform: translateY(20px); 
-    }
-    to { 
-        opacity: 1; 
-        transform: translateY(0); 
-    }
-}
-
-/* 20. Tương thích đa kích thước màn hình (Responsive Design) */
+/* 19. Tương thích đa kích thước màn hình (Responsive Design) */
 /* Giao diện trên màn hình Tablet / Màn hình nhỏ (<= 1024px) */
 @media (max-width: 1024px) {
     .dashboard-layout {
