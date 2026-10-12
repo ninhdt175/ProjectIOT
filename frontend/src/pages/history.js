@@ -1,66 +1,107 @@
-// Danh sách dữ liệu nhật ký điều khiển thiết bị
+// =============================================================================
+// TẬP TIN: history.js
+// VAI TRÒ: QUẢN LÝ TRANG LỊCH SỬ ĐIỀU KHIỂN THIẾT BỊ (Device Control History Page Controller)
+// MÔ TẢ:
+//   Tập tin này xử lý toàn bộ logic cho trang "Lịch sử điều khiển":
+//   1. Quản lý danh sách nhật ký các lệnh bật/tắt (controlHistoryList).
+//   2. Bộ lọc kết hợp 4 tiêu chí đồng thời:
+//      - Mốc thời gian (nhập chuỗi tìm kiếm).
+//      - Thiết bị (Tất cả, Đèn LED 1, Đèn LED 2, Đèn LED 3).
+//      - Hành động (Tất cả, BẬT / ON, TẮT / OFF).
+//      - Trạng thái thực thi (Tất cả, Thành công, Đang chờ, Thất bại).
+//   3. Phân trang dữ liệu: Cố định 7 dòng mỗi trang kèm cơ chế đệm dòng trống.
+//   4. Cập nhật động trạng thái lệnh: Cho phép chuyển trạng thái của một lệnh
+//      từ 'pending' (Đang chờ - vàng) sang 'success' (Thành công - xanh) hoặc 'failed' (Thất bại - đỏ)
+//      khi nhận được gói tin xác nhận ACK từ Backend hoặc vi điều khiển ESP32.
+//   5. Đồng bộ REST API và hỗ trợ sao chép mốc thời gian vào Clipboard.
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// 1. CÁC BIẾN TRẠNG THÁI TOÀN CỤC CHO TRANG LỊCH SỬ ĐIỀU KHIỂN
+// -----------------------------------------------------------------------------
+
+// controlHistoryList: Mảng lưu trữ toàn bộ danh sách nhật ký điều khiển trong bộ nhớ Front-End.
+// Khởi tạo bằng bản sao mảng mẫu trong app.config.js
 let controlHistoryList = (window.APP_CONFIG && window.APP_CONFIG.DEFAULT_HISTORY)
     ? [...window.APP_CONFIG.DEFAULT_HISTORY]
     : [];
 
-// Trạng thái bộ lọc tìm kiếm nhật ký điều khiển
+// appliedHistoryFilters: Đối tượng lưu trữ 4 tiêu chí lọc hiện tại
 let appliedHistoryFilters = {
-    time: '',     // Từ khóa tìm kiếm theo mốc thời gian
-    device: 'ALL', // Lọc theo thiết bị ('ALL' | 'LED_01' | 'LED_02' | 'LED_03')
-    action: 'ALL', // Lọc theo hành động ('ALL' | 'ON' | 'OFF')
-    status: 'ALL'  // Lọc theo trạng thái ('ALL' | 'success' | 'pending' | 'failed')
+    time: '',     // Chuỗi tìm kiếm theo mốc thời gian (chuỗi thường)
+    device: 'ALL', // Lọc theo thiết bị: 'ALL' | 'LED_01' | 'LED_02' | 'LED_03'
+    action: 'ALL', // Lọc theo hành động: 'ALL' | 'ON' | 'OFF'
+    status: 'ALL'  // Lọc theo trạng thái: 'ALL' | 'success' | 'pending' | 'failed'
 };
 
-// Quản lý phân trang cho bảng lịch sử điều khiển
+// currentHistoryPage: Số thứ tự trang người dùng đang xem (bắt đầu từ trang 1)
 let currentHistoryPage = 1;
-const historyPageSize = 7; // Số bản ghi hiển thị trên mỗi trang
 
-// Kiểm tra một bản ghi điều khiển có khớp với các tiêu chí lọc hay không (item: bản ghi lịch sử)
+// historyPageSize: Số lượng dòng bản ghi hiển thị trên mỗi trang (7 bản ghi)
+const historyPageSize = 7;
+
+// -----------------------------------------------------------------------------
+// 2. HÀM KIỂM TRA BẢN GHI CÓ THỎA MÃN BỘ LỌC (MATCHES HISTORY FILTER)
+// -----------------------------------------------------------------------------
+// Tham số đầu vào:
+// - item (Object): Một bản ghi nhật ký điều khiển cần kiểm tra.
+// Giá trị trả về:
+// - boolean: true nếu thỏa mãn TẤT CẢ 4 tiêu chí, false nếu vi phạm bất kỳ tiêu chí nào.
 function matchesHistoryFilter(item) {
-    // 1. Khớp thời gian
+    // 1. TIÊU CHÍ THỜI GIAN:
+    // Nếu không nhập từ khóa thời gian (!appliedHistoryFilters.time) -> thỏa mãn.
+    // Nếu có nhập -> kiểm tra xem chuỗi thời gian của bản ghi có chứa từ khóa không.
     const matchesTime = !appliedHistoryFilters.time || 
                         (item.time && item.time.toLowerCase().includes(appliedHistoryFilters.time));
     
-    // 2. Khớp thiết bị
+    // 2. TIÊU CHÍ THIẾT BỊ:
+    // Thỏa mãn nếu chọn 'ALL', hoặc tên thiết bị chứa mã thiết bị (VD: 'LED_01')
     const matchesDevice = (appliedHistoryFilters.device === 'ALL') || 
                           (item.device && item.device.includes(appliedHistoryFilters.device)) ||
                           (item.deviceId && item.deviceId.includes(appliedHistoryFilters.device));
 
-    // 3. Khớp hành động (BẬT / TẮT)
+    // 3. TIÊU CHÍ HÀNH ĐỘNG (BẬT / TẮT):
+    // Thỏa mãn nếu chọn 'ALL', hoặc thuộc tính action trùng khớp chính xác ('ON' hoặc 'OFF')
     const matchesAction = (appliedHistoryFilters.action === 'ALL') || 
                           (item.action === appliedHistoryFilters.action);
 
-    // 4. Khớp trạng thái thực thi (Thành công / Đang chờ / Thất bại)
+    // 4. TIÊU CHÍ TRẠNG THÁI THỰC THI (Thành công / Đang chờ / Thất bại):
+    // Thỏa mãn nếu chọn 'ALL', hoặc thuộc tính status trùng khớp ('success', 'pending', 'failed')
     const matchesStatus = (appliedHistoryFilters.status === 'ALL') || 
                           (item.status === appliedHistoryFilters.status);
 
+    // Kết hợp cả 4 điều kiện bằng toán tử logic AND (&&)
     return matchesTime && matchesDevice && matchesAction && matchesStatus;
 }
 
-// Hiển thị danh sách lịch sử điều khiển lên giao diện bảng
+// -----------------------------------------------------------------------------
+// 3. HÀM HIỂN THỊ DỮ LIỆU LÊN GIAO DIỆN BẢNG (RENDER CONTROL HISTORY TABLE)
+// -----------------------------------------------------------------------------
 function renderControlHistoryTable() {
+    // 1. Tìm các phần tử DOM của bảng và phân trang
     const tableBody = document.getElementById('history-table-body');
     const paginationInfo = document.getElementById('history-pagination-info');
     const paginationControls = document.getElementById('history-pagination-controls');
     if (!tableBody) return;
 
-    // 1. Áp dụng các bộ lọc đang chọn
+    // 2. LỌC DỮ LIỆU THEO 4 TIÊU CHÍ ĐANG CHỌN:
     const filtered = controlHistoryList.filter(matchesHistoryFilter);
 
-    // 2. Tính toán tổng số trang
+    // 3. TÍNH TOÁN PHÂN TRANG:
     const totalItems = filtered.length;
     const totalPages = Math.max(1, Math.ceil(totalItems / historyPageSize));
     if (currentHistoryPage > totalPages) {
         currentHistoryPage = 1;
     }
 
-    // 3. Xử lý trường hợp không tìm thấy bản ghi nào phù hợp
+    // 4. XỬ LÝ TRƯỜNG HỢP KHÔNG TÌM THẤY BẢN GHI NÀO PHÙ HỢP:
     if (totalItems === 0) {
         let emptyHtml = `<tr class="empty-row"><td colspan="5" style="text-align: center; color: var(--text-muted);">Không tìm thấy nhật ký điều khiển phù hợp</td></tr>`;
         for (let i = 1; i < historyPageSize; i++) {
             emptyHtml += `<tr class="empty-row"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>`;
         }
         tableBody.innerHTML = emptyHtml;
+
         if (paginationInfo) paginationInfo.textContent = 'Hiển thị 0 trong số 0 bản ghi';
         if (paginationControls) {
             paginationControls.innerHTML = `
@@ -72,26 +113,29 @@ function renderControlHistoryTable() {
         return;
     }
 
-    // 4. Cắt danh sách bản ghi hiển thị trên trang hiện tại
+    // 5. CẮT DỮ LIỆU THEO TRANG HIỆN TẠI (SLICING):
     const startIndex = (currentHistoryPage - 1) * historyPageSize;
     const endIndex = Math.min(startIndex + historyPageSize, totalItems);
     const pageItems = filtered.slice(startIndex, endIndex);
 
-    // 5. Tạo HTML cho các dòng dữ liệu
+    // 6. TẠO HTML CHO CÁC DÒNG DỮ LIỆU:
     let rowsHtml = pageItems.map(item => {
+        // Xác định class huy hiệu và chữ hiển thị trạng thái
         let badgeClass = 'badge-green';
         let badgeText = 'Thành công';
 
         if (item.status === 'pending') {
-            badgeClass = 'badge-yellow badge-pending';
+            badgeClass = 'badge-yellow badge-pending'; // Màu vàng kèm icon quay tròn
             badgeText = 'Đang chờ';
         } else if (item.status === 'failed') {
-            badgeClass = 'badge-red';
+            badgeClass = 'badge-red';                 // Màu đỏ
             badgeText = 'Thất bại';
         }
 
+        // Màu chữ cho hành động: BẬT hiển thị màu xanh lá (var(--status-up)), TẮT hiển thị màu đỏ (var(--status-down))
         const actionColor = item.action === 'ON' ? 'var(--status-up)' : 'var(--status-down)';
 
+        // Trả về chuỗi HTML 5 cột: Thời gian, Thiết bị, Hành động, Người thực hiện, Trạng thái
         return `
             <tr>
                 <td style="font-weight: 500;">
@@ -118,7 +162,7 @@ function renderControlHistoryTable() {
         `;
     }).join('');
 
-    // 6. Đệm thêm các dòng trống để chiều cao bảng luôn cố định 7 dòng
+    // 7. ĐỆM CÁC DÒNG TRỐNG NẾU THIẾU DÒNG (ĐẢM BẢO ĐỦ 7 DÒNG):
     const emptyRowsCount = historyPageSize - pageItems.length;
     for (let i = 0; i < emptyRowsCount; i++) {
         rowsHtml += `
@@ -134,12 +178,12 @@ function renderControlHistoryTable() {
 
     tableBody.innerHTML = rowsHtml;
 
-    // 7. Cập nhật nhãn thông tin phân trang
+    // 8. CẬP NHẬT NHÃN PHÂN TRANG:
     if (paginationInfo) {
         paginationInfo.textContent = `Hiển thị ${startIndex + 1} - ${endIndex} trong số ${totalItems} bản ghi`;
     }
 
-    // 8. Tạo các nút bấm chuyển trang
+    // 9. TẠO CÁC NÚT ĐIỀU HƯỚNG CHUYỂN TRANG:
     if (paginationControls) {
         let buttonsHtml = `
             <button class="page-btn" ${currentHistoryPage === 1 ? 'disabled' : ''} onclick="goToHistoryPage(${currentHistoryPage - 1})" title="Trang trước">
@@ -163,80 +207,114 @@ function renderControlHistoryTable() {
     }
 }
 
-
-// Chuyển tới số trang chỉ định cho bảng Lịch sử điều khiển (page: số trang cần chuyển đến)
+// -----------------------------------------------------------------------------
+// 4. HÀM CHUYỂN TRANG CHO BẢNG LỊCH SỬ (GO TO HISTORY PAGE)
+// -----------------------------------------------------------------------------
 function goToHistoryPage(page) {
     const filtered = controlHistoryList.filter(matchesHistoryFilter);
-
     const totalPages = Math.max(1, Math.ceil(filtered.length / historyPageSize));
+
     if (page < 1 || page > totalPages) return;
 
     currentHistoryPage = page;
     renderControlHistoryTable();
 }
 
-// Xử lý khi người dùng bấm nút "Lọc" hoặc nhấn phím Enter tại ô tìm kiếm thời gian
+// -----------------------------------------------------------------------------
+// 5. HÀM XỬ LÝ KHI NGƯỜI DÙNG BẤM NÚT "LỌC" HOẶC NHẤN ENTER (HANDLE MANUAL FILTER HISTORY)
+// -----------------------------------------------------------------------------
 function handleManualFilterHistory() {
+    // Đọc giá trị từ cả 4 ô điều khiển lọc trên giao diện
     const timeVal = document.getElementById('history-time-search-input')?.value.toLowerCase().trim() || '';
     const deviceVal = document.getElementById('history-device-filter')?.value || 'ALL';
     const actionVal = document.getElementById('history-action-filter')?.value || 'ALL';
     const statusVal = document.getElementById('history-status-filter')?.value || 'ALL';
 
-    // Cập nhật các bộ lọc và đưa về trang đầu tiên
+    // Cập nhật đối tượng bộ lọc
     appliedHistoryFilters = {
         time: timeVal,
         device: deviceVal,
         action: actionVal,
         status: statusVal
     };
+
+    // Đưa về trang đầu tiên
     currentHistoryPage = 1;
 
+    // Vẽ lại bảng
     renderControlHistoryTable();
 }
 
-// Đặt lại toàn bộ ô tìm kiếm và các bộ lọc lựa chọn về trạng thái mặc định
+// -----------------------------------------------------------------------------
+// 6. HÀM ĐẶT LẠI TOÀN BỘ 4 BỘ LỌC VỀ MẶC ĐỊNH (RESET HISTORY FILTERS)
+// -----------------------------------------------------------------------------
 function resetHistoryFilters() {
     const timeInput = document.getElementById('history-time-search-input');
     const deviceSelect = document.getElementById('history-device-filter');
     const actionSelect = document.getElementById('history-action-filter');
     const statusSelect = document.getElementById('history-status-filter');
 
+    // Reset giá trị trên các thẻ HTML
     if (timeInput) timeInput.value = '';
     if (deviceSelect) deviceSelect.value = 'ALL';
     if (actionSelect) actionSelect.value = 'ALL';
     if (statusSelect) statusSelect.value = 'ALL';
 
+    // Reset biến trạng thái
     appliedHistoryFilters = {
         time: '',
         device: 'ALL',
         action: 'ALL',
         status: 'ALL'
     };
-    currentHistoryPage = 1;
 
+    // Về trang 1 và vẽ lại bảng
+    currentHistoryPage = 1;
     renderControlHistoryTable();
 }
 
-// Thêm bản ghi điều khiển mới vào đầu danh sách (giới hạn tối đa 50 bản ghi)
+// -----------------------------------------------------------------------------
+// 7. HÀM CHÈN BẢN GHI ĐIỀU KHIỂN MỚI VÀO ĐẦU DANH SÁCH (APPEND CONTROL LOG)
+// -----------------------------------------------------------------------------
+// Được gọi từ device.component.js ngay khi người dùng gạt công tắc:
+// Tham số đầu vào:
+// - log (Object): Bản ghi điều khiển mới (thường ở trạng thái status: 'pending').
 function appendControlLog(log) {
+    // Chèn bản ghi mới vào vị trí đầu tiên
     controlHistoryList.unshift(log);
+
+    // Giới hạn danh sách tối đa 50 bản ghi gần nhất để tránh tốn RAM
     if (controlHistoryList.length > 50) {
         controlHistoryList.pop();
     }
+
+    // Vẽ lại bảng ngay để người dùng thấy dòng "Đang chờ" xuất hiện
     renderControlHistoryTable();
 }
 
-// Cập nhật trạng thái của bản ghi điều khiển (VD: từ 'pending' sang 'success' hoặc 'failed')
+// -----------------------------------------------------------------------------
+// 8. HÀM CẬP NHẬT TRẠNG THÁI LỆNH ĐIỀU KHIỂN (UPDATE CONTROL LOG STATUS)
+// -----------------------------------------------------------------------------
+// Được gọi khi nhận được phản hồi xác nhận ACK từ Backend hoặc ESP32:
+// Tham số đầu vào:
+// - logId (string|number): Mã định danh requestId của lệnh cần cập nhật.
+// - newStatus ('success' | 'failed' | 'pending'): Trạng thái mới cần chuyển sang.
 function updateControlLogStatus(logId, newStatus) {
     if (!logId) return;
+
+    // Tìm kiếm phần tử có id trùng khớp trong mảng bằng phương thức .find()
     const item = controlHistoryList.find(log => log.id === logId);
+
+    // Nếu tìm thấy, đổi trạng thái và vẽ lại bảng
     if (item) {
         item.status = newStatus;
         renderControlHistoryTable();
     }
 }
 
-// Đồng bộ dữ liệu lịch sử điều khiển từ Backend REST API
+// -----------------------------------------------------------------------------
+// 9. HÀM ĐỒNG BỘ DỮ LIỆU LỊCH SỬ TỪ BACKEND REST API (FETCH CONTROL HISTORY FROM API)
+// -----------------------------------------------------------------------------
 async function fetchControlHistoryFromAPI() {
     if (window.HttpService && typeof window.HttpService.getControlHistory === 'function') {
         const data = await window.HttpService.getControlHistory(1, 20);
@@ -255,12 +333,16 @@ async function fetchControlHistoryFromAPI() {
     }
 }
 
-// Lắng nghe sự kiện khi tài liệu HTML tải xong
+// -----------------------------------------------------------------------------
+// 10. SỰ KIỆN KHỞI CHẠY KHI TẢI XONG TRANG (DOM CONTENT LOADED)
+// -----------------------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
+    // 1. Hiển thị bảng ban đầu
     renderControlHistoryTable();
+    // 2. Thử lấy dữ liệu từ API nếu có
     fetchControlHistoryFromAPI();
 
-    // Bắt sự kiện phím Enter trên ô tìm kiếm thời gian lịch sử
+    // 3. Bắt sự kiện phím Enter trên ô tìm kiếm thời gian lịch sử
     const timeSearchInput = document.getElementById('history-time-search-input');
     if (timeSearchInput) {
         timeSearchInput.addEventListener('keydown', (e) => {
@@ -271,11 +353,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Xuất các hàm ra phạm vi toàn cục để dùng từ HTML inline event
+// -----------------------------------------------------------------------------
+// 11. XUẤT CÁC HÀM RA PHẠM VI TOÀN CỤC (WINDOW)
+// -----------------------------------------------------------------------------
 window.renderControlHistoryTable = renderControlHistoryTable;
 window.appendControlLog = appendControlLog;
 window.updateControlLogStatus = updateControlLogStatus;
 window.handleManualFilterHistory = handleManualFilterHistory;
 window.resetHistoryFilters = resetHistoryFilters;
 window.goToHistoryPage = goToHistoryPage;
-
