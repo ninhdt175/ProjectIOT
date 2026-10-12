@@ -268,11 +268,6 @@
                                 <option value="humidity">Độ ẩm</option>
                                 <option value="light">Ánh sáng</option>
                             </select>
-                            <!-- Hộp chọn sắp xếp theo thời gian -->
-                            <select id="sensor-sort-order" class="filter-select" onchange="handleSensorSortChange(this.value)" title="Chọn thứ tự sắp xếp theo thời gian">
-                                <option value="DESC">Thời gian: Mới nhất trước</option>
-                                <option value="ASC">Thời gian: Cũ nhất trước</option>
-                            </select>
                             <!-- Nút bấm thực hiện lọc -->
                             <button id="btn-filter-sensor" class="btn btn-primary" onclick="handleManualFilterSensor()" title="Thực hiện lọc dữ liệu">
                                 <i class="ph ph-funnel"></i> Lọc
@@ -281,6 +276,11 @@
                             <button id="btn-reset-sensor" class="btn btn-outline" onclick="resetSensorFilters()" title="Đặt lại bộ lọc về mặc định">
                                 <i class="ph ph-arrow-counter-clockwise"></i> Đặt lại
                             </button>
+                            <!-- Hộp chọn sắp xếp theo thời gian -->
+                            <select id="sensor-sort-order" class="filter-select" onchange="handleSensorSortChange(this.value)" title="Chọn thứ tự sắp xếp theo thời gian">
+                                <option value="DESC">Mới nhất</option>
+                                <option value="ASC">Cũ nhất</option>
+                            </select>
                         </div>
                     </div>
                     
@@ -349,11 +349,6 @@
                                 <option value="pending">Đang chờ</option>
                                 <option value="failed">Thất bại</option>
                             </select>
-                            <!-- 5. Hộp chọn sắp xếp theo thời gian -->
-                            <select id="history-sort-order" class="filter-select" onchange="handleHistorySortChange(this.value)" title="Chọn thứ tự sắp xếp theo thời gian">
-                                <option value="DESC">Thời gian: Mới nhất trước</option>
-                                <option value="ASC">Thời gian: Cũ nhất trước</option>
-                            </select>
                             <!-- Nút Lọc và Đặt lại -->
                             <button id="btn-filter-history" class="btn btn-primary" onclick="handleManualFilterHistory()" title="Thực hiện lọc lịch sử">
                                 <i class="ph ph-funnel"></i> Lọc
@@ -361,6 +356,11 @@
                             <button id="btn-reset-history" class="btn btn-outline" onclick="resetHistoryFilters()" title="Đặt lại bộ lọc về mặc định">
                                 <i class="ph ph-arrow-counter-clockwise"></i> Đặt lại
                             </button>
+                            <!-- 5. Hộp chọn sắp xếp theo thời gian -->
+                            <select id="history-sort-order" class="filter-select" onchange="handleHistorySortChange(this.value)" title="Chọn thứ tự sắp xếp theo thời gian">
+                                <option value="DESC">Mới nhất</option>
+                                <option value="ASC">Cũ nhất</option>
+                            </select>
                         </div>
                     </div>
                     
