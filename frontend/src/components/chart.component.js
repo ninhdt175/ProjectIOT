@@ -1,9 +1,7 @@
 // Đối tượng Chart.js toàn cục dùng để vẽ và cập nhật biểu đồ thời gian thực
 let realEnvironmentChart = null;
 
-/**
- * Khởi tạo Biểu đồ Môi trường đa trục (Nhiệt độ, Độ ẩm, Ánh sáng)
- */
+// Khởi tạo Biểu đồ Môi trường đa trục (Nhiệt độ, Độ ẩm, Ánh sáng)
 function initEnvironmentChart() {
     const canvas = document.getElementById('realChart');
     if (!canvas || typeof Chart === 'undefined') return;
@@ -161,14 +159,7 @@ function initEnvironmentChart() {
     });
 }
 
-/**
- * Đẩy điểm dữ liệu mới vào Biểu đồ theo thời gian thực
- * Áp dụng hàng đợi trượt (Sliding Window): giữ tối đa 12 điểm dữ liệu gần nhất
- * @param {string} timeLabel - Chuỗi nhãn thời gian (VD: "14:25:30")
- * @param {number} temp - Nhiệt độ (°C)
- * @param {number} humid - Độ ẩm (%)
- * @param {number} light - Cường độ ánh sáng (lux)
- */
+// Đẩy điểm dữ liệu mới vào Biểu đồ theo thời gian thực (Sliding Window: giữ tối đa 12 điểm gần nhất)
 function updateChartRealtime(timeLabel, temp, humid, light) {
     if (!realEnvironmentChart) return;
 

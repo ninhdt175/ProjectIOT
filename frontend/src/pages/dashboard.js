@@ -1,9 +1,4 @@
-/**
- * Cập nhật số liệu cảm biến lên 3 thẻ thống kê trên Dashboard (Nhiệt độ, Độ ẩm, Ánh sáng)
- * @param {number} temp - Nhiệt độ (°C)
- * @param {number} humid - Độ ẩm (%)
- * @param {number} light - Cường độ ánh sáng (lux)
- */
+// Cập nhật số liệu cảm biến lên 3 thẻ thống kê trên Dashboard (Nhiệt độ, Độ ẩm, Ánh sáng)
 function updateDashboardMetrics(temp, humid, light) {
     const tempEl = document.getElementById('metric-temp');
     const humidEl = document.getElementById('metric-humid');

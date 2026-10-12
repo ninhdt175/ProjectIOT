@@ -1,12 +1,7 @@
-/**
- * Dịch vụ kết nối WebSocket thời gian thực (Socket.IO)
- * Phụ trách nhận luồng dữ liệu cảm biến và phản hồi điều khiển thiết bị từ Backend / MQTT
- */
+// Dịch vụ kết nối WebSocket thời gian thực (Socket.IO)
+// Phụ trách nhận luồng dữ liệu cảm biến và phản hồi điều khiển thiết bị từ Backend / MQTT
 const SocketService = {
-    /**
-     * Cập nhật nhãn và đèn báo trạng thái kết nối phần cứng ESP32 trên Header
-     * @param {boolean} isOnline - Trạng thái Online / Offline
-     */
+    // Cập nhật nhãn và đèn báo trạng thái kết nối phần cứng ESP32 trên Header
     setDeviceOnlineStatus(isOnline) {
         if (window.AppState) {
             window.AppState.isOnline = isOnline;
@@ -26,9 +21,7 @@ const SocketService = {
         }
     },
 
-    /**
-     * Khởi tạo kết nối Socket.IO tới Backend Server và đăng ký các sự kiện lắng nghe
-     */
+    // Khởi tạo kết nối Socket.IO tới Backend Server và đăng ký các sự kiện lắng nghe
     initConnection() {
         if (typeof io !== 'undefined') {
             try {
@@ -124,9 +117,7 @@ const SocketService = {
         }
     },
 
-    /**
-     * Bộ tạo dữ liệu cảm biến giả lập dao động tự nhiên khi chạy Front-End độc lập
-     */
+    // Bộ tạo dữ liệu cảm biến giả lập dao động tự nhiên khi chạy Front-End độc lập
     startSimulatedTelemetry() {
         this.setDeviceOnlineStatus(true);
 

@@ -1,8 +1,4 @@
-/**
- * Hiển thị thông báo dạng Toast ở góc màn hình
- * @param {string} message - Nội dung thông báo hiển thị
- * @param {'info' | 'success' | 'warning' | 'error'} type - Kiểu thông báo để phân biệt màu sắc và icon
- */
+// Hiển thị thông báo dạng Toast ở góc màn hình (type: 'info' | 'success' | 'warning' | 'error')
 function showToast(message, type = 'info') {
     const container = document.getElementById('toast-container');
     if (!container) return;

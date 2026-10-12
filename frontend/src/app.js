@@ -1,6 +1,4 @@
-/**
- * Trạng thái toàn cục (Global State) của ứng dụng Front-End
- */
+// Trạng thái toàn cục (Global State) của ứng dụng Front-End
 const AppState = {
     isOnline: true, // Trạng thái kết nối của ESP32 (true: Online, false: Offline)
     socket: null,   // Đối tượng Socket.IO kết nối Backend
@@ -10,11 +8,7 @@ const AppState = {
 
 window.AppState = AppState;
 
-/**
- * Chuyển đổi màn hình hiển thị (Tab Navigation) và lưu vào sessionStorage
- * @param {string} viewId - ID của màn hình ('dashboard', 'sensors', 'history', 'profile')
- * @param {HTMLElement} [element] - Thẻ điều hướng được click trên Sidebar (tùy chọn)
- */
+// Chuyển đổi màn hình hiển thị (Tab Navigation) và lưu vào sessionStorage
 function switchView(viewId, element) {
     // 1. Xóa trạng thái active cũ khỏi tất cả menu và màn hình
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
@@ -40,9 +34,7 @@ function switchView(viewId, element) {
     } catch (e) {}
 }
 
-/**
- * Khôi phục màn hình đang làm việc từ sessionStorage khi người dùng tải lại trang (F5)
- */
+// Khôi phục màn hình đang làm việc từ sessionStorage khi người dùng tải lại trang (F5)
 function restoreActiveView() {
     let savedView = 'dashboard';
     try {

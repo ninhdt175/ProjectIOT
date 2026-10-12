@@ -1,6 +1,4 @@
-/**
- * Cấu hình toàn cục cho ứng dụng Front-End IoT
- */
+// Cấu hình toàn cục cho ứng dụng Front-End IoT
 const APP_CONFIG = {
     // Địa chỉ Backend Server (mặc định lấy theo origin hiện tại của trình duyệt)
     BACKEND_URL: window.location.origin,

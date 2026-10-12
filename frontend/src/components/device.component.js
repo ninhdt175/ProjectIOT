@@ -1,12 +1,7 @@
 // Bảng lưu trữ trạng thái đang xử lý (pending) của các thiết bị để chống spam click
 const pendingDevices = {};
 
-/**
- * Đặt trạng thái visual Đang chờ (Pending State) cho thiết bị
- * @param {string} itemId - ID của phần tử thiết bị (VD: 'devItem1')
- * @param {string} deviceKey - Khóa thiết bị (VD: 'LED_01')
- * @param {boolean} isPending - true nếu đang chờ phản hồi, false nếu đã xong
- */
+// Đặt trạng thái visual Đang chờ (Pending State) cho thiết bị
 function setDevicePendingState(itemId, deviceKey, isPending) {
     pendingDevices[deviceKey] = isPending;
     const item = document.getElementById(itemId);
@@ -36,13 +31,8 @@ function setDevicePendingState(itemId, deviceKey, isPending) {
     }
 }
 
-/**
- * Điều khiển Bật / Tắt thiết bị (Toggle Switch) kèm trạng thái Đang chờ (Pending)
- * Cơ chế: Giữ nguyên trạng thái cũ cho đến khi Backend xác nhận thành công mới bật/tắt
- * @param {string} itemId - ID phần tử thẻ giao diện (VD: 'devItem1')
- * @param {string} deviceKey - Khóa thiết bị (VD: 'LED_01')
- * @param {HTMLInputElement} checkbox - Thẻ input switch vừa được click
- */
+// Điều khiển Bật / Tắt thiết bị (Toggle Switch) kèm trạng thái Đang chờ (Pending)
+// Cơ chế: Giữ nguyên trạng thái cũ cho đến khi Backend xác nhận thành công mới bật/tắt
 function toggleDevice(itemId, deviceKey, checkbox) {
     const item = document.getElementById(itemId);
     if (!item || !checkbox) return;
@@ -108,10 +98,7 @@ function toggleDevice(itemId, deviceKey, checkbox) {
     }
 }
 
-/**
- * Xử lý phản hồi xác nhận lệnh (ACK) từ Backend Server hoặc MQTT Broker
- * @param {Object} response - { target: 'LED_01', action: 'ON'|'OFF', status: 'success'|'failed', requestId: string }
- */
+// Xử lý phản hồi xác nhận lệnh (ACK) từ Backend Server hoặc MQTT Broker
 function handleDeviceControlAck(response) {
     if (!response || !response.target) return;
     const { target, action, status, requestId } = response;

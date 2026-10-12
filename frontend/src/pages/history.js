@@ -15,11 +15,7 @@ let appliedHistoryFilters = {
 let currentHistoryPage = 1;
 const historyPageSize = 7; // Số bản ghi hiển thị trên mỗi trang
 
-/**
- * Kiểm tra một bản ghi điều khiển có khớp với các tiêu chí lọc hay không
- * @param {Object} item - Bản ghi lịch sử điều khiển
- * @returns {boolean} true nếu thỏa mãn tất cả tiêu chí lọc
- */
+// Kiểm tra một bản ghi điều khiển có khớp với các tiêu chí lọc hay không (item: bản ghi lịch sử)
 function matchesHistoryFilter(item) {
     // 1. Khớp thời gian
     const matchesTime = !appliedHistoryFilters.time || 
@@ -41,9 +37,7 @@ function matchesHistoryFilter(item) {
     return matchesTime && matchesDevice && matchesAction && matchesStatus;
 }
 
-/**
- * Hiển thị danh sách lịch sử điều khiển lên giao diện bảng
- */
+// Hiển thị danh sách lịch sử điều khiển lên giao diện bảng
 function renderControlHistoryTable() {
     const tableBody = document.getElementById('history-table-body');
     const paginationInfo = document.getElementById('history-pagination-info');
@@ -170,10 +164,7 @@ function renderControlHistoryTable() {
 }
 
 
-/**
- * Chuyển tới số trang chỉ định cho bảng Lịch sử điều khiển
- * @param {number} page - Số trang cần chuyển đến
- */
+// Chuyển tới số trang chỉ định cho bảng Lịch sử điều khiển (page: số trang cần chuyển đến)
 function goToHistoryPage(page) {
     const filtered = controlHistoryList.filter(matchesHistoryFilter);
 
@@ -184,9 +175,7 @@ function goToHistoryPage(page) {
     renderControlHistoryTable();
 }
 
-/**
- * Xử lý khi người dùng bấm nút "Lọc" hoặc nhấn phím Enter tại ô tìm kiếm thời gian
- */
+// Xử lý khi người dùng bấm nút "Lọc" hoặc nhấn phím Enter tại ô tìm kiếm thời gian
 function handleManualFilterHistory() {
     const timeVal = document.getElementById('history-time-search-input')?.value.toLowerCase().trim() || '';
     const deviceVal = document.getElementById('history-device-filter')?.value || 'ALL';
@@ -205,9 +194,7 @@ function handleManualFilterHistory() {
     renderControlHistoryTable();
 }
 
-/**
- * Đặt lại toàn bộ ô tìm kiếm và các bộ lọc lựa chọn về trạng thái mặc định
- */
+// Đặt lại toàn bộ ô tìm kiếm và các bộ lọc lựa chọn về trạng thái mặc định
 function resetHistoryFilters() {
     const timeInput = document.getElementById('history-time-search-input');
     const deviceSelect = document.getElementById('history-device-filter');
@@ -230,10 +217,7 @@ function resetHistoryFilters() {
     renderControlHistoryTable();
 }
 
-/**
- * Thêm bản ghi điều khiển mới vào đầu danh sách (giới hạn tối đa 50 bản ghi)
- * @param {Object} log - Bản ghi điều khiển mới
- */
+// Thêm bản ghi điều khiển mới vào đầu danh sách (giới hạn tối đa 50 bản ghi)
 function appendControlLog(log) {
     controlHistoryList.unshift(log);
     if (controlHistoryList.length > 50) {
@@ -242,11 +226,7 @@ function appendControlLog(log) {
     renderControlHistoryTable();
 }
 
-/**
- * Cập nhật trạng thái của bản ghi điều khiển (VD: từ 'pending' sang 'success' hoặc 'failed')
- * @param {string|number} logId - Mã định danh của lệnh điều khiển (requestId)
- * @param {'success' | 'failed' | 'pending'} newStatus - Trạng thái mới
- */
+// Cập nhật trạng thái của bản ghi điều khiển (VD: từ 'pending' sang 'success' hoặc 'failed')
 function updateControlLogStatus(logId, newStatus) {
     if (!logId) return;
     const item = controlHistoryList.find(log => log.id === logId);
@@ -256,9 +236,7 @@ function updateControlLogStatus(logId, newStatus) {
     }
 }
 
-/**
- * Đồng bộ dữ liệu lịch sử điều khiển từ Backend REST API
- */
+// Đồng bộ dữ liệu lịch sử điều khiển từ Backend REST API
 async function fetchControlHistoryFromAPI() {
     if (window.HttpService && typeof window.HttpService.getControlHistory === 'function') {
         const data = await window.HttpService.getControlHistory(1, 20);

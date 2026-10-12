@@ -13,11 +13,7 @@ let appliedSensorFilters = {
 let currentSensorPage = 1;
 const sensorPageSize = 7; // Số bản ghi hiển thị trên mỗi trang
 
-/**
- * Kiểm tra một bản ghi cảm biến có khớp với bộ lọc hay không
- * @param {Object} item - Bản ghi dữ liệu cảm biến
- * @returns {boolean} true nếu thỏa mãn điều kiện lọc
- */
+// Kiểm tra một bản ghi cảm biến có khớp với bộ lọc hay không
 function matchesSensorFilter(item) {
     const search = appliedSensorFilters.search ? appliedSensorFilters.search.toLowerCase().trim() : '';
     const field = appliedSensorFilters.field || 'ALL';
@@ -54,10 +50,7 @@ function matchesSensorFilter(item) {
     );
 }
 
-
-/**
- * Hiển thị danh sách dữ liệu cảm biến lên giao diện bảng
- */
+// Hiển thị danh sách dữ liệu cảm biến lên giao diện bảng
 function renderSensorTable() {
     const tableBody = document.getElementById('sensor-table-body');
     const paginationInfo = document.getElementById('sensor-pagination-info');
@@ -174,10 +167,7 @@ function renderSensorTable() {
 }
 
 
-/**
- * Chuyển tới số trang chỉ định cho bảng Cảm biến
- * @param {number} page - Số trang cần chuyển đến
- */
+// Chuyển tới số trang chỉ định cho bảng Cảm biến (page: số trang cần chuyển đến)
 function goToSensorPage(page) {
     const filtered = sensorDataList.filter(matchesSensorFilter);
 
@@ -188,9 +178,7 @@ function goToSensorPage(page) {
     renderSensorTable();
 }
 
-/**
- * Xử lý khi người dùng bấm nút "Lọc" hoặc nhấn phím Enter tại ô tìm kiếm
- */
+// Xử lý khi người dùng bấm nút "Lọc" hoặc nhấn phím Enter tại ô tìm kiếm
 function handleManualFilterSensor() {
     const searchVal = document.getElementById('sensor-search-input')?.value.toLowerCase().trim() || '';
     const fieldVal = document.getElementById('sensor-field-filter')?.value || 'ALL';
@@ -205,9 +193,7 @@ function handleManualFilterSensor() {
     renderSensorTable();
 }
 
-/**
- * Đặt lại toàn bộ ô tìm kiếm và trường lọc về trạng thái mặc định
- */
+// Đặt lại toàn bộ ô tìm kiếm và trường lọc về trạng thái mặc định
 function resetSensorFilters() {
     const searchInput = document.getElementById('sensor-search-input');
     const fieldSelect = document.getElementById('sensor-field-filter');
@@ -224,10 +210,7 @@ function resetSensorFilters() {
     renderSensorTable();
 }
 
-/**
- * Thêm bản ghi cảm biến mới vào đầu danh sách (giới hạn tối đa 100 bản ghi)
- * @param {Object} record - Bản ghi dữ liệu cảm biến mới
- */
+// Thêm bản ghi cảm biến mới vào đầu danh sách (giới hạn tối đa 100 bản ghi)
 function appendSensorRecord(record) {
     sensorDataList.unshift(record);
     if (sensorDataList.length > 100) {
@@ -236,21 +219,14 @@ function appendSensorRecord(record) {
     renderSensorTable();
 }
 
-/**
- * Xử lý sự kiện khi người dùng bấm nút sao chép mốc thời gian
- * @param {HTMLElement} button - Nút copy được click
- */
+// Xử lý sự kiện khi người dùng bấm nút sao chép mốc thời gian
 function handleCopyTimeClick(button) {
     if (!button) return;
     const timeStr = button.getAttribute('data-time') || '';
     copyTimeToClipboard(timeStr, button);
 }
 
-/**
- * Sao chép chuỗi mốc thời gian vào Clipboard và hiển thị hiệu ứng phản hồi
- * @param {string} timeStr - Chuỗi thời gian cần sao chép
- * @param {HTMLElement} [btn] - Thẻ nút copy để đổi icon xác nhận
- */
+// Sao chép chuỗi mốc thời gian vào Clipboard và hiển thị hiệu ứng phản hồi
 function copyTimeToClipboard(timeStr, btn) {
     if (!timeStr) return;
 
@@ -280,10 +256,7 @@ function copyTimeToClipboard(timeStr, btn) {
     }
 }
 
-/**
- * Phương thức sao chép dự phòng bằng thẻ textarea ẩn (dành cho HTTP thường hoặc trình duyệt cũ)
- * @param {string} text - Chuỗi văn bản cần copy
- */
+// Phương thức sao chép dự phòng bằng thẻ textarea ẩn (dành cho HTTP thường hoặc trình duyệt cũ)
 function fallbackCopyText(text) {
     try {
         const textArea = document.createElement('textarea');
@@ -302,9 +275,7 @@ function fallbackCopyText(text) {
     }
 }
 
-/**
- * Đồng bộ dữ liệu lịch sử cảm biến từ Backend REST API
- */
+// Đồng bộ dữ liệu lịch sử cảm biến từ Backend REST API
 async function fetchSensorDataFromAPI() {
     if (window.HttpService && typeof window.HttpService.getSensorHistory === 'function') {
         const data = await window.HttpService.getSensorHistory(1, 20);
