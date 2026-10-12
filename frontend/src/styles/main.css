@@ -655,6 +655,24 @@ body {
     white-space: nowrap;     /* Không ngắt dòng chữ tiêu đề */
 }
 
+/* Kiểu dáng cho tiêu đề cột hỗ trợ sắp xếp */
+.data-table th.th-sortable {
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.15s, color 0.15s;
+}
+
+.data-table th.th-sortable:hover {
+    background: #f1f5f9;
+    color: var(--brand);
+}
+
+.data-table th.th-sortable i {
+    font-size: 13px;
+    vertical-align: middle;
+    transition: transform 0.2s;
+}
+
 .data-table td {
     padding: 14px 20px;
     font-size: 13px;
@@ -990,3 +1008,4 @@ body {
         grid-template-columns: 1fr;  /* 4 ô thông tin hồ sơ chuyển thành 1 cột */
     }
 }
+

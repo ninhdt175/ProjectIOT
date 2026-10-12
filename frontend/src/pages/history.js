@@ -34,11 +34,55 @@ let appliedHistoryFilters = {
     status: 'ALL'  // Lọc theo trạng thái: 'ALL' | 'success' | 'pending' | 'failed'
 };
 
+// historySortOrder: Chiều sắp xếp theo thời gian nhật ký điều khiển:
+// - 'DESC': Mới nhất trước (Giảm dần theo thời gian, mặc định)
+// - 'ASC': Cũ nhất trước (Tăng dần theo thời gian)
+let historySortOrder = 'DESC';
+
 // currentHistoryPage: Số thứ tự trang người dùng đang xem (bắt đầu từ trang 1)
 let currentHistoryPage = 1;
 
 // historyPageSize: Số lượng dòng bản ghi hiển thị trên mỗi trang (7 bản ghi)
 const historyPageSize = 7;
+
+// -----------------------------------------------------------------------------
+// HÀM CHUYỂN ĐỔI CHUỖI THỜI GIAN NHẬT KÝ THÀNH MỐC MILI-GIÂY (PARSE HISTORY TIMESTAMP)
+// -----------------------------------------------------------------------------
+// Xử lý linh hoạt các định dạng thời gian trong hệ thống:
+// - "Hôm nay, HH:mm:ss" -> timestamp ngày hôm nay
+// - "Hôm qua, HH:mm:ss" -> timestamp ngày hôm qua
+// - "YYYY-MM-DD HH:mm:ss" hoặc ISO string -> timestamp chuẩn
+// Tham số đầu vào:
+// - timeStr (string): Chuỗi thời gian cần phân tích.
+// Giá trị trả về:
+// - number: Mốc thời gian mili-giây (timestamp), dùng để so sánh số học khi sắp xếp.
+function parseHistoryTimestamp(timeStr) {
+    if (!timeStr) return 0;
+    const str = String(timeStr).trim();
+    const now = new Date();
+
+    // 1. Trường hợp thời gian bắt đầu bằng "Hôm nay,"
+    if (str.startsWith('Hôm nay,')) {
+        const timePart = str.replace('Hôm nay,', '').trim();
+        const parts = timePart.split(':').map(Number);
+        const d = new Date(now.getFullYear(), now.getMonth(), now.getDate(), parts[0] || 0, parts[1] || 0, parts[2] || 0);
+        return d.getTime();
+    }
+
+    // 2. Trường hợp thời gian bắt đầu bằng "Hôm qua,"
+    if (str.startsWith('Hôm qua,')) {
+        const timePart = str.replace('Hôm qua,', '').trim();
+        const parts = timePart.split(':').map(Number);
+        const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, parts[0] || 0, parts[1] || 0, parts[2] || 0);
+        return d.getTime();
+    }
+
+    // 3. Trường hợp thời gian theo định dạng ISO hoặc "YYYY-MM-DD HH:mm:ss"
+    const parsed = new Date(str.replace(' ', 'T')).getTime();
+    if (!isNaN(parsed)) return parsed;
+
+    return 0;
+}
 
 // -----------------------------------------------------------------------------
 // 2. HÀM KIỂM TRA BẢN GHI CÓ THỎA MÃN BỘ LỌC (MATCHES HISTORY FILTER)
@@ -87,7 +131,25 @@ function renderControlHistoryTable() {
     // 2. LỌC DỮ LIỆU THEO 4 TIÊU CHÍ ĐANG CHỌN:
     const filtered = controlHistoryList.filter(matchesHistoryFilter);
 
-    // 3. TÍNH TOÁN PHÂN TRANG:
+    // 3. SẮP XẾP DỮ LIỆU THEO MỐC THỜI GIAN:
+    // Sắp xếp các bản ghi theo chiều giảm dần (DESC - mới nhất trước) hoặc tăng dần (ASC - cũ nhất trước)
+    filtered.sort((a, b) => {
+        const timeA = parseHistoryTimestamp(a.time);
+        const timeB = parseHistoryTimestamp(b.time);
+        return historySortOrder === 'ASC' ? timeA - timeB : timeB - timeA;
+    });
+
+    // Đồng bộ trạng thái thẻ chọn (select) và biểu tượng mũi tên sắp xếp trên tiêu đề cột:
+    const sortSelect = document.getElementById('history-sort-order');
+    if (sortSelect && sortSelect.value !== historySortOrder) {
+        sortSelect.value = historySortOrder;
+    }
+    const sortIcon = document.getElementById('history-sort-icon');
+    if (sortIcon) {
+        sortIcon.className = historySortOrder === 'ASC' ? 'ph-bold ph-arrow-up' : 'ph-bold ph-arrow-down';
+    }
+
+    // 4. TÍNH TOÁN PHÂN TRANG:
     const totalItems = filtered.length;
     const totalPages = Math.max(1, Math.ceil(totalItems / historyPageSize));
     if (currentHistoryPage > totalPages) {
@@ -246,19 +308,26 @@ function handleManualFilterHistory() {
 }
 
 // -----------------------------------------------------------------------------
-// 6. HÀM ĐẶT LẠI TOÀN BỘ 4 BỘ LỌC VỀ MẶC ĐỊNH (RESET HISTORY FILTERS)
+// 6. HÀM ĐẶT LẠI TOÀN BỘ BỘ LỌC VỀ MẶC ĐỊNH (RESET HISTORY FILTERS)
 // -----------------------------------------------------------------------------
 function resetHistoryFilters() {
     const timeInput = document.getElementById('history-time-search-input');
     const deviceSelect = document.getElementById('history-device-filter');
     const actionSelect = document.getElementById('history-action-filter');
     const statusSelect = document.getElementById('history-status-filter');
+    const sortSelect = document.getElementById('history-sort-order');
+    const sortIcon = document.getElementById('history-sort-icon');
 
     // Reset giá trị trên các thẻ HTML
     if (timeInput) timeInput.value = '';
     if (deviceSelect) deviceSelect.value = 'ALL';
     if (actionSelect) actionSelect.value = 'ALL';
     if (statusSelect) statusSelect.value = 'ALL';
+
+    // Đặt lại chiều sắp xếp về mặc định 'DESC' (Mới nhất trước)
+    historySortOrder = 'DESC';
+    if (sortSelect) sortSelect.value = 'DESC';
+    if (sortIcon) sortIcon.className = 'ph-bold ph-arrow-down';
 
     // Reset biến trạng thái
     appliedHistoryFilters = {
@@ -274,7 +343,30 @@ function resetHistoryFilters() {
 }
 
 // -----------------------------------------------------------------------------
-// 7. HÀM CHÈN BẢN GHI ĐIỀU KHIỂN MỚI VÀO ĐẦU DANH SÁCH (APPEND CONTROL LOG)
+// 7. HÀM XỬ LÝ KHI THAY ĐỔI SELECT SẮP XẾP THỜI GIAN (HANDLE HISTORY SORT CHANGE)
+// -----------------------------------------------------------------------------
+// Kích hoạt khi người dùng thay đổi giá trị trong thẻ <select id="history-sort-order">:
+// Tham số đầu vào:
+// - order (string): Chiều sắp xếp được chọn ('DESC' | 'ASC').
+function handleHistorySortChange(order) {
+    historySortOrder = order;
+    currentHistoryPage = 1;
+    renderControlHistoryTable();
+}
+
+// -----------------------------------------------------------------------------
+// 8. HÀM ĐẢO CHIỀU SẮP XẾP THỜI GIAN KHI BẤM TIÊU ĐỀ CỘT (TOGGLE HISTORY TIME SORT)
+// -----------------------------------------------------------------------------
+// Kích hoạt khi người dùng click trực tiếp vào cột "THỜI GIAN THỰC HIỆN" trên bảng:
+// Tự động đảo chiều giữa DESC (mới nhất trước) và ASC (cũ nhất trước), đồng thời cập nhật icon mũi tên
+function toggleHistoryTimeSort() {
+    historySortOrder = (historySortOrder === 'DESC') ? 'ASC' : 'DESC';
+    currentHistoryPage = 1;
+    renderControlHistoryTable();
+}
+
+// -----------------------------------------------------------------------------
+// 9. HÀM CHÈN BẢN GHI ĐIỀU KHIỂN MỚI VÀO ĐẦU DANH SÁCH (APPEND CONTROL LOG)
 // -----------------------------------------------------------------------------
 // Được gọi từ device.component.js ngay khi người dùng gạt công tắc:
 // Tham số đầu vào:
@@ -293,7 +385,7 @@ function appendControlLog(log) {
 }
 
 // -----------------------------------------------------------------------------
-// 8. HÀM CẬP NHẬT TRẠNG THÁI LỆNH ĐIỀU KHIỂN (UPDATE CONTROL LOG STATUS)
+// 10. HÀM CẬP NHẬT TRẠNG THÁI LỆNH ĐIỀU KHIỂN (UPDATE CONTROL LOG STATUS)
 // -----------------------------------------------------------------------------
 // Được gọi khi nhận được phản hồi xác nhận ACK từ Backend hoặc ESP32:
 // Tham số đầu vào:
@@ -313,7 +405,7 @@ function updateControlLogStatus(logId, newStatus) {
 }
 
 // -----------------------------------------------------------------------------
-// 9. HÀM ĐỒNG BỘ DỮ LIỆU LỊCH SỬ TỪ BACKEND REST API (FETCH CONTROL HISTORY FROM API)
+// 11. HÀM ĐỒNG BỘ DỮ LIỆU LỊCH SỬ TỪ BACKEND REST API (FETCH CONTROL HISTORY FROM API)
 // -----------------------------------------------------------------------------
 async function fetchControlHistoryFromAPI() {
     if (window.HttpService && typeof window.HttpService.getControlHistory === 'function') {
@@ -334,7 +426,7 @@ async function fetchControlHistoryFromAPI() {
 }
 
 // -----------------------------------------------------------------------------
-// 10. SỰ KIỆN KHỞI CHẠY KHI TẢI XONG TRANG (DOM CONTENT LOADED)
+// 12. SỰ KIỆN KHỞI CHẠY KHI TẢI XONG TRANG (DOM CONTENT LOADED)
 // -----------------------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Hiển thị bảng ban đầu
@@ -354,11 +446,13 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // -----------------------------------------------------------------------------
-// 11. XUẤT CÁC HÀM RA PHẠM VI TOÀN CỤC (WINDOW)
+// 13. XUẤT CÁC HÀM RA PHẠM VI TOÀN CỤC (WINDOW)
 // -----------------------------------------------------------------------------
 window.renderControlHistoryTable = renderControlHistoryTable;
 window.appendControlLog = appendControlLog;
 window.updateControlLogStatus = updateControlLogStatus;
 window.handleManualFilterHistory = handleManualFilterHistory;
+window.handleHistorySortChange = handleHistorySortChange;
+window.toggleHistoryTimeSort = toggleHistoryTimeSort;
 window.resetHistoryFilters = resetHistoryFilters;
 window.goToHistoryPage = goToHistoryPage;

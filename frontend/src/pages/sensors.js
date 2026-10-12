@@ -28,6 +28,11 @@ let appliedSensorFilters = {
     field: 'ALL'  // Trường lọc đang chọn: 'ALL' | 'time' | 'temperature' | 'humidity' | 'light'
 };
 
+// sensorSortOrder: Chiều sắp xếp theo mốc thời gian ghi nhận dữ liệu:
+// - 'DESC': Mới nhất trước (Giảm dần theo thời gian, mặc định)
+// - 'ASC': Cũ nhất trước (Tăng dần theo thời gian)
+let sensorSortOrder = 'DESC';
+
 // currentSensorPage: Số thứ tự trang người dùng đang xem (bắt đầu từ trang 1)
 let currentSensorPage = 1;
 
@@ -100,7 +105,25 @@ function renderSensorTable() {
     // Sử dụng phương thức .filter() của mảng để lấy ra các bản ghi khớp với điều kiện tìm kiếm
     const filtered = sensorDataList.filter(matchesSensorFilter);
 
-    // 3. TÍNH TOÁN PHÂN TRANG:
+    // 3. SẮP XẾP DỮ LIỆU THEO MỐC THỜI GIAN:
+    // Sắp xếp các bản ghi theo chiều giảm dần (DESC - mới nhất trước) hoặc tăng dần (ASC - cũ nhất trước)
+    filtered.sort((a, b) => {
+        const timeA = new Date(String(a.time).replace(' ', 'T')).getTime() || 0;
+        const timeB = new Date(String(b.time).replace(' ', 'T')).getTime() || 0;
+        return sensorSortOrder === 'ASC' ? timeA - timeB : timeB - timeA;
+    });
+
+    // Đồng bộ trạng thái thẻ chọn (select) và biểu tượng mũi tên sắp xếp trên tiêu đề cột:
+    const sortSelect = document.getElementById('sensor-sort-order');
+    if (sortSelect && sortSelect.value !== sensorSortOrder) {
+        sortSelect.value = sensorSortOrder;
+    }
+    const sortIcon = document.getElementById('sensor-sort-icon');
+    if (sortIcon) {
+        sortIcon.className = sensorSortOrder === 'ASC' ? 'ph-bold ph-arrow-up' : 'ph-bold ph-arrow-down';
+    }
+
+    // 4. TÍNH TOÁN PHÂN TRANG:
     const totalItems = filtered.length; // Tổng số bản ghi tìm thấy
     // Math.ceil(): Làm tròn lên để tính tổng số trang (VD: 15 bản ghi / 7 = 3 trang). Tối thiểu là 1 trang.
     const totalPages = Math.max(1, Math.ceil(totalItems / sensorPageSize));
@@ -265,9 +288,11 @@ function handleManualFilterSensor() {
 // 6. HÀM ĐẶT LẠI TOÀN BỘ BỘ LỌC VỀ MẶC ĐỊNH (RESET SENSOR FILTERS)
 // -----------------------------------------------------------------------------
 function resetSensorFilters() {
-    // Tìm 2 thẻ input trên giao diện
+    // Tìm các thẻ input và select trên giao diện
     const searchInput = document.getElementById('sensor-search-input');
     const fieldSelect = document.getElementById('sensor-field-filter');
+    const sortSelect = document.getElementById('sensor-sort-order');
+    const sortIcon = document.getElementById('sensor-sort-icon');
 
     // Xóa trắng ô tìm kiếm và đưa select về 'ALL'
     if (searchInput) searchInput.value = '';
@@ -279,13 +304,41 @@ function resetSensorFilters() {
         field: 'ALL'
     };
 
+    // Đặt lại chiều sắp xếp về mặc định 'DESC' (Mới nhất trước)
+    sensorSortOrder = 'DESC';
+    if (sortSelect) sortSelect.value = 'DESC';
+    if (sortIcon) sortIcon.className = 'ph-bold ph-arrow-down';
+
     // Về trang 1 và vẽ lại bảng
     currentSensorPage = 1;
     renderSensorTable();
 }
 
 // -----------------------------------------------------------------------------
-// 7. HÀM CHÈN BẢN GHI CẢM BIẾN MỚI VÀO ĐẦU DANH SÁCH (APPEND SENSOR RECORD)
+// 7. HÀM XỬ LÝ KHI THAY ĐỔI SELECT SẮP XẾP THỜI GIAN (HANDLE SENSOR SORT CHANGE)
+// -----------------------------------------------------------------------------
+// Kích hoạt khi người dùng thay đổi giá trị trong thẻ <select id="sensor-sort-order">:
+// Tham số đầu vào:
+// - order (string): Chiều sắp xếp được chọn ('DESC' | 'ASC').
+function handleSensorSortChange(order) {
+    sensorSortOrder = order;
+    currentSensorPage = 1;
+    renderSensorTable();
+}
+
+// -----------------------------------------------------------------------------
+// 8. HÀM ĐẢO CHIỀU SẮP XẾP THỜI GIAN KHI BẤM TIÊU ĐỀ CỘT (TOGGLE SENSOR TIME SORT)
+// -----------------------------------------------------------------------------
+// Kích hoạt khi người dùng click trực tiếp vào cột "THỜI ĐIỂM GHI NHẬN" trên bảng:
+// Tự động đảo chiều giữa DESC (mới nhất trước) và ASC (cũ nhất trước), đồng thời cập nhật icon
+function toggleSensorTimeSort() {
+    sensorSortOrder = (sensorSortOrder === 'DESC') ? 'ASC' : 'DESC';
+    currentSensorPage = 1;
+    renderSensorTable();
+}
+
+// -----------------------------------------------------------------------------
+// 9. HÀM CHÈN BẢN GHI CẢM BIẾN MỚI VÀO ĐẦU DANH SÁCH (APPEND SENSOR RECORD)
 // -----------------------------------------------------------------------------
 // Hàm này được gọi tự động khi WebSocket nhận được gói tin dữ liệu cảm biến mới:
 // Tham số đầu vào:
@@ -304,7 +357,7 @@ function appendSensorRecord(record) {
 }
 
 // -----------------------------------------------------------------------------
-// 8. CÁC HÀM TIỆN ÍCH SAO CHÉP THỜI GIAN VÀO CLIPBOARD (COPY TIME TO CLIPBOARD)
+// 10. CÁC HÀM TIỆN ÍCH SAO CHÉP THỜI GIAN VÀO CLIPBOARD (COPY TIME TO CLIPBOARD)
 // -----------------------------------------------------------------------------
 
 // Xử lý sự kiện click trên nút icon sao chép thời gian
@@ -368,7 +421,7 @@ function fallbackCopyText(text) {
 }
 
 // -----------------------------------------------------------------------------
-// 9. HÀM ĐỒNG BỘ DỮ LIỆU TỪ BACKEND REST API (FETCH SENSOR DATA FROM API)
+// 11. HÀM ĐỒNG BỘ DỮ LIỆU TỪ BACKEND REST API (FETCH SENSOR DATA FROM API)
 // -----------------------------------------------------------------------------
 async function fetchSensorDataFromAPI() {
     // Kiểm tra xem dịch vụ HttpService có sẵn không
@@ -394,7 +447,7 @@ async function fetchSensorDataFromAPI() {
 }
 
 // -----------------------------------------------------------------------------
-// 10. SỰ KIỆN KHỞI CHẠY KHI TẢI XONG TRANG (DOM CONTENT LOADED)
+// 12. SỰ KIỆN KHỞI CHẠY KHI TẢI XONG TRANG (DOM CONTENT LOADED)
 // -----------------------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Hiển thị bảng ban đầu với dữ liệu mẫu
@@ -414,7 +467,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // -----------------------------------------------------------------------------
-// 11. XUẤT CÁC HÀM RA PHẠM VI TOÀN CỤC (WINDOW)
+// 13. XUẤT CÁC HÀM RA PHẠM VI TOÀN CỤC (WINDOW)
 // -----------------------------------------------------------------------------
 // Giúp các sự kiện onclick trên HTML có thể gọi trực tiếp
 window.renderSensorTable = renderSensorTable;
@@ -422,5 +475,7 @@ window.appendSensorRecord = appendSensorRecord;
 window.handleCopyTimeClick = handleCopyTimeClick;
 window.copyTimeToClipboard = copyTimeToClipboard;
 window.handleManualFilterSensor = handleManualFilterSensor;
+window.handleSensorSortChange = handleSensorSortChange;
+window.toggleSensorTimeSort = toggleSensorTimeSort;
 window.resetSensorFilters = resetSensorFilters;
 window.goToSensorPage = goToSensorPage;
