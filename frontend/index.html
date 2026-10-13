@@ -1,42 +1,19 @@
 <!DOCTYPE html>
-<!-- ===========================================================================
-     DỰ ÁN: BÁO CÁO HỌC PHẦN IOT VÀ ỨNG DỤNG - HỆ THỐNG GIÁM SÁT & ĐIỀU KHIỂN
-     TẬP TIN: index.html (Phiên bản Clone có Chú Thích Chi Tiết Đọc Hiểu Code)
-     TÁC GIẢ: Đỗ Trọng Ninh - MSV: B23DCCN633 - Nhóm 10
-     MÔ TẢ KIẾN TRÚC:
-       - Layout Dashboard chuẩn: Cột Sidebar bên trái (cố định), Khung nội dung chính bên phải.
-       - Kiến trúc Single Page Application (SPA) đơn giản: Chuyển đổi giữa 4 màn hình
-         (Dashboard, Dữ liệu cảm biến, Lịch sử điều khiển, Hồ sơ) thông qua việc bật/tắt class .active.
-       - Tích hợp Chart.js vẽ biểu đồ đa trục thời gian thực và Socket.IO nhận dữ liệu cảm biến.
-=========================================================================== -->
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hệ Thống IoT - Giám Sát & Điều Khiển</title>
     
-    <!-- 1. TẢI FONT CHỮ GOOGLE FONTS (Inter: 400, 500, 600, 700) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- 2. TẢI THƯ VIỆN BIỂU TƯỢNG PHOSPHOR ICONS QUA CDN -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-
-    <!-- 3. TẢI THƯ VIỆN VẼ ĐỒ THỊ CHART.JS (Vẽ đồ thị trên thẻ HTML5 Canvas) -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <!-- 4. TẢI THƯ VIỆN KẾT NỐI WEBSOCKET THỜI GIAN THỰC SOCKET.IO CLIENT -->
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-    
-    <!-- 5. TẬP TIN ĐỊNH KIỂU CSS CHÍNH CỦA ỨNG DỤNG -->
     <link rel="stylesheet" href="src/styles/main.css">
 
-    <!-- 6. ĐOẠN SCRIPT CHỐNG CHỚP NHÁY GIAO DIỆN (ANTI-FLICKER SCRIPT)
-         Mục đích: Khi người dùng đang ở tab "Dữ liệu cảm biến" mà bấm F5,
-         trình duyệt mặc định sẽ hiện tab "Tổng quan" trước rồi JS mới chuyển tab, gây hiện tượng nháy màn hình.
-         Đoạn mã này đọc sessionStorage ngay trong thẻ <head> và chèn tạm một thẻ <style>
-         để ẩn Dashboard và hiển thị ngay màn hình người dùng đang xem trước khi render <body>. -->
     <script>
         (function() {
             try {
@@ -59,62 +36,41 @@
 </head>
 <body>
 
-    <!-- =======================================================================
-         KHỐI 1: THANH ĐIỀU HƯỚNG BÊN TRÁI (SIDEBAR NAVIGATION)
-         - Chiều rộng cố định 240px, nằm dọc bên trái màn hình.
-         - Chứa Logo hệ thống và danh sách 4 menu điều hướng chính.
-    ======================================================================== -->
+    <!-- Sidebar Navigation -->
     <aside class="sidebar">
-        <!-- Logo thương hiệu -->
         <div class="logo-container">
             <div class="logo-text">
                 <i class="ph-fill ph-house-line"></i> IOT
             </div>
         </div>
 
-        <!-- Danh sách menu điều hướng chuyển tab -->
         <nav class="nav-list">
-            <!-- Menu 1: Màn hình Tổng quan (Dashboard) -->
             <a class="nav-item active" data-view="dashboard" onclick="switchView('dashboard', this)">
                 <i class="ph ph-squares-four"></i> Tổng quan
             </a>
-            <!-- Menu 2: Màn hình Dữ liệu cảm biến -->
             <a class="nav-item" data-view="sensors" onclick="switchView('sensors', this)">
                 <i class="ph ph-activity"></i> Dữ liệu cảm biến
             </a>
-            <!-- Menu 3: Màn hình Lịch sử điều khiển thiết bị -->
             <a class="nav-item" data-view="history" onclick="switchView('history', this)">
                 <i class="ph ph-clock-counter-clockwise"></i> Lịch sử điều khiển
             </a>
-            <!-- Menu 4: Màn hình Hồ sơ tác giả -->
             <a class="nav-item" data-view="profile" onclick="switchView('profile', this)">
                 <i class="ph ph-user-circle"></i> Hồ sơ
             </a>
         </nav>
     </aside>
 
-    <!-- =======================================================================
-         KHỐI 2: KHUNG NỘI DUNG CHÍNH (MAIN WRAPPER)
-         - Nằm bên phải thanh Sidebar, chiếm toàn bộ phần diện tích còn lại.
-         - Bao gồm Thanh tiêu đề (Header) cố định bên trên và Khung nội dung cuộn bên dưới.
-    ======================================================================== -->
+    <!-- Main Content Wrapper -->
     <main class="main-wrapper">
-        <!-- -------------------------------------------------------------------
-             THANH HEADER TRÊN CÙNG
-             - Bên trái: Đèn báo trạng thái kết nối phần cứng ESP32.
-             - Bên phải: Thẻ hiển thị tên người dùng và ảnh đại diện.
-        -------------------------------------------------------------------- -->
         <header class="header">
             <div class="header-left">
-                <!-- Huy hiệu báo trạng thái kết nối ESP32 (xanh = Online, đỏ = Offline) -->
                 <div id="device-status-badge" class="device-status-badge">
-                    <span class="pulse-dot"></span> <!-- Chấm tròn phát sáng nhấp nháy -->
+                    <span class="pulse-dot"></span>
                     <span id="device-status-text">ESP32 ONLINE</span>
                 </div>
             </div>
             
             <div class="header-actions">
-                <!-- Viên thuốc thông tin người dùng (click vào để chuyển nhanh tới trang Hồ sơ) -->
                 <div class="user-pill" onclick="switchView('profile', document.querySelector('.nav-item[data-view=\'profile\']'))">
                     <img src="public/images/avatar.svg" alt="Avatar">
                     <span class="name">Đỗ Trọng Ninh</span>
@@ -122,22 +78,13 @@
             </div>
         </header>
 
-        <!-- -------------------------------------------------------------------
-             VÙNG NỘI DUNG CUỘN (CONTENT SCROLL)
-             Chứa 4 thẻ div màn hình con (.view-section).
-             Mỗi thời điểm chỉ có màn hình có class .active được hiển thị (display: block).
-        -------------------------------------------------------------------- -->
         <div class="content-scroll">
             
-            <!-- ===============================================================
-                 MÀN HÌNH 1: TỔNG QUAN (DASHBOARD)
-            ================================================================ -->
+            <!-- View: Dashboard -->
             <div id="dashboard" class="view-section active">
                 <h1 class="dashboard-heading">Dashboard</h1>
                 
-                <!-- LƯỚI 3 THẺ TÓM TẮT SỐ LIỆU CẢM BIẾN HIỆN TẠI (Nhiệt độ, Độ ẩm, Ánh sáng) -->
                 <div class="metrics-grid">
-                    <!-- Thẻ 1: Nhiệt độ (°C) -->
                     <div class="simple-card bg-temp">
                         <div class="card-top-row">
                             <div class="simple-label"><i class="ph-fill ph-thermometer-simple" style="color: #ef4444;"></i> Nhiệt độ</div>
@@ -146,7 +93,6 @@
                         <div id="metric-temp" class="simple-value">30.0 <span class="unit-label">°C</span></div>
                     </div>
 
-                    <!-- Thẻ 2: Độ ẩm (%) -->
                     <div class="simple-card bg-humid">
                         <div class="card-top-row">
                             <div class="simple-label"><i class="ph-fill ph-drop" style="color: #3b82f6;"></i> Độ ẩm</div>
@@ -155,7 +101,6 @@
                         <div id="metric-humid" class="simple-value">74.0 <span class="unit-label">%</span></div>
                     </div>
 
-                    <!-- Thẻ 3: Ánh sáng (lux) -->
                     <div class="simple-card bg-light">
                         <div class="card-top-row">
                             <div class="simple-label"><i class="ph-fill ph-sun" style="color: #f59e0b;"></i> Độ sáng</div>
@@ -165,9 +110,7 @@
                     </div>
                 </div>
 
-                <!-- BỐ CỤC CHÍNH DASHBOARD: Biểu đồ thời gian thực bên trái + Cụm điều khiển đèn bên phải -->
                 <div class="dashboard-layout">
-                    <!-- KHUNG BIỂU ĐỒ MÔI TRƯỜNG CHART.JS -->
                     <div class="card" style="display: flex; flex-direction: column;">
                         <div class="card-header" style="margin-bottom: 12px;">
                             <h2 class="card-title" style="color: var(--text-h); font-weight: 600;">
@@ -175,18 +118,15 @@
                             </h2>
                         </div>
                         <div style="flex: 1; min-height: 350px; width: 100%;">
-                            <!-- Thẻ canvas nơi thư viện Chart.js vẽ đồ thị lên -->
                             <canvas id="realChart"></canvas>
                         </div>
                     </div>
 
-                    <!-- KHUNG ĐIỀU KHIỂN CÁC THIẾT BỊ NGOẠI VI (3 ĐÈN LED) -->
                     <div class="card" style="align-self: start;">
                         <div class="card-header">
                             <h2 class="card-title"><i class="ph ph-sliders"></i> Thiết bị kết nối</h2>
                         </div>
                         <div class="device-list">
-                            <!-- Thiết bị 1: Đèn LED 1 (chân GPIO 2) -->
                             <div class="device-item active" id="devItem1">
                                 <div class="dev-info-left">
                                     <div class="dev-avatar"><i class="ph-fill ph-lightbulb"></i></div>
@@ -196,16 +136,13 @@
                                     </div>
                                 </div>
                                 <div class="dev-action-right">
-                                    <!-- Nhãn báo trạng thái "Đang chờ..." hiển thị khi đang đợi phản hồi từ ESP32 -->
                                     <span class="device-pending-tag" style="display: none;">
                                         <i class="ph ph-spinner ph-spin"></i> Đang chờ...
                                     </span>
-                                    <!-- Nút gạt Toggle Switch điều khiển -->
                                     <input type="checkbox" class="toggle" checked onchange="toggleDevice('devItem1', 'LED_01', this)">
                                 </div>
                             </div>
                             
-                            <!-- Thiết bị 2: Đèn LED 2 (chân GPIO 4) -->
                             <div class="device-item" id="devItem2">
                                 <div class="dev-info-left">
                                     <div class="dev-avatar"><i class="ph-fill ph-lightbulb"></i></div>
@@ -222,7 +159,6 @@
                                 </div>
                             </div>
 
-                            <!-- Thiết bị 3: Đèn LED 3 (chân GPIO 5) -->
                             <div class="device-item" id="devItem3">
                                 <div class="dev-info-left">
                                     <div class="dev-avatar"><i class="ph-fill ph-lightbulb"></i></div>
@@ -243,24 +179,19 @@
                 </div>
             </div>
 
-            <!-- ===============================================================
-                 MÀN HÌNH 2: DỮ LIỆU CẢM BIẾN (SENSORS)
-            ================================================================ -->
+            <!-- View: Sensors -->
             <div id="sensors" class="view-section">
                 <div class="card">
                     <div class="card-header">
                         <h2 class="card-title"><i class="ph ph-activity"></i> Dữ liệu cảm biến</h2>
                     </div>
 
-                    <!-- THANH CÔNG CỤ TÌM KIẾM VÀ LỌC DỮ LIỆU CẢM BIẾN -->
                     <div class="toolbar">
                         <div class="toolbar-left">
-                            <!-- Ô nhập từ khóa tìm kiếm -->
                             <div class="search-box">
                                 <i class="ph ph-magnifying-glass"></i>
                                 <input type="text" id="sensor-search-input" placeholder="Nhập giá trị / thời gian tìm kiếm...">
                             </div>
-                            <!-- Hộp chọn trường dữ liệu cần lọc (chỉ giữ 1 select duy nhất theo yêu cầu) -->
                             <select id="sensor-field-filter" class="filter-select">
                                 <option value="ALL">Tất cả thông tin</option>
                                 <option value="time">Thời gian</option>
@@ -268,15 +199,12 @@
                                 <option value="humidity">Độ ẩm</option>
                                 <option value="light">Ánh sáng</option>
                             </select>
-                            <!-- Nút bấm thực hiện lọc -->
                             <button id="btn-filter-sensor" class="btn btn-primary" onclick="handleManualFilterSensor()" title="Thực hiện lọc dữ liệu">
                                 <i class="ph ph-funnel"></i> Lọc
                             </button>
-                            <!-- Nút bấm đặt lại bộ lọc về mặc định -->
                             <button id="btn-reset-sensor" class="btn btn-outline" onclick="resetSensorFilters()" title="Đặt lại bộ lọc về mặc định">
                                 <i class="ph ph-arrow-counter-clockwise"></i> Đặt lại
                             </button>
-                            <!-- Hộp chọn sắp xếp theo thời gian -->
                             <select id="sensor-sort-order" class="filter-select" onchange="handleSensorSortChange(this.value)" title="Chọn thứ tự sắp xếp theo thời gian">
                                 <option value="DESC">Mới nhất</option>
                                 <option value="ASC">Cũ nhất</option>
@@ -284,7 +212,6 @@
                         </div>
                     </div>
                     
-                    <!-- BẢNG HIỂN THỊ DỮ LIỆU CẢM BIẾN -->
                     <div class="table-responsive">
                         <table class="data-table">
                             <thead>
@@ -297,13 +224,11 @@
                                     </th>
                                 </tr>
                             </thead>
-                            <!-- Phần thân bảng: JavaScript sẽ tự động render các thẻ <tr> vào đây -->
                             <tbody id="sensor-table-body">
                             </tbody>
                         </table>
                     </div>
 
-                    <!-- CỤM PHÂN TRANG (PAGINATION) BẢNG CẢM BIẾN -->
                     <div class="pagination-container">
                         <div id="sensor-pagination-info">Hiển thị 1 - 7 trong số 20 bản ghi</div>
                         <div class="pagination-controls" id="sensor-pagination-controls">
@@ -312,51 +237,42 @@
                 </div>
             </div>
 
-            <!-- ===============================================================
-                 MÀN HÌNH 3: LỊCH SỬ ĐIỀU KHIỂN (HISTORY)
-            ================================================================ -->
+            <!-- View: History -->
             <div id="history" class="view-section">
                 <div class="card">
                     <div class="card-header">
                         <h2 class="card-title"><i class="ph ph-clock-counter-clockwise"></i> Lịch sử điều khiển thiết bị</h2>
                     </div>
 
-                    <!-- THANH CÔNG CỤ TÌM KIẾM VÀ LỌC NHẬT KÝ ĐIỀU KHIỂN (4 TIÊU CHÍ) -->
                     <div class="toolbar">
                         <div class="toolbar-left">
-                            <!-- 1. Tìm theo thời gian -->
                             <div class="search-box">
                                 <i class="ph ph-clock"></i>
                                 <input type="text" id="history-time-search-input" placeholder="Nhập thời gian tìm kiếm...">
                             </div>
-                            <!-- 2. Lọc theo thiết bị -->
                             <select id="history-device-filter" class="filter-select">
                                 <option value="ALL">Tất cả thiết bị</option>
                                 <option value="LED_01">Đèn LED 1 (LED_01)</option>
                                 <option value="LED_02">Đèn LED 2 (LED_02)</option>
                                 <option value="LED_03">Đèn LED 3 (LED_03)</option>
                             </select>
-                            <!-- 3. Lọc theo hành động (BẬT / TẮT) -->
                             <select id="history-action-filter" class="filter-select">
                                 <option value="ALL">Tất cả hành động</option>
                                 <option value="ON">BẬT (ON)</option>
                                 <option value="OFF">TẮT (OFF)</option>
                             </select>
-                            <!-- 4. Lọc theo trạng thái thực thi (Thành công / Đang chờ / Thất bại) -->
                             <select id="history-status-filter" class="filter-select">
                                 <option value="ALL">Tất cả trạng thái</option>
                                 <option value="success">Thành công</option>
                                 <option value="pending">Đang chờ</option>
                                 <option value="failed">Thất bại</option>
                             </select>
-                            <!-- Nút Lọc và Đặt lại -->
                             <button id="btn-filter-history" class="btn btn-primary" onclick="handleManualFilterHistory()" title="Thực hiện lọc lịch sử">
                                 <i class="ph ph-funnel"></i> Lọc
                             </button>
                             <button id="btn-reset-history" class="btn btn-outline" onclick="resetHistoryFilters()" title="Đặt lại bộ lọc về mặc định">
                                 <i class="ph ph-arrow-counter-clockwise"></i> Đặt lại
                             </button>
-                            <!-- 5. Hộp chọn sắp xếp theo thời gian -->
                             <select id="history-sort-order" class="filter-select" onchange="handleHistorySortChange(this.value)" title="Chọn thứ tự sắp xếp theo thời gian">
                                 <option value="DESC">Mới nhất</option>
                                 <option value="ASC">Cũ nhất</option>
@@ -364,7 +280,6 @@
                         </div>
                     </div>
                     
-                    <!-- BẢNG HIỂN THỊ NHẬT KÝ ĐIỀU KHIỂN -->
                     <div class="table-responsive">
                         <table class="data-table">
                             <thead>
@@ -378,13 +293,11 @@
                                     <th>TRẠNG THÁI MQTT</th>
                                 </tr>
                             </thead>
-                            <!-- Phần thân bảng: JavaScript sẽ render động -->
                             <tbody id="history-table-body">
                             </tbody>
                         </table>
                     </div>
 
-                    <!-- CỤM PHÂN TRANG BẢNG LỊCH SỬ -->
                     <div class="pagination-container">
                         <div id="history-pagination-info">Hiển thị 1 - 7 trong số 14 bản ghi</div>
                         <div class="pagination-controls" id="history-pagination-controls">
@@ -393,12 +306,9 @@
                 </div>
             </div>
 
-            <!-- ===============================================================
-                 MÀN HÌNH 4: HỒ SƠ SINH VIÊN (PROFILE)
-            ================================================================ -->
+            <!-- View: Profile -->
             <div id="profile" class="view-section">
                 <div class="profile-card">
-                    <!-- Khung ảnh đại diện và tên tác giả -->
                     <div class="profile-header-clean">
                         <img src="public/images/avatar.svg" alt="Avatar" class="profile-avatar-clean">
                         <div>
@@ -407,7 +317,6 @@
                         </div>
                     </div>
                     
-                    <!-- Lưới 4 ô thông tin chi tiết -->
                     <div class="info-grid">
                         <div class="info-box">
                             <div class="info-label">Mã sinh viên</div>
@@ -432,19 +341,7 @@
         </div>
     </main>
 
-    <!-- =======================================================================
-         THỨ TỰ NẠP CÁC TẬP TIN JAVASCRIPT (SCRIPT LOADING ORDER)
-         LƯU Ý QUAN TRỌNG VỀ THỨ TỰ:
-         1. app.config.js: Nạp đầu tiên để khởi tạo biến cấu hình APP_CONFIG toàn cục.
-         2. device.component.js: Cung cấp các hàm điều khiển bật/tắt thiết bị.
-         3. chart.component.js: Cung cấp hàm khởi tạo và cập nhật đồ thị Chart.js.
-         4. http.service.js: Dịch vụ gọi REST API lấy dữ liệu quá khứ.
-         5. socket.service.js: Dịch vụ WebSocket lắng nghe dữ liệu thời gian thực.
-         6. dashboard.js: Quản lý giao diện và cập nhật chỉ số trên Dashboard.
-         7. sensors.js: Quản lý bảng dữ liệu cảm biến, tìm kiếm, lọc và phân trang.
-         8. history.js: Quản lý bảng lịch sử điều khiển, lọc 4 tiêu chí.
-         9. app.js: Nạp cuối cùng để khôi phục trạng thái tab, kích hoạt kết nối và khởi chạy ứng dụng.
-    ======================================================================== -->
+    <!-- Script Loading -->
     <script src="src/config/app.config.js"></script>
     <script src="src/components/device.component.js"></script>
     <script src="src/components/chart.component.js"></script>

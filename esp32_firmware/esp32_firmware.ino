@@ -4,7 +4,7 @@
 #include <ArduinoJson.h>
 #include "driver/gpio.h"
 
-// Pin configuration
+// Cấu hình chân GPIO
 #define LED1_PIN    18
 #define LED2_PIN    19
 #define LED3_PIN    21
@@ -14,7 +14,7 @@
 
 DHT dht(DHTPIN, DHTTYPE);
 
-// MQTT Credentials & WiFi settings
+// Cấu hình WiFi & MQTT
 const char* mqtt_user = "DoTrongNinh";
 const char* mqtt_pass = "B23DCCN633";
 const char* ssid        = "Enoinh";
@@ -33,15 +33,11 @@ PubSubClient client(espClient);
 unsigned long lastSensorReadTime = 0;
 const unsigned long SENSOR_INTERVAL = 2500;
 
-// Bộ nhớ đệm lưu giá trị cảm biến hợp lệ gần nhất (chống lỗi NaN)
+// Cache giá trị cảm biến hợp lệ gần nhất (chống NaN)
 float lastValidTemperature = 29.0;
 float lastValidHumidity    = 80.0;
 
-// ==========================================
-// 1. NHÓM HÀM KHỞI TẠO PHẦN CỨNG (HARDWARE INIT)
-// ==========================================
-
-// Khởi tạo các chân GPIO cho đèn LED và cấu hình hạn dòng an toàn 5mA (chống cháy LED không cần điện trở)
+// Cấu hình GPIO LED và giới hạn dòng 5mA (chống cháy LED không cần điện trở)
 void initLEDs() {
   pinMode(LED1_PIN, OUTPUT);
   pinMode(LED2_PIN, OUTPUT);
@@ -51,7 +47,7 @@ void initLEDs() {
   gpio_set_drive_capability((gpio_num_t)LED3_PIN, GPIO_DRIVE_CAP_0);
 }
 
-// Chớp nháy kiểm tra phần cứng 3 đèn LED lúc bật nguồn (Power-On Self-Test)
+// Kiểm tra LED khi khởi động
 void testLEDsBlink() {
   digitalWrite(LED1_PIN, HIGH);
   digitalWrite(LED2_PIN, HIGH);
@@ -62,18 +58,14 @@ void testLEDsBlink() {
   digitalWrite(LED3_PIN, LOW);
 }
 
-// Khởi tạo các chân cảm biến nhiệt độ - độ ẩm DHT22 và quang trở LDR với điện trở kéo nội
+// Khởi tạo cảm biến DHT22 và quang trở LDR
 void initSensors() {
   pinMode(DHTPIN, INPUT_PULLUP);
   dht.begin();
   pinMode(LDR_PIN, INPUT_PULLDOWN);
 }
 
-// ==========================================
-// 2. NHÓM HÀM GIAO TIẾP MẠNG & MQTT (NETWORK & MQTT)
-// ==========================================
-
-// Kết nối hoặc tái kết nối vi điều khiển vào mạng Wi-Fi
+// Kết nối WiFi
 void connectWiFi() {
   delay(100);
   Serial.print("\n[WiFi] Đang kết nối tới: ");
@@ -99,7 +91,7 @@ void connectWiFi() {
   Serial.println(WiFi.localIP());
 }
 
-// Kết nối hoặc tái kết nối tới MQTT Broker và đăng ký theo dõi kênh lệnh điều khiển
+// Kết nối MQTT Broker
 void connectMQTT() {
   if (!client.connected()) {
     Serial.print("[MQTT] Connecting to broker... ");
@@ -113,9 +105,7 @@ void connectMQTT() {
   }
 }
 
-
-
-// Thực thi bật/tắt các chân GPIO đèn LED theo yêu cầu điều khiển
+// Điều khiển GPIO đèn LED
 bool executeDeviceControl(const char* target, const char* action) {
   int outputLevel = (strcmp(action, "ON") == 0) ? HIGH : LOW;
 
@@ -137,7 +127,7 @@ bool executeDeviceControl(const char* target, const char* action) {
   return false;
 }
 
-// Gửi bản tin JSON xác nhận trạng thái (ACK) ngược lại cho Broker sau khi điều khiển
+// Gửi bản tin ACK xác nhận trạng thái
 void sendDeviceStatusAck(const char* target, const char* action) {
   StaticJsonDocument<256> ackDoc;
   ackDoc["target"] = target;
@@ -149,7 +139,7 @@ void sendDeviceStatusAck(const char* target, const char* action) {
   client.publish(TOPIC_DEVICE_STATUS, ackBuffer);
 }
 
-// Tiếp nhận, giải mã bản tin MQTT và điều phối xử lý lệnh điều khiển thiết bị
+// Tiếp nhận và xử lý lệnh điều khiển từ MQTT
 void handleDeviceControlCommand(char* topic, byte* payload, unsigned int length) {
   String message = "";
   for (unsigned int i = 0; i < length; i++) {
@@ -169,18 +159,14 @@ void handleDeviceControlCommand(char* topic, byte* payload, unsigned int length)
   }
 }
 
-// Khởi tạo cấu hình kết nối MQTT Broker và gán hàm callback xử lý lệnh điều khiển
+// Khởi tạo MQTT client
 void initMQTT() {
   client.setServer(mqtt_server, mqtt_port);
   client.setCallback(handleDeviceControlCommand);
   client.setBufferSize(512);
 }
 
-// ==========================================
-// 4. NHÓM HÀM THU THẬP & XUẤT BẢN DỮ LIỆU CẢM BIẾN (SENSORS)
-// ==========================================
-
-// Đọc giá trị nhiệt độ và độ ẩm từ cảm biến DHT22 với cơ chế thử lại (retry) và bộ nhớ đệm (cache)
+// Đọc DHT22 kèm cơ chế retry và fallback cache
 void readDHTSensor(float &temperature, float &humidity) {
   float h = dht.readHumidity();
   float t = dht.readTemperature();
@@ -198,7 +184,7 @@ void readDHTSensor(float &temperature, float &humidity) {
   humidity = lastValidHumidity;
 }
 
-// Đọc cường độ ánh sáng từ quang trở LDR với thuật toán lấy mẫu trung bình 8 lần lọc nhiễu
+// Đọc cường độ ánh sáng LDR (lấy mẫu trung bình 8 lần lọc nhiễu)
 int readLightSensor() {
   long sumLDR = 0;
   for (int i = 0; i < 8; i++) {
@@ -211,7 +197,7 @@ int readLightSensor() {
   return lightLux;
 }
 
-// Đóng gói dữ liệu cảm biến thành định dạng JSON và publish lên MQTT Broker
+// Xuất bản dữ liệu cảm biến lên MQTT broker
 void publishSensorData(float temperature, float humidity, int lightLux) {
   if (!client.connected()) return;
 
@@ -227,7 +213,7 @@ void publishSensorData(float temperature, float humidity, int lightLux) {
   client.publish(TOPIC_SENSOR_DATA, sensorBuffer);
 }
 
-// Điều phối chu kỳ đọc cảm biến định kỳ và gửi dữ liệu lên Broker (Non-blocking)
+// Đọc và gửi dữ liệu cảm biến định kỳ (non-blocking)
 void readAndPublishSensorData() {
   unsigned long currentMillis = millis();
   if (currentMillis - lastSensorReadTime >= SENSOR_INTERVAL) {
@@ -244,30 +230,22 @@ void readAndPublishSensorData() {
   }
 }
 
-// ==========================================
-// 5. CÁC HÀM TIÊU CHUẨN ARDUINO (SETUP & LOOP)
-// ==========================================
-
 void setup() {
   Serial.begin(115200);
 
-  // Khởi tạo phần cứng thiết bị
   initLEDs();
   testLEDsBlink();
   initSensors();
 
-  // Khởi tạo kết nối mạng và MQTT
   connectWiFi();
   initMQTT();
 }
 
 void loop() {
-  // Tự động phục hồi kết nối Wi-Fi nếu bị ngắt quãng
   if (WiFi.status() != WL_CONNECTED) {
     connectWiFi();
   }
 
-  // Duy trì kết nối MQTT Broker và thử kết nối lại định kỳ mỗi 5 giây
   static unsigned long lastMqttRetry = 0;
   if (!client.connected()) {
     if (millis() - lastMqttRetry > 5000) {
@@ -278,6 +256,5 @@ void loop() {
     client.loop();
   }
 
-  // Thu thập và xuất bản dữ liệu cảm biến định kỳ (Non-blocking)
   readAndPublishSensorData();
 }

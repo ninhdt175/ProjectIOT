@@ -1,152 +1,147 @@
 /* 1. Biến toàn cục (CSS Variables) - Bảng màu và thông số dùng chung cho toàn bộ giao diện */
 :root {
-    /* Màu sắc chủ đạo (Brand Blue) dùng cho nút bấm chính, liên kết, trạng thái active */
-    --brand: #2563eb;        /* Màu xanh dương đậm chuẩn */
-    --brand-hover: #1d4ed8;  /* Màu xanh đậm hơn khi rê chuột vào (hover) */
-    --brand-light: #eff6ff;  /* Màu xanh nhạt dùng làm nền khi menu được chọn */
+    --brand: #2563eb;
+    --brand-hover: #1d4ed8;
+    --brand-light: #eff6ff;
 
-    /* Màu nền các khu vực giao diện */
-    --bg-main: #f8fafc;      /* Màu nền xám trắng sáng cho toàn bộ ứng dụng */
-    --bg-surface: #ffffff;   /* Màu nền trắng tinh cho các thẻ Card, Header, bảng biểu */
-    --bg-sidebar: #ffffff;   /* Màu nền thanh menu điều hướng bên trái */
+    --bg-main: #f8fafc;
+    --bg-surface: #ffffff;
+    --bg-sidebar: #ffffff;
 
-    /* Màu sắc chữ văn bản (Typography Colors) theo phân cấp thị giác */
-    --text-h: #0f172a;       /* Màu chữ đậm cho tiêu đề (Heading) và các thông số quan trọng */
-    --text-p: #334155;       /* Màu chữ thân bài (Paragraph) cho nội dung thông thường */
-    --text-muted: #64748b;   /* Màu chữ xám nhạt cho nhãn mô tả phụ, đơn vị đo, thời gian */
+    --text-h: #0f172a;
+    --text-p: #334155;
+    --text-muted: #64748b;
 
-    /* Viền & Đổ bóng (Borders & Shadows) tạo chiều sâu nổi khối */
-    --border-light: #e2e8f0; /* Đường kẻ viền mờ ngăn cách các khối và ô bảng */
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* Đổ bóng nhẹ cho thẻ card */
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05); /* Đổ bóng trung bình khi hover */
+    --border-light: #e2e8f0;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
 
-    /* Màu sắc trạng thái hệ thống và thiết bị */
-    --status-up: #10b981;    /* Màu xanh lá: Trạng thái Online, thiết bị BẬT (ON), lệnh thành công */
-    --status-down: #ef4444;  /* Màu đỏ: Trạng thái Offline, thiết bị TẮT (OFF), lỗi hoặc thất bại */
-    --status-warn: #f59e0b;  /* Màu vàng cam: Cảnh báo, trạng thái đang chờ xử lý (Pending) */
+    --status-up: #10b981;
+    --status-down: #ef4444;
+    --status-warn: #f59e0b;
 }
 
 /* 2. Thiết lập cơ bản (Reset CSS) & Bố cục khung toàn trang (App Layout) */
 * {
-    box-sizing: border-box;  /* Tính cả padding và border vào kích thước tổng của phần tử, tránh vỡ layout */
-    margin: 0;               /* Xóa bỏ khoảng cách lề mặc định của trình duyệt */
-    padding: 0;              /* Xóa bỏ khoảng đệm mặc định của trình duyệt */
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
 body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; /* Font chữ Inter hiện đại */
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background-color: var(--bg-main);
     color: var(--text-p);
-    display: flex;           /* Chia giao diện thành 2 cột ngang: Cột Sidebar bên trái và Khung nội dung bên phải */
-    height: 100vh;           /* Chiếm trọn 100% chiều cao màn hình trình duyệt (Viewport Height) */
-    overflow: hidden;        /* Khóa cuộn trang chính để tạo cảm giác ứng dụng phần mềm máy tính (Desktop App) */
-    -webkit-font-smoothing: antialiased; /* Khử răng cưa giúp chữ hiển thị sắc nét trên màn hình Retina / Full HD */
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
 }
 
 /* Tùy chỉnh thanh cuộn nhỏ gọn (Custom Scrollbar) */
 ::-webkit-scrollbar {
-    width: 6px;              /* Chiều rộng thanh cuộn dọc */
-    height: 6px;             /* Chiều cao thanh cuộn ngang */
+    width: 6px;
+    height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-    background: transparent; /* Nền thanh cuộn trong suốt để hòa vào trang */
+    background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #cbd5e1;     /* Màu con lăn thanh cuộn xám nhẹ */
-    border-radius: 4px;      /* Bo tròn 2 đầu con lăn */
+    background: #cbd5e1;
+    border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8;     /* Đổi màu xám đậm hơn khi người dùng rê chuột vào */
+    background: #94a3b8;
 }
 
 /* 3. Thanh điều hướng bên trái (Sidebar Navigation) */
 .sidebar {
-    width: 260px;            /* Chiều rộng cố định 260px */
+    width: 260px;
     background-color: var(--bg-sidebar);
-    border-right: 1px solid var(--border-light); /* Đường kẻ viền mờ ngăn cách với nội dung chính */
+    border-right: 1px solid var(--border-light);
     display: flex;
-    flex-direction: column;  /* Sắp xếp các mục theo chiều dọc từ trên xuống */
-    padding: 24px 16px;      /* Đệm trong: trên/dưới 24px, trái/phải 16px */
-    flex-shrink: 0;          /* Ngăn không cho co nhỏ thanh Sidebar khi màn hình thu hẹp */
+    flex-direction: column;
+    padding: 24px 16px;
+    flex-shrink: 0;
 }
 
 .logo-container {
-    padding: 0 12px 24px 12px; /* Khoảng cách lề dưới tách biệt Logo với danh sách menu */
+    padding: 0 12px 24px 12px;
 }
 
 .logo-text {
     font-size: 20px;
-    font-weight: 700;        /* Chữ đậm tạo điểm nhấn thương hiệu */
+    font-weight: 700;
     color: var(--text-h);
     display: flex;
-    align-items: center;     /* Căn icon và chữ thẳng hàng chính giữa */
-    gap: 8px;                /* Khoảng cách 8px giữa icon ngôi nhà và chữ "IOT" */
-    letter-spacing: -0.5px;  /* Thu hẹp khoảng cách chữ tạo cảm giác hiện đại */
+    align-items: center;
+    gap: 8px;
+    letter-spacing: -0.5px;
 }
 
 .logo-text i {
-    color: var(--brand);     /* Icon logo mang màu xanh chủ đạo */
+    color: var(--brand);
     font-size: 24px;
 }
 
 .nav-list {
     display: flex;
     flex-direction: column;
-    gap: 4px;                /* Khoảng cách 4px giữa các nút menu */
-    flex: 1;                 /* Chiếm toàn bộ phần chiều cao còn lại của Sidebar */
+    gap: 4px;
+    flex: 1;
 }
 
 .nav-item {
     display: flex;
     align-items: center;
-    gap: 12px;               /* Khoảng cách giữa icon và chữ menu */
-    padding: 10px 14px;      /* Vùng bấm rộng rãi, dễ thao tác */
-    border-radius: 8px;      /* Bo góc mềm mại cho nút menu */
-    color: var(--text-muted);/* Mặc định màu chữ xám nhạt khi chưa chọn */
-    text-decoration: none;   /* Bỏ gạch chân mặc định của thẻ liên kết <a> */
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    color: var(--text-muted);
+    text-decoration: none;
     font-weight: 500;
     font-size: 14px;
-    transition: all 0.2s ease; /* Hiệu ứng chuyển màu mượt mà trong 0.2 giây */
-    cursor: pointer;         /* Hiển thị con trỏ bàn tay khi rê chuột */
-    user-select: none;       /* Chống bôi đen văn bản khi click nhiều lần */
+    transition: all 0.2s ease;
+    cursor: pointer;
+    user-select: none;
 }
 
 .nav-item i {
-    font-size: 18px;         /* Kích thước icon menu */
+    font-size: 18px;
 }
 
 .nav-item:hover {
-    background-color: #f1f5f9; /* Đổi nền xám sáng khi rê chuột qua */
-    color: var(--text-h);      /* Đổi chữ sang đậm hơn */
+    background-color: #f1f5f9;
+    color: var(--text-h);
 }
 
 .nav-item.active {
-    background-color: var(--brand-light); /* Nền xanh dương nhạt báo hiệu tab đang mở */
-    color: var(--brand);                  /* Chữ và icon mang màu xanh thương hiệu */
-    font-weight: 600;                     /* Làm dày nét chữ của tab đang chọn */
+    background-color: var(--brand-light);
+    color: var(--brand);
+    font-weight: 600;
 }
 
 /* 4. Khung nội dung chính & Thanh tiêu đề (Header & Topbar) */
 .main-wrapper {
-    flex: 1;                 /* Chiếm toàn bộ diện tích chiều ngang còn lại của màn hình */
+    flex: 1;
     display: flex;
-    flex-direction: column;  /* Header nằm trên, Vùng nội dung cuộn nằm dưới */
-    overflow: hidden;        /* Ngăn tràn viền */
+    flex-direction: column;
+    overflow: hidden;
     position: relative;
 }
 
 .header {
-    height: 64px;            /* Chiều cao chuẩn 64px của thanh Header */
+    height: 64px;
     background-color: var(--bg-surface);
-    border-bottom: 1px solid var(--border-light); /* Kẻ viền đáy phân tách với nội dung */
+    border-bottom: 1px solid var(--border-light);
     display: flex;
     align-items: center;
-    justify-content: space-between; /* Đẩy đèn báo ESP32 sang trái và Avatar người dùng sang phải */
-    padding: 0 24px;         /* Đệm 2 bên lề 24px */
-    flex-shrink: 0;          /* Chiều cao Header luôn cố định, không bị méo */
+    justify-content: space-between;
+    padding: 0 24px;
+    flex-shrink: 0;
 }
 
 .header-left,
@@ -156,14 +151,13 @@ body {
     gap: 16px;
 }
 
-/* Viên thuốc thông tin người dùng (User Pill) */
 .user-pill {
     display: flex;
     align-items: center;
     gap: 10px;
     cursor: pointer;
     padding: 4px 12px 4px 4px;
-    border-radius: 30px;     /* Bo tròn dạng viên thuốc */
+    border-radius: 30px;
     border: 1px solid transparent;
     transition: border 0.2s, background-color 0.2s;
 }
@@ -176,8 +170,8 @@ body {
 .user-pill img {
     width: 32px;
     height: 32px;
-    border-radius: 50%;      /* Cắt ảnh đại diện thành hình tròn hoàn hảo */
-    object-fit: cover;       /* Đảm bảo tỉ lệ ảnh không bị méo */
+    border-radius: 50%;
+    object-fit: cover;
 }
 
 .user-pill .name {
@@ -188,29 +182,28 @@ body {
 
 /* 5. Vùng cuộn nội dung & Chuyển đổi màn hình (View Switching) */
 .content-scroll {
-    padding: 16px 24px;      /* Khoảng cách đệm xung quanh nội dung trang */
-    overflow-y: auto;        /* Cho phép cuộn dọc độc lập khi nội dung dài hơn chiều cao màn hình */
+    padding: 16px 24px;
+    overflow-y: auto;
     flex: 1;
 }
 
 .view-section {
-    display: none;           /* Mặc định ẩn tất cả các màn hình */
-    animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); /* Hiệu ứng xuất hiện mượt mà khi đổi tab */
+    display: none;
+    animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .view-section.active {
-    display: block;          /* Chỉ màn hình nào có class .active mới được hiển thị */
+    display: block;
 }
 
-/* Hoạt ảnh chuyển cảnh mờ dần và trượt nhẹ lên (Fade In & Slide Up) */
 @keyframes fadeIn {
-    from { 
-        opacity: 0; 
-        transform: translateY(8px); 
+    from {
+        opacity: 0;
+        transform: translateY(8px);
     }
-    to { 
-        opacity: 1; 
-        transform: translateY(0); 
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 
@@ -221,40 +214,37 @@ body {
     gap: 8px;
     padding: 6px 12px;
     border-radius: 20px;
-    background: #ecfdf5;     /* Nền xanh lá nhạt báo hiệu Online */
-    color: #065f46;          /* Chữ xanh lá đậm */
+    background: #ecfdf5;
+    color: #065f46;
     font-size: 12px;
     font-weight: 600;
     border: 1px solid #a7f3d0;
 }
 
-/* Chấm tròn phát sáng nhấp nháy (Pulsing Dot) */
 .pulse-dot {
     width: 8px;
     height: 8px;
-    background-color: var(--status-up); /* Màu xanh lá tươi */
+    background-color: var(--status-up);
     border-radius: 50%;
     box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-    animation: pulse 1.6s infinite cubic-bezier(0.66, 0, 0, 1); /* Vòng lặp phát sóng vô tận mỗi 1.6s */
+    animation: pulse 1.6s infinite cubic-bezier(0.66, 0, 0, 1);
 }
 
-/* Khi phần cứng bị mất kết nối (Offline) */
 .device-status-badge.offline {
-    background: #fef2f2;     /* Đổi sang nền đỏ nhạt */
-    color: #991b1b;          /* Chữ đỏ đậm */
-    border-color: #fecaca;   /* Viền đỏ */
+    background: #fef2f2;
+    color: #991b1b;
+    border-color: #fecaca;
 }
 
 .device-status-badge.offline .pulse-dot {
-    background-color: var(--status-down); /* Chấm chuyển sang màu đỏ */
-    box-shadow: none;        /* Tắt hiệu ứng tỏa sóng khi Offline */
+    background-color: var(--status-down);
+    box-shadow: none;
     animation: none;
 }
 
-/* Hoạt ảnh tỏa sóng lan rộng của chấm trạng thái */
 @keyframes pulse {
     to {
-        box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); /* Vòng tròn tỏa rộng ra 8px và mờ dần về trong suốt */
+        box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
     }
 }
 
@@ -262,7 +252,7 @@ body {
 .btn {
     display: inline-flex;
     align-items: center;
-    gap: 8px;                /* Khoảng cách giữa icon và chữ trong nút */
+    gap: 8px;
     padding: 9px 16px;
     border-radius: 8px;
     font-size: 13px;
@@ -272,17 +262,15 @@ body {
     border: 1px solid transparent;
 }
 
-/* Nút chính (Primary Button): Dùng cho nút "Lọc" */
 .btn-primary {
     background: var(--brand);
     color: #ffffff;
 }
 
 .btn-primary:hover {
-    background: var(--brand-hover); /* Màu xanh đậm hơn khi rê chuột */
+    background: var(--brand-hover);
 }
 
-/* Nút viền ngoài (Outline Button): Dùng cho nút "Đặt lại" */
 .btn-outline {
     background: #ffffff;
     border-color: var(--border-light);
@@ -298,8 +286,8 @@ body {
 /* 8. Thẻ chỉ số môi trường Dashboard (Metrics Cards) */
 .metrics-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr); /* Chia đều thành 3 cột bằng nhau cho 3 thẻ */
-    gap: 24px;               /* Khoảng cách giữa các thẻ là 24px */
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
     margin-bottom: 32px;
 }
 
@@ -315,35 +303,34 @@ body {
 }
 
 .simple-card:hover {
-    transform: translateY(-2px); /* Nhấc nhẹ thẻ lên 2px khi rê chuột tạo hiệu ứng 3D */
+    transform: translateY(-2px);
     box-shadow: var(--shadow-md);
 }
 
-/* Màu nền và viền riêng biệt cho từng loại cảm biến: */
 .bg-temp {
-    background-color: #fff1f2; /* Màu hồng nhạt cho Nhiệt độ */
+    background-color: #fff1f2;
     border-color: #ffe4e6;
 }
 
 .bg-humid {
-    background-color: #ebf4fc; /* Màu xanh nước biển nhạt cho Độ ẩm */
+    background-color: #ebf4fc;
     border-color: #dbeafe;
 }
 
 .bg-light {
-    background-color: #fffbeb; /* Màu vàng nắng nhạt cho Ánh sáng */
+    background-color: #fffbeb;
     border-color: #fef3c7;
 }
 
 .card-top-row {
     display: flex;
-    justify-content: space-between; /* Đẩy tên cảm biến sang trái, nhãn loại cảm biến sang phải */
+    justify-content: space-between;
     align-items: center;
 }
 
 .simple-label {
     font-size: 15px;
-    color: #374151;
+    color: #37513e;
     font-weight: 500;
     display: flex;
     align-items: center;
@@ -357,18 +344,18 @@ body {
 }
 
 .simple-value {
-    font-size: 34px;          /* Kích thước số đo to rõ ràng */
+    font-size: 34px;
     font-weight: 700;
     color: #000000;
     margin-top: 14px;
     letter-spacing: -0.5px;
     display: flex;
-    align-items: baseline;   /* Căn chân số đo thẳng hàng với đơn vị */
+    align-items: baseline;
     gap: 6px;
 }
 
 .unit-label {
-    font-size: 20px;         /* Đơn vị đo (°C, %, lux) kích thước nhỏ hơn số đo */
+    font-size: 20px;
     font-weight: 500;
     color: #64748b;
 }
@@ -384,7 +371,7 @@ body {
 
 .dashboard-layout {
     display: grid;
-    grid-template-columns: 2fr 1fr; /* Tỉ lệ 2:1 (Biểu đồ chiếm 2 phần bên trái, Thiết bị chiếm 1 phần bên phải) */
+    grid-template-columns: 2fr 1fr;
     gap: 24px;
 }
 
@@ -416,7 +403,7 @@ body {
 .device-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;               /* Khoảng cách 12px giữa 3 thẻ đèn */
+    gap: 12px;
 }
 
 .device-item {
@@ -468,18 +455,17 @@ body {
 
 /* 11. Công tắc gạt Toggle Switch (Tùy biến từ thẻ Checkbox) */
 .toggle {
-    appearance: none;        /* Ẩn giao diện ô checkbox mặc định của hệ điều hành */
-    width: 46px;             /* Chiều dài rãnh công tắc */
-    height: 26px;            /* Chiều cao rãnh công tắc */
-    background: #cbd5e1;     /* Màu xám khi thiết bị TẮT (OFF) */
-    border-radius: 24px;     /* Bo tròn 2 đầu rãnh */
+    appearance: none;
+    width: 46px;
+    height: 26px;
+    background: #cbd5e1;
+    border-radius: 24px;
     position: relative;
     cursor: pointer;
     outline: none;
-    transition: background 0.3s; /* Chuyển màu nền trong 0.3 giây */
+    transition: background 0.3s;
 }
 
-/* Viên bi tròn gạt bên trong công tắc */
 .toggle::after {
     content: '';
     position: absolute;
@@ -487,30 +473,28 @@ body {
     left: 3px;
     width: 20px;
     height: 20px;
-    background: white;       /* Viên bi màu trắng */
-    border-radius: 50%;      /* Bo tròn viên bi */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Đổ bóng nhẹ tạo cảm giác nổi khối */
-    transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1); /* Trượt mượt mà có gia tốc */
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
 }
 
-/* Khi công tắc được BẬT (checked) */
 .toggle:checked {
-    background: var(--status-up); /* Rãnh công tắc chuyển sang màu xanh lá */
+    background: var(--status-up);
 }
 
 .toggle:checked::after {
-    transform: translateX(20px);  /* Viên bi trượt sang phải 20px */
+    transform: translateX(20px);
 }
 
-/* Trạng thái thẻ thiết bị khi đang BẬT (.active) */
 .device-item.active {
-    background-color: #f0fdf4;    /* Nền thẻ chuyển sang xanh lá rất nhạt */
-    border-color: #bbf7d0;        /* Viền xanh lá nhạt */
+    background-color: #f0fdf4;
+    border-color: #bbf7d0;
 }
 
 .device-item.active .dev-avatar {
     background: #dcfce7;
-    color: var(--status-up);      /* Icon bóng đèn phát sáng xanh lá */
+    color: var(--status-up);
     border-color: #86efac;
 }
 
@@ -527,28 +511,26 @@ body {
     gap: 5px;
     font-size: 11px;
     font-weight: 600;
-    color: #b45309;               /* Chữ màu vàng nâu */
-    background: #fef3c7;          /* Nền vàng nhạt */
+    color: #b45309;
+    background: #fef3c7;
     border: 1px solid #fde68a;
     padding: 3px 8px;
     border-radius: 6px;
-    white-space: nowrap;          /* Không ngắt dòng chữ */
-    animation: pulsePending 1.5s infinite ease-in-out; /* Nhấp nháy nhẹ báo hiệu đang chờ */
+    white-space: nowrap;
+    animation: pulsePending 1.5s infinite ease-in-out;
 }
 
-/* Hoạt ảnh nhấp nháy cho badge pending */
 @keyframes pulsePending {
-    0%, 100% { 
-        opacity: 1; 
-        transform: scale(1); 
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
     }
-    50% { 
-        opacity: 0.75; 
-        transform: scale(0.97); 
+    50% {
+        opacity: 0.75;
+        transform: scale(0.97);
     }
 }
 
-/* Giao diện thẻ thiết bị khi rơi vào trạng thái đang chờ phản hồi ACK */
 .device-item.is-pending {
     border-color: #fde68a !important;
     background-color: #fffbeb !important;
@@ -560,12 +542,11 @@ body {
     border-color: #fde68a !important;
 }
 
-/* Khóa nút switch khi đang chờ xử lý để chống spam click */
 .toggle:disabled,
 .toggle.pending {
-    opacity: 0.55;           /* Làm mờ công tắc */
-    cursor: wait;            /* Con trỏ chuyển thành đồng hồ cát / quay tròn */
-    pointer-events: none;    /* Vô hiệu hóa hoàn toàn sự kiện chuột */
+    opacity: 0.55;
+    cursor: wait;
+    pointer-events: none;
 }
 
 /* 13. Thanh công cụ tìm kiếm và bộ lọc (Toolbar & Search Box) */
@@ -575,7 +556,7 @@ body {
     align-items: center;
     margin-bottom: 20px;
     gap: 16px;
-    flex-wrap: wrap;         /* Tự động xuống dòng khi màn hình hẹp */
+    flex-wrap: wrap;
 }
 
 .toolbar-left {
@@ -587,7 +568,7 @@ body {
 }
 
 .search-box {
-    position: relative;      /* Để đặt icon kính lúp tuyệt đối bên trong ô input */
+    position: relative;
     flex: 1;
     max-width: 350px;
 }
@@ -596,25 +577,25 @@ body {
     position: absolute;
     left: 12px;
     top: 50%;
-    transform: translateY(-50%); /* Căn icon chính giữa chiều dọc của ô nhập */
+    transform: translateY(-50%);
     color: var(--text-muted);
     font-size: 18px;
 }
 
 .search-box input {
     width: 100%;
-    padding: 10px 12px 10px 38px; /* Thụt lề trái 38px để chữ không đè lên icon kính lúp */
+    padding: 10px 12px 10px 38px;
     border: 1px solid var(--border-light);
     border-radius: 8px;
-    outline: none;           /* Bỏ viền xanh mặc định của trình duyệt */
+    outline: none;
     font-size: 13px;
     color: var(--text-h);
     transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .search-box input:focus {
-    border-color: var(--brand); /* Đổi màu viền xanh khi nhấn vào gõ */
-    box-shadow: 0 0 0 3px var(--brand-light); /* Tạo quầng sáng xanh nhạt xung quanh */
+    border-color: var(--brand);
+    box-shadow: 0 0 0 3px var(--brand-light);
 }
 
 .filter-select {
@@ -637,7 +618,7 @@ body {
 /* 14. Bảng dữ liệu hiển thị (Data Table & Fixed Height) */
 .data-table {
     width: 100%;
-    border-collapse: separate; /* Tách biệt các ô để áp dụng bo góc bảng */
+    border-collapse: separate;
     border-spacing: 0;
 }
 
@@ -647,15 +628,14 @@ body {
     font-size: 12px;
     font-weight: 600;
     color: var(--text-muted);
-    text-transform: uppercase; /* In hoa tiêu đề các cột */
+    text-transform: uppercase;
     letter-spacing: 0.5px;
     border-bottom: 1px solid var(--border-light);
-    background: #f8fafc;     /* Nền tiêu đề bảng hơi xám nhẹ */
-    height: 40px;            /* Chiều cao cố định hàng tiêu đề: 40px */
-    white-space: nowrap;     /* Không ngắt dòng chữ tiêu đề */
+    background: #f8fafc;
+    height: 40px;
+    white-space: nowrap;
 }
 
-/* Kiểu dáng cho tiêu đề cột hỗ trợ sắp xếp */
 .data-table th.th-sortable {
     cursor: pointer;
     user-select: none;
@@ -678,8 +658,8 @@ body {
     font-size: 13px;
     border-bottom: 1px solid var(--border-light);
     color: var(--text-p);
-    vertical-align: middle;  /* Căn nội dung chính giữa theo chiều dọc */
-    height: 60px;            /* Chiều cao chuẩn mỗi hàng dữ liệu: 60px */
+    vertical-align: middle;
+    height: 60px;
     white-space: nowrap;
 }
 
@@ -703,12 +683,11 @@ body {
 }
 
 .table-responsive {
-    overflow-x: auto;        /* Cho phép cuộn ngang nếu bảng quá dài trên màn hình nhỏ */
+    overflow-x: auto;
     width: 100%;
 }
 
-/* CỐ ĐỊNH CHIỀU CAO BẢNG: 40px header + 7 hàng * 63px = 481px
-   Giúp giao diện bảng luôn có độ cao ổn định tuyệt đối, không bị nhảy giật khung khi chuyển trang */
+/* Cố định chiều cao bảng: 40px header + 7 hàng * 63px = 481px */
 #sensors .table-responsive,
 #history .table-responsive {
     min-height: 481px;
@@ -725,7 +704,7 @@ body {
 }
 
 .data-table tbody tr:hover {
-    background-color: #f8fafc; /* Đổi nền xám sáng khi di chuột qua dòng dữ liệu */
+    background-color: #f8fafc;
 }
 
 /* 15. Huy hiệu trạng thái lệnh & Thẻ phân loại chỉ số cảm biến */
@@ -739,7 +718,6 @@ body {
     font-weight: 500;
 }
 
-/* Chấm tròn nhỏ phía trước chữ trạng thái */
 .status-badge::before {
     content: '';
     width: 6px;
@@ -747,7 +725,6 @@ body {
     border-radius: 50%;
 }
 
-/* Trạng thái Thành công (xanh lá) */
 .badge-green {
     background: #ecfdf5;
     color: #059669;
@@ -757,7 +734,6 @@ body {
     background: #10b981;
 }
 
-/* Trạng thái Thất bại (đỏ) */
 .badge-red {
     background: #fef2f2;
     color: #dc2626;
@@ -767,7 +743,6 @@ body {
     background: #ef4444;
 }
 
-/* Trạng thái Đang chờ (vàng) */
 .badge-yellow,
 .badge-pending {
     background: #fffbeb;
@@ -779,7 +754,6 @@ body {
     background: #f59e0b;
 }
 
-/* Thẻ tag loại cảm biến trong bảng */
 .type-tag {
     display: inline-block;
     padding: 5px 12px;
@@ -789,21 +763,18 @@ body {
     border: 1px solid transparent;
 }
 
-/* Tag Nhiệt độ */
 .tag-temp {
     background: #fff1f2;
     color: #be123c;
     border-color: #ffe4e6;
 }
 
-/* Tag Độ ẩm */
 .tag-humid {
     background: #f0fdfa;
     color: #0f766e;
     border-color: #ccfbf1;
 }
 
-/* Tag Ánh sáng */
 .tag-light {
     background: #fffbeb;
     color: #b45309;
@@ -850,7 +821,6 @@ body {
     transform: translateY(0);
 }
 
-/* Khi đã sao chép thành công: Đổi icon và màu xanh xác nhận */
 .btn-copy-time.copied {
     color: #059669;
     background: #ecfdf5;
@@ -875,7 +845,7 @@ body {
 
 .pagination-controls {
     display: flex;
-    gap: 6px;                /* Khoảng cách 6px giữa các nút số trang */
+    gap: 6px;
 }
 
 .page-btn {
@@ -899,23 +869,21 @@ body {
     color: var(--text-h);
 }
 
-/* Nút của trang đang xem */
 .page-btn.active {
     background: var(--brand);
     border-color: var(--brand);
-    color: #ffffff;          /* Chữ trắng trên nền xanh */
+    color: #ffffff;
 }
 
-/* Nút bị vô hiệu hóa (Disabled) khi ở trang đầu hoặc trang cuối */
 .page-btn:disabled {
     opacity: 0.5;
-    cursor: not-allowed;     /* Con trỏ cấm click */
+    cursor: not-allowed;
 }
 
 /* 18. Màn hình Hồ sơ cá nhân (Profile Card) */
 .profile-card {
     padding: 40px;
-    max-width: 800px;        /* Giới hạn chiều rộng tối đa 800px căn giữa màn hình */
+    max-width: 800px;
     margin: 0 auto;
     background: #ffffff;
     border-radius: 16px;
@@ -935,7 +903,7 @@ body {
 .profile-avatar-clean {
     width: 110px;
     height: 110px;
-    border-radius: 50%;      /* Ảnh đại diện tròn lớn */
+    border-radius: 50%;
     object-fit: cover;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     border: 1px solid var(--border-light);
@@ -943,7 +911,7 @@ body {
 
 .info-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* Chia đều 2 cột thông tin */
+    grid-template-columns: 1fr 1fr;
     gap: 24px;
 }
 
@@ -970,42 +938,40 @@ body {
 }
 
 /* 19. Tương thích đa kích thước màn hình (Responsive Design) */
-/* Giao diện trên màn hình Tablet / Màn hình nhỏ (<= 1024px) */
 @media (max-width: 1024px) {
     .dashboard-layout {
-        grid-template-columns: 1fr; /* Chuyển bố cục Dashboard từ 2 cột thành 1 cột xếp chồng */
+        grid-template-columns: 1fr;
     }
     .metrics-grid {
-        grid-template-columns: 1fr; /* 3 thẻ cảm biến xếp chồng dọc */
+        grid-template-columns: 1fr;
     }
 }
 
-/* Giao diện trên màn hình Điện thoại (<= 768px) */
 @media (max-width: 768px) {
     body {
-        flex-direction: column;      /* Đặt Sidebar lên đỉnh và Khung nội dung xuống dưới */
+        flex-direction: column;
     }
     .sidebar {
-        width: 100%;                 /* Sidebar chiếm trọn chiều ngang */
+        width: 100%;
         height: auto;
         border-right: none;
         border-bottom: 1px solid var(--border-light);
     }
     .nav-list {
-        flex-direction: row;         /* Menu điều hướng chuyển thành hàng ngang */
-        overflow-x: auto;            /* Cho phép vuốt ngang các tab menu */
+        flex-direction: row;
+        overflow-x: auto;
         padding: 10px 16px;
     }
     .profile-card {
         padding: 24px;
     }
     .profile-header-clean {
-        flex-direction: column;      /* Căn avatar và tên sinh viên xếp dọc chính giữa */
+        flex-direction: column;
         text-align: center;
         gap: 16px;
     }
     .info-grid {
-        grid-template-columns: 1fr;  /* 4 ô thông tin hồ sơ chuyển thành 1 cột */
+        grid-template-columns: 1fr;
     }
 }
 
