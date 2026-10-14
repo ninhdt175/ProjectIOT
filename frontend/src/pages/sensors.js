@@ -11,7 +11,7 @@ let appliedSensorFilters = {
 
 let sensorSortOrder = 'DESC';
 let currentSensorPage = 1;
-const sensorPageSize = 7;
+let sensorPageSize = 7;
 
 // Kiểm tra bản ghi có khớp bộ lọc hay không
 function matchesSensorFilter(item) {
@@ -28,17 +28,32 @@ function matchesSensorFilter(item) {
         return Boolean(item.time && item.time.toLowerCase().includes(search));
     }
 
-    if (field === 'temperature' || field === 'humidity' || field === 'light') {
-        const valMatch = item.value && String(item.value).toLowerCase().includes(search);
-        const timeMatch = item.time && item.time.toLowerCase().includes(search);
-        const sensorMatch = item.sensor && item.sensor.toLowerCase().includes(search);
-        return Boolean(valMatch || timeMatch || sensorMatch);
+    if (field === 'temperature') {
+        const valStr = item.value ? String(item.value).toLowerCase() : '';
+        const rawStr = (item.rawVal !== undefined && item.rawVal !== null) ? String(item.rawVal).toLowerCase() : '';
+        return Boolean(valStr.includes(search) || rawStr.includes(search));
+    }
+
+    if (field === 'humidity') {
+        const valStr = item.value ? String(item.value).toLowerCase() : '';
+        const rawStr = (item.rawVal !== undefined && item.rawVal !== null) ? String(item.rawVal).toLowerCase() : '';
+        return Boolean(valStr.includes(search) || rawStr.includes(search));
+    }
+
+    if (field === 'light') {
+        const valStr = item.value ? String(item.value).toLowerCase() : '';
+        const rawStr = (item.rawVal !== undefined && item.rawVal !== null) ? String(item.rawVal).toLowerCase() : '';
+        return Boolean(valStr.includes(search) || rawStr.includes(search));
     }
 
     const typeName = item.type === 'temperature' ? 'nhiệt độ' : (item.type === 'humidity' ? 'độ ẩm' : (item.type === 'light' ? 'ánh sáng' : ''));
+    const valStr = item.value ? String(item.value).toLowerCase() : '';
+    const rawStr = (item.rawVal !== undefined && item.rawVal !== null) ? String(item.rawVal).toLowerCase() : '';
+
     return Boolean(
         (item.time && item.time.toLowerCase().includes(search)) ||
-        (item.value && String(item.value).toLowerCase().includes(search)) ||
+        valStr.includes(search) ||
+        rawStr.includes(search) ||
         (item.sensor && item.sensor.toLowerCase().includes(search)) ||
         (item.device && item.device.toLowerCase().includes(search)) ||
         (typeName && typeName.includes(search))
@@ -67,6 +82,11 @@ function renderSensorTable() {
     const sortIcon = document.getElementById('sensor-sort-icon');
     if (sortIcon) {
         sortIcon.className = sensorSortOrder === 'ASC' ? 'ph-bold ph-arrow-up' : 'ph-bold ph-arrow-down';
+    }
+
+    const sizeSelect = document.getElementById('sensor-page-size');
+    if (sizeSelect && sizeSelect.value !== String(sensorPageSize)) {
+        sizeSelect.value = String(sensorPageSize);
     }
 
     const totalItems = filtered.length;
@@ -195,12 +215,53 @@ function handleManualFilterSensor() {
     renderSensorTable();
 }
 
+// Cập nhật gợi ý tìm kiếm theo trường được chọn
+function updateSensorSearchPlaceholder(field) {
+    const searchInput = document.getElementById('sensor-search-input');
+    if (!searchInput) return;
+
+    switch (field) {
+        case 'time':
+            searchInput.placeholder = 'Nhập thời gian tìm kiếm';
+            break;
+        case 'temperature':
+            searchInput.placeholder = 'Nhập giá trị nhiệt độ';
+            break;
+        case 'humidity':
+            searchInput.placeholder = 'Nhập giá trị độ ẩm';
+            break;
+        case 'light':
+            searchInput.placeholder = 'Nhập giá trị ánh sáng';
+            break;
+        default:
+            searchInput.placeholder = 'Nhập giá trị / thời gian tìm kiếm';
+            break;
+    }
+}
+
+// Xử lý khi chọn tiêu chí lọc từ dropdown 
+function handleSensorFieldChange(field) {
+    updateSensorSearchPlaceholder(field);
+}
+
+// Xử lý thay đổi số lượng bản ghi hiển thị trên mỗi trang
+function handleSensorPageSizeChange(newSize) {
+    sensorPageSize = parseInt(newSize, 10) || 7;
+    currentSensorPage = 1;
+
+    const sizeSelect = document.getElementById('sensor-page-size');
+    if (sizeSelect) sizeSelect.value = String(sensorPageSize);
+
+    renderSensorTable();
+}
+
 // Đặt lại toàn bộ bộ lọc
 function resetSensorFilters() {
     const searchInput = document.getElementById('sensor-search-input');
     const fieldSelect = document.getElementById('sensor-field-filter');
     const sortSelect = document.getElementById('sensor-sort-order');
     const sortIcon = document.getElementById('sensor-sort-icon');
+    const sizeSelect = document.getElementById('sensor-page-size');
 
     if (searchInput) searchInput.value = '';
     if (fieldSelect) fieldSelect.value = 'ALL';
@@ -210,9 +271,14 @@ function resetSensorFilters() {
         field: 'ALL'
     };
 
+    updateSensorSearchPlaceholder('ALL');
+
     sensorSortOrder = 'DESC';
     if (sortSelect) sortSelect.value = 'DESC';
     if (sortIcon) sortIcon.className = 'ph-bold ph-arrow-down';
+
+    sensorPageSize = 7;
+    if (sizeSelect) sizeSelect.value = '7';
 
     currentSensorPage = 1;
     renderSensorTable();
@@ -328,3 +394,6 @@ window.handleSensorSortChange = handleSensorSortChange;
 window.toggleSensorTimeSort = toggleSensorTimeSort;
 window.resetSensorFilters = resetSensorFilters;
 window.goToSensorPage = goToSensorPage;
+window.handleSensorFieldChange = handleSensorFieldChange;
+window.handleSensorPageSizeChange = handleSensorPageSizeChange;
+window.updateSensorSearchPlaceholder = updateSensorSearchPlaceholder;

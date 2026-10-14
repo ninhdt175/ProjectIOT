@@ -192,7 +192,7 @@
                                 <i class="ph ph-magnifying-glass"></i>
                                 <input type="text" id="sensor-search-input" placeholder="Nhập giá trị / thời gian tìm kiếm...">
                             </div>
-                            <select id="sensor-field-filter" class="filter-select">
+                            <select id="sensor-field-filter" class="filter-select" onchange="handleSensorFieldChange(this.value)">
                                 <option value="ALL">Tất cả thông tin</option>
                                 <option value="time">Thời gian</option>
                                 <option value="temperature">Nhiệt độ</option>
@@ -230,7 +230,18 @@
                     </div>
 
                     <div class="pagination-container">
-                        <div id="sensor-pagination-info">Hiển thị 1 - 7 trong số 20 bản ghi</div>
+                        <div class="pagination-info-group">
+                            <span id="sensor-pagination-info"></span>
+                            <div class="page-size-selector">
+                                <label for="sensor-page-size">Số bản ghi:</label>
+                                <select id="sensor-page-size" class="page-size-select" onchange="handleSensorPageSizeChange(this.value)" title="Số lượng bản ghi mỗi trang">
+                                    <option value="5">5</option>
+                                    <option value="7" selected>7</option>
+                                    <option value="10">10</option>
+                                    <option value="20">20</option>
+                                </select>
+                            </div>
+                        </div>
                         <div class="pagination-controls" id="sensor-pagination-controls">
                         </div>
                     </div>
@@ -299,7 +310,18 @@
                     </div>
 
                     <div class="pagination-container">
-                        <div id="history-pagination-info">Hiển thị 1 - 7 trong số 14 bản ghi</div>
+                        <div class="pagination-info-group">
+                            <span id="history-pagination-info"></span>
+                            <div class="page-size-selector">
+                                <label for="history-page-size">Số bản ghi:</label>
+                                <select id="history-page-size" class="page-size-select" onchange="handleHistoryPageSizeChange(this.value)" title="Số lượng bản ghi mỗi trang">
+                                    <option value="5">5</option>
+                                    <option value="7" selected>7</option>
+                                    <option value="10">10</option>
+                                    <option value="20">20</option>
+                                </select>
+                            </div>
+                        </div>
                         <div class="pagination-controls" id="history-pagination-controls">
                         </div>
                     </div>
@@ -323,16 +345,24 @@
                             <div class="info-val">B23DCCN633</div>
                         </div>
                         <div class="info-box">
-                            <div class="info-label">Ngành học</div>
-                            <div class="info-val">Công nghệ Thông tin</div>
-                        </div>
-                        <div class="info-box">
-                            <div class="info-label">Thông tin Nhóm học phần</div>
-                            <div class="info-val">Nhóm 10 - Môn IoT và Ứng dụng</div>
-                        </div>
-                        <div class="info-box">
                             <div class="info-label">Giảng viên hướng dẫn</div>
                             <div class="info-val">Nguyễn Quốc Uy</div>
+                        </div>
+                        <div class="info-box">
+                            <div class="info-label">Github</div>
+                            <div class="info-val">https://github.com/ninhdt175/ProjectIOT</div>
+                        </div>
+                        <div class="info-box">
+                            <div class="info-label">Figma</div>
+                            <div class="info-val">figma.com/design/9OpNKgfWUft8LxxPlwzOK</div>
+                        </div>
+                        <div class="info-box">
+                            <div class="info-label">Pdf báo cáo</div>
+                            <div class="info-val">https://github.com/ninhdt175/ProjectIOT</div>
+                        </div>
+                        <div class="info-box">
+                            <div class="info-label">API doc</div>
+                            <div class="info-val">figma.com/design/9OpNKgfWUft8LxxPlwzOK</div>
                         </div>
                     </div>
                 </div>

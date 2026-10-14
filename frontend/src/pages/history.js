@@ -13,7 +13,7 @@ let appliedHistoryFilters = {
 
 let historySortOrder = 'DESC';
 let currentHistoryPage = 1;
-const historyPageSize = 7;
+let historyPageSize = 7;
 
 // Chuyển đổi chuỗi thời gian nhật ký thành timestamp so sánh
 function parseHistoryTimestamp(timeStr) {
@@ -81,6 +81,11 @@ function renderControlHistoryTable() {
     const sortIcon = document.getElementById('history-sort-icon');
     if (sortIcon) {
         sortIcon.className = historySortOrder === 'ASC' ? 'ph-bold ph-arrow-up' : 'ph-bold ph-arrow-down';
+    }
+
+    const sizeSelect = document.getElementById('history-page-size');
+    if (sizeSelect && sizeSelect.value !== String(historyPageSize)) {
+        sizeSelect.value = String(historyPageSize);
     }
 
     const totalItems = filtered.length;
@@ -223,6 +228,17 @@ function handleManualFilterHistory() {
     renderControlHistoryTable();
 }
 
+// Xử lý thay đổi số lượng bản ghi hiển thị trên mỗi trang
+function handleHistoryPageSizeChange(newSize) {
+    historyPageSize = parseInt(newSize, 10) || 7;
+    currentHistoryPage = 1;
+
+    const sizeSelect = document.getElementById('history-page-size');
+    if (sizeSelect) sizeSelect.value = String(historyPageSize);
+
+    renderControlHistoryTable();
+}
+
 // Đặt lại toàn bộ bộ lọc
 function resetHistoryFilters() {
     const timeInput = document.getElementById('history-time-search-input');
@@ -231,6 +247,7 @@ function resetHistoryFilters() {
     const statusSelect = document.getElementById('history-status-filter');
     const sortSelect = document.getElementById('history-sort-order');
     const sortIcon = document.getElementById('history-sort-icon');
+    const sizeSelect = document.getElementById('history-page-size');
 
     if (timeInput) timeInput.value = '';
     if (deviceSelect) deviceSelect.value = 'ALL';
@@ -240,6 +257,9 @@ function resetHistoryFilters() {
     historySortOrder = 'DESC';
     if (sortSelect) sortSelect.value = 'DESC';
     if (sortIcon) sortIcon.className = 'ph-bold ph-arrow-down';
+
+    historyPageSize = 7;
+    if (sizeSelect) sizeSelect.value = '7';
 
     appliedHistoryFilters = {
         time: '',
@@ -326,3 +346,4 @@ window.handleHistorySortChange = handleHistorySortChange;
 window.toggleHistoryTimeSort = toggleHistoryTimeSort;
 window.resetHistoryFilters = resetHistoryFilters;
 window.goToHistoryPage = goToHistoryPage;
+window.handleHistoryPageSizeChange = handleHistoryPageSizeChange;

@@ -687,11 +687,10 @@ body {
     width: 100%;
 }
 
-/* Cố định chiều cao bảng: 40px header + 7 hàng * 63px = 481px */
+/* Cố định chiều cao bảng tối thiểu: 40px header + 7 hàng * 63px = 481px */
 #sensors .table-responsive,
 #history .table-responsive {
     min-height: 481px;
-    height: 481px;
 }
 
 /* Dòng trống đệm dữ liệu: Giữ đúng chiều cao 60px khi trang cuối có ít hơn 7 bản ghi */
@@ -833,7 +832,6 @@ body {
     justify-content: space-between;
     align-items: center;
     min-height: 48px;
-    height: 48px;
     box-sizing: border-box;
     padding-top: 14px;
     margin-top: 14px;
@@ -841,6 +839,40 @@ body {
     font-size: 13px;
     color: var(--text-muted);
     flex-shrink: 0;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.pagination-info-group {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.page-size-selector {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.page-size-select {
+    padding: 4px 8px;
+    border: 1px solid var(--border-light);
+    border-radius: 6px;
+    background: #ffffff;
+    color: var(--text-h);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.page-size-select:focus {
+    border-color: var(--brand);
 }
 
 .pagination-controls {
