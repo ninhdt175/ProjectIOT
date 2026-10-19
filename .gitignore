@@ -2,6 +2,13 @@
 frontend_old_backup/
 frontend_refactored/
 
+# Dependencies & Environment
+node_modules/
+.env
+.env.local
+.env.*.local
+!.env.example
+
 # Local agent configuration
 GEMINI.md
 .agents/
@@ -11,6 +18,21 @@ GEMINI.md
 *.bak
 *.tmp
 *.log
+*.py
+*.bat
+*.dbml
+*.txt
+Mockup_*.html
+
+# Documentation & Diagram Assets (excluded from Git per workspace rules)
+*.md
+!README.md
+*.drawio
+*.excalidraw
+*.png
+*.jpg
+*.jpeg
+*.gif
 
 # Operating System files
 .DS_Store
