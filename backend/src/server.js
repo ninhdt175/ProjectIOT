@@ -9,6 +9,7 @@ require('dotenv').config();
 
 const { testDbConnection } = require('./config/db.config');
 const swaggerSpec = require('./config/swagger.config');
+const apiRoutes = require('./routes/index');
 const { errorHandler, notFoundHandler } = require('./middlewares/error.middleware');
 
 const app = express();
@@ -28,9 +29,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
-// Cấu hình Swagger API Docs
+// Cấu hình Swagger API Docs tại /api-docs
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
-  customSiteTitle: 'IoT System API Documentation',
+  customSiteTitle: 'Tài liệu IoT System API - Swagger UI',
   customCss: '.swagger-ui .topbar { display: none }'
 }));
 
@@ -44,7 +45,7 @@ app.get('/api-docs.json', (req, res) => {
 const frontendPath = path.join(__dirname, '../../frontend');
 app.use(express.static(frontendPath));
 
-// API kiểm tra tình trạng ban đầu của Server (Phase 1 sanity check)
+// API kiểm tra tình trạng ban đầu của Server
 /**
  * @openapi
  * /api/status:
@@ -64,6 +65,9 @@ app.get('/api/status', (req, res) => {
   });
 });
 
+// Đăng ký toàn bộ các route API tại tiền tố /api
+app.use('/api', apiRoutes);
+
 // Socket.IO kết nối realtime cơ bản
 io.on('connection', (socket) => {
   console.log(`[Socket.IO] Client đã kết nối: ${socket.id}`);
@@ -73,7 +77,7 @@ io.on('connection', (socket) => {
   });
 });
 
-// Xử lý route không tồn tại (chỉ áp dụng cho các route /api/...)
+// Xử lý route không tồn tại (áp dụng cho các route /api/...)
 app.use('/api/*', notFoundHandler);
 
 // Middleware xử lý lỗi tập trung
@@ -84,7 +88,7 @@ const PORT = process.env.PORT || 3000;
 // Khởi động Server sau khi kiểm tra CSDL
 const startServer = async () => {
   console.log('====================================================');
-  console.log('  ĐANG KHỞI ĐỘNG HỆ THỐNG IOT BACKEND (GIAI ĐOẠN 1)  ');
+  console.log('       HỆ THỐNG IOT BACKEND SERVER - GIAI ĐOẠN 2     ');
   console.log('====================================================');
 
   await testDbConnection();
