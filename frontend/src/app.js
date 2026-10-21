@@ -25,6 +25,21 @@ function switchView(viewId, element) {
         targetSection.classList.add('active');
     }
 
+    // Tự động làm mới và đồng bộ dữ liệu khi chuyển sang tab Cảm biến hoặc Lịch sử
+    if (viewId === 'sensors') {
+        if (typeof window.fetchSensorDataFromAPI === 'function') {
+            window.fetchSensorDataFromAPI();
+        } else if (typeof window.renderSensorTable === 'function') {
+            window.renderSensorTable();
+        }
+    } else if (viewId === 'history') {
+        if (typeof window.fetchControlHistoryFromAPI === 'function') {
+            window.fetchControlHistoryFromAPI();
+        } else if (typeof window.renderControlHistoryTable === 'function') {
+            window.renderControlHistoryTable();
+        }
+    }
+
     try {
         sessionStorage.setItem('activeView', viewId);
     } catch (e) {

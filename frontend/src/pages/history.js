@@ -347,3 +347,4 @@ window.toggleHistoryTimeSort = toggleHistoryTimeSort;
 window.resetHistoryFilters = resetHistoryFilters;
 window.goToHistoryPage = goToHistoryPage;
 window.handleHistoryPageSizeChange = handleHistoryPageSizeChange;
+window.fetchControlHistoryFromAPI = fetchControlHistoryFromAPI;

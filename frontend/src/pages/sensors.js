@@ -356,15 +356,16 @@ function copyTimeToClipboard(timeStr, btn) {
 // Đồng bộ dữ liệu lịch sử từ Backend REST API
 async function fetchSensorDataFromAPI() {
     if (window.HttpService && typeof window.HttpService.getSensorHistory === 'function') {
-        const data = await window.HttpService.getSensorHistory(1, 20);
+        const data = await window.HttpService.getSensorHistory(1, 100);
         if (data && Array.isArray(data) && data.length > 0) {
             sensorDataList = data.map(item => ({
                 id: item.id,
-                sensor: item.sensor_name || 'DHT22_01',
-                device: item.device_id || 'ESP32_01',
+                sensor: item.sensor || item.sensor_code || (item.type === 'light' ? 'LDR_01' : 'DHT22_01'),
+                device: item.device || item.device_id || 'ESP32_01',
                 type: item.type || 'temperature',
-                value: item.formatted_value || `${item.value}`,
-                time: item.created_at || item.time
+                value: item.value || (item.rawVal !== undefined ? `${item.rawVal}` : ''),
+                rawVal: item.rawVal !== undefined ? Number(item.rawVal) : (parseFloat(item.value) || 0),
+                time: item.time || item.created_at
             }));
             renderSensorTable();
         }
@@ -397,3 +398,4 @@ window.goToSensorPage = goToSensorPage;
 window.handleSensorFieldChange = handleSensorFieldChange;
 window.handleSensorPageSizeChange = handleSensorPageSizeChange;
 window.updateSensorSearchPlaceholder = updateSensorSearchPlaceholder;
+window.fetchSensorDataFromAPI = fetchSensorDataFromAPI;

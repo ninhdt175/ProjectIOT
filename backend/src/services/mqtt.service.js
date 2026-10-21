@@ -58,12 +58,17 @@ const initMQTTService = (io) => {
 
         // Phát sự kiện Socket.IO tức thì tới Web Dashboard để nhảy số và vẽ đồ thị
         if (io) {
+          const now = new Date();
+          const pad = (n) => String(n).padStart(2, '0');
+          const timeFormatted = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
           io.emit('sensor_data', {
             device_id,
             sensor_id,
             temperature,
             humidity,
-            light_lux
+            light_lux,
+            time: timeFormatted,
+            created_at: timeFormatted
           });
         }
       }

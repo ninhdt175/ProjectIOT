@@ -59,8 +59,8 @@ const getSensorHistory = async (req, res, next) => {
       if (row.light_lux !== null && row.light_lux !== undefined) {
         flattenedList.push({
           id: Number(row.id),
-          sensor_id: row.sensor_id,
-          sensor: row.sensor_code,
+          sensor_id: 2,
+          sensor: 'LDR_01',
           device: 'ESP32_01',
           type: 'light',
           value: `${row.light_lux} lux`,

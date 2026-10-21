@@ -1,7 +1,7 @@
 // Cấu hình toàn cục cho ứng dụng Front-End IoT
 const APP_CONFIG = {
     // Địa chỉ Backend Server
-    BACKEND_URL: window.location.origin,
+    BACKEND_URL: (window.location.port === '3000') ? window.location.origin : 'http://localhost:3000',
 
     // Danh sách thiết bị điều khiển và mapping GPIO ESP32
     DEVICES: {
