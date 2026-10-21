@@ -11,6 +11,8 @@ const { testDbConnection } = require('./config/db.config');
 const swaggerSpec = require('./config/swagger.config');
 const apiRoutes = require('./routes/index');
 const { errorHandler, notFoundHandler } = require('./middlewares/error.middleware');
+const { initMQTTService } = require('./services/mqtt.service');
+const { initSocketService } = require('./services/socket.service');
 
 const app = express();
 const server = http.createServer(app);
@@ -68,14 +70,9 @@ app.get('/api/status', (req, res) => {
 // Đăng ký toàn bộ các route API tại tiền tố /api
 app.use('/api', apiRoutes);
 
-// Socket.IO kết nối realtime cơ bản
-io.on('connection', (socket) => {
-  console.log(`[Socket.IO] Client đã kết nối: ${socket.id}`);
-
-  socket.on('disconnect', () => {
-    console.log(`[Socket.IO] Client đã ngắt kết nối: ${socket.id}`);
-  });
-});
+// Khởi tạo dịch vụ MQTT và Socket.IO thời gian thực
+initMQTTService(io);
+initSocketService(io);
 
 // Xử lý route không tồn tại (áp dụng cho các route /api/...)
 app.use('/api/*', notFoundHandler);
@@ -88,7 +85,8 @@ const PORT = process.env.PORT || 3000;
 // Khởi động Server sau khi kiểm tra CSDL
 const startServer = async () => {
   console.log('====================================================');
-  console.log('       HỆ THỐNG IOT BACKEND SERVER - GIAI ĐOẠN 2     ');
+  console.log('       HỆ THỐNG IOT BACKEND SERVER - GIAI ĐOẠN 3     ');
+  console.log('    (TÍCH HỢP MQTT MOSQUITTO & SOCKET.IO REALTIME)  ');
   console.log('====================================================');
 
   await testDbConnection();
