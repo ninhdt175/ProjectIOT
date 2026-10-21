@@ -1,7 +1,10 @@
 // Điều khiển thiết bị ngoại vi (Device Control Component)
 
-// Theo dõi cờ pending chống spam click
+// Theo dõi cờ pending chống spam click cho từng thiết bị
 const pendingDevices = {};
+
+// Quản lý bộ đếm thời gian chờ phản hồi 5s của từng thiết bị
+const controlTimeouts = {};
 
 // Cập nhật trạng thái chờ lệnh trên giao diện (isPending: boolean)
 function setDevicePendingState(itemId, deviceKey, isPending) {
@@ -34,7 +37,7 @@ function setDevicePendingState(itemId, deviceKey, isPending) {
     }
 }
 
-// Điều khiển bật/tắt thiết bị với cơ chế Pessimistic UI
+// Điều khiển bật/tắt thiết bị với cơ chế Pessimistic UI và Timeout 5s
 function toggleDevice(itemId, deviceKey, checkbox) {
     const item = document.getElementById(itemId);
     if (!item || !checkbox) return;
@@ -48,7 +51,7 @@ function toggleDevice(itemId, deviceKey, checkbox) {
     const desiredState = checkbox.checked;
     const originalState = !desiredState;
 
-    // Giữ nguyên trạng thái cũ cho đến khi nhận được ACK
+    // Giữ nguyên trạng thái cũ cho đến khi nhận được ACK xác nhận
     checkbox.checked = originalState;
     setDevicePendingState(itemId, deviceKey, true);
 
@@ -58,7 +61,7 @@ function toggleDevice(itemId, deviceKey, checkbox) {
     const timeStr = `Hôm nay, ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
     const requestId = `cmd_${Date.now()}_${deviceKey}`;
 
-    // Ghi nhật ký ở trạng thái pending
+    // Ghi nhật ký lịch sử ở trạng thái pending (Đang chờ)
     if (typeof appendControlLog === 'function') {
         appendControlLog({
             id: requestId,
@@ -71,40 +74,53 @@ function toggleDevice(itemId, deviceKey, checkbox) {
         });
     }
 
-    // Gửi lệnh qua WebSocket
-    let hasSentViaSocket = false;
+    // Thiết lập bộ đếm thời gian 5s: nếu quá 5s không có phản hồi thì tự động chuyển sang Thất bại
+    if (controlTimeouts[deviceKey]) {
+        clearTimeout(controlTimeouts[deviceKey]);
+    }
+
+    controlTimeouts[deviceKey] = setTimeout(() => {
+        if (pendingDevices[deviceKey]) {
+            console.warn(`[DeviceControl] Thiết bị ${deviceKey} không phản hồi sau 5s, chuyển trạng thái sang Thất bại.`);
+            handleDeviceControlAck({
+                target: deviceKey,
+                action: action,
+                status: 'failed',
+                requestId: requestId,
+                message: 'Hết thời gian chờ phản hồi từ thiết bị (5s)'
+            });
+        }
+        delete controlTimeouts[deviceKey];
+    }, 5000);
+
+    // Gửi lệnh qua WebSocket nếu đang kết nối máy chủ
     if (window.AppState?.socket && window.AppState.socket.connected) {
         window.AppState.socket.emit('device_control', {
             target: deviceKey,
             action: action,
             requestId: requestId
         });
-        hasSentViaSocket = true;
-    }
-
-    // Mock ACK dự phòng sau 800ms nếu chưa kết nối Backend
-    if (!hasSentViaSocket) {
-        setTimeout(() => {
-            handleDeviceControlAck({
-                target: deviceKey,
-                action: action,
-                status: 'success',
-                requestId: requestId
-            });
-        }, 800);
     }
 }
 
-// Xử lý phản hồi xác nhận lệnh (ACK) từ Backend/ESP32
+// Xử lý phản hồi xác nhận lệnh (ACK) từ Backend/ESP32 hoặc do Timeout 5s
 function handleDeviceControlAck(response) {
     if (!response || !response.target) return;
 
     const { target, action, status, requestId } = response;
+
+    // Hủy bỏ bộ hẹn giờ timeout 5s nếu nhận được phản hồi trước thời hạn
+    if (controlTimeouts[target]) {
+        clearTimeout(controlTimeouts[target]);
+        delete controlTimeouts[target];
+    }
+
     const dev = window.AppState?.devices?.[target];
     const itemId = dev?.elementId || (target === 'LED_01' ? 'devItem1' : (target === 'LED_02' ? 'devItem2' : 'devItem3'));
     const item = document.getElementById(itemId);
     const checkbox = item?.querySelector('input.toggle');
 
+    // Giải phóng trạng thái đang chờ
     setDevicePendingState(itemId, target, false);
 
     const isSuccess = (status === 'success');
@@ -122,6 +138,7 @@ function handleDeviceControlAck(response) {
             updateControlLogStatus(requestId, 'success');
         }
     } else {
+        // Trường hợp thất bại (do lỗi hoặc quá 5s không phản hồi)
         const currentState = window.AppState?.devices?.[target]?.state ?? false;
         if (checkbox) checkbox.checked = currentState;
         if (item) item.classList.toggle('active', currentState);

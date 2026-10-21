@@ -115,11 +115,24 @@ const toggleDevice = async (req, res, next) => {
     `;
 
     const { rows } = await db.query(insertQuery, [user_id || 1, device_id, cleanAction, defaultMsg]);
+    const historyId = Number(rows[0].id);
+
+    // Tự động chuyển trạng thái sang 'failed' nếu sau 5s không có phản hồi xác nhận (ACK)
+    setTimeout(async () => {
+      try {
+        await db.query(
+          "UPDATE history SET status = 'failed', message = 'Hết thời gian chờ phản hồi từ thiết bị (5s)' WHERE id = $1 AND status = 'pending'",
+          [historyId]
+        );
+      } catch (timeoutErr) {
+        console.error('[Timeout] Lỗi khi cập nhật trạng thái timeout:', timeoutErr.message);
+      }
+    }, 5000);
 
     return res.status(200).json({
       success: true,
       message: 'Lệnh điều khiển đã được tiếp nhận và phát tới thiết bị qua MQTT',
-      history_id: Number(rows[0].id),
+      history_id: historyId,
       status: 'pending',
       device_id,
       action: cleanAction,
