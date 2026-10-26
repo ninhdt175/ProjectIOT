@@ -36,7 +36,7 @@ const getControlHistory = async (req, res, next) => {
       user: row.user_name,
       status: row.status,
       message: row.message || `${row.action === 'ON' ? 'Bật' : 'Tắt'} ${row.device_name}`,
-      created_at: row.created_at
+      created_at: row.created_at_formatted
     }));
 
     // Áp dụng bộ lọc 4 tiêu chí

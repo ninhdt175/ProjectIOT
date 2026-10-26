@@ -15,12 +15,33 @@ let historySortOrder = 'DESC';
 let currentHistoryPage = 1;
 let historyPageSize = 7;
 
-// Chuyển đổi chuỗi thời gian nhật ký thành timestamp so sánh
+// Chuẩn hóa định dạng thời gian thực hiện YYYY-MM-DD HH:mm:ss theo chuẩn trang cảm biến
+function formatHistoryTime(timeVal, createdAtVal) {
+    const raw = timeVal || createdAtVal;
+    if (!raw) return '';
+    const str = String(raw).trim();
+    if (/^\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}$/.test(str)) {
+        return str;
+    }
+    const d = new Date(str.includes(' ') && !str.includes('T') ? str.replace(' ', 'T') : str);
+    if (!isNaN(d.getTime())) {
+        const pad = (n) => String(n).padStart(2, '0');
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    }
+    return str;
+}
+
+// Chuyển đổi chuỗi thời gian nhật ký thành timestamp so sánh chuẩn theo trang cảm biến
 function parseHistoryTimestamp(timeStr) {
     if (!timeStr) return 0;
     const str = String(timeStr).trim();
-    const now = new Date();
 
+    // 1. Chuẩn YYYY-MM-DD HH:mm:ss hoặc ISO timestamp
+    const parsed = new Date(str.includes(' ') && !str.includes('T') ? str.replace(' ', 'T') : str).getTime();
+    if (!isNaN(parsed)) return parsed;
+
+    // 2. Tương thích ngược với các chuỗi hiển thị tương đối cũ
+    const now = new Date();
     if (str.startsWith('Hôm nay,')) {
         const timePart = str.replace('Hôm nay,', '').trim();
         const parts = timePart.split(':').map(Number);
@@ -34,9 +55,6 @@ function parseHistoryTimestamp(timeStr) {
         const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, parts[0] || 0, parts[1] || 0, parts[2] || 0);
         return d.getTime();
     }
-
-    const parsed = new Date(str.replace(' ', 'T')).getTime();
-    if (!isNaN(parsed)) return parsed;
 
     return 0;
 }
@@ -286,10 +304,13 @@ function toggleHistoryTimeSort() {
     renderControlHistoryTable();
 }
 
-// Chèn bản ghi điều khiển mới vào đầu danh sách
+// Chèn bản ghi điều khiển mới vào đầu danh sách (chuẩn hóa thời gian theo trang sensor)
 function appendControlLog(log) {
+    if (log) {
+        log.time = formatHistoryTime(log.time, log.created_at);
+    }
     controlHistoryList.unshift(log);
-    if (controlHistoryList.length > 50) {
+    if (controlHistoryList.length > 100) {
         controlHistoryList.pop();
     }
     renderControlHistoryTable();
@@ -305,14 +326,14 @@ function updateControlLogStatus(logId, newStatus) {
     }
 }
 
-// Đồng bộ dữ liệu lịch sử từ Backend REST API
+// Đồng bộ dữ liệu lịch sử từ Backend REST API (chuẩn hóa thời gian thực hiện theo trang sensor)
 async function fetchControlHistoryFromAPI() {
     if (window.HttpService && typeof window.HttpService.getControlHistory === 'function') {
-        const data = await window.HttpService.getControlHistory(1, 20);
+        const data = await window.HttpService.getControlHistory(1, 100);
         if (data && Array.isArray(data) && data.length > 0) {
             controlHistoryList = data.map(item => ({
                 id: item.id,
-                time: item.created_at || item.time,
+                time: formatHistoryTime(item.time, item.created_at),
                 device: item.device_name || item.device,
                 deviceId: item.device_id || 'ESP32_01',
                 action: item.action,

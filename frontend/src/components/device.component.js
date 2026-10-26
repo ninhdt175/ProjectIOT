@@ -58,7 +58,8 @@ function toggleDevice(itemId, deviceKey, checkbox) {
     const action = desiredState ? 'ON' : 'OFF';
     const devName = (window.AppState?.devices?.[deviceKey]?.name) || deviceKey;
     const now = new Date();
-    const timeStr = `Hôm nay, ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+    const pad = (n) => String(n).padStart(2, '0');
+    const timeStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
     const requestId = `cmd_${Date.now()}_${deviceKey}`;
 
     // Ghi nhật ký lịch sử ở trạng thái pending (Đang chờ)
