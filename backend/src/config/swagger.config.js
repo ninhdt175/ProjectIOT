@@ -1,8 +1,17 @@
 const path = require('path');
+const fs = require('fs');
 const swaggerJsDoc = require('swagger-jsdoc');
 require('dotenv').config();
 
 const port = process.env.PORT || 3000;
+
+// Đọc danh sách tất cả các file routes bằng đường dẫn tuyệt đối (tránh lỗi escape backslash của glob trên Windows)
+const routesDir = path.join(__dirname, '../routes');
+const routeFiles = fs.existsSync(routesDir)
+  ? fs.readdirSync(routesDir)
+      .filter((file) => file.endsWith('.js'))
+      .map((file) => path.join(routesDir, file))
+  : [];
 
 // Cấu hình tài liệu chuẩn OpenAPI 3.0 cho toàn bộ hệ thống
 const swaggerOptions = {
@@ -11,7 +20,7 @@ const swaggerOptions = {
     info: {
       title: 'Hệ Thống IoT Giám Sát & Điều Khiển ESP32 - REST APIs',
       version: '1.0.0',
-      description: 'Tài liệu API tương tác trực quan cho hệ thống IoT (Đỗ Trọng Ninh - B23DCCN633 - Nhóm 10)',
+      description: 'Tài liệu Swagger UI tương tác trực quan cho toàn bộ hệ thống IoT (Đỗ Trọng Ninh - B23DCCN633 - Nhóm 10)',
       contact: {
         name: 'Đỗ Trọng Ninh',
         email: 'dtn17505@gmail.com'
@@ -35,12 +44,15 @@ const swaggerOptions = {
       {
         name: 'Users',
         description: 'Nhóm API hồ sơ người dùng / sinh viên'
+      },
+      {
+        name: 'System',
+        description: 'Nhóm API kiểm tra trạng thái hoạt động hệ thống'
       }
     ]
   },
-  // Đường dẫn tuyệt đối tới các file route để Swagger đọc chú thích JSDoc
   apis: [
-    path.join(__dirname, '../routes/*.js'),
+    ...routeFiles,
     path.join(__dirname, '../server.js')
   ]
 };

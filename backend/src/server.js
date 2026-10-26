@@ -31,14 +31,25 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
-// Cấu hình Swagger API Docs tại /api-docs
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+// Cấu hình Swagger UI tại /swagger-ui (thay thế /api-docs)
+const swaggerUiOptions = {
   customSiteTitle: 'Tài liệu IoT System API - Swagger UI',
-  customCss: '.swagger-ui .topbar { display: none }'
-}));
+  customCss: '.swagger-ui .topbar { display: none }',
+  swaggerOptions: {
+    persistAuthorization: true,
+    displayRequestDuration: true,
+    docExpansion: 'list',
+    filter: true
+  }
+};
+
+app.use('/swagger-ui', swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerUiOptions));
+// Hỗ trợ redirect tự động từ /api-docs và /swagger sang /swagger-ui
+app.get('/api-docs', (req, res) => res.redirect('/swagger-ui'));
+app.get('/swagger', (req, res) => res.redirect('/swagger-ui'));
 
 // Endpoint xuất file cấu hình raw JSON của Swagger (dùng cho Postman / CI)
-app.get('/api-docs.json', (req, res) => {
+app.get(['/swagger-ui.json', '/api-docs.json'], (req, res) => {
   res.setHeader('Content-Type', 'application/json');
   res.send(swaggerSpec);
 });
@@ -93,7 +104,7 @@ const startServer = async () => {
 
   server.listen(PORT, () => {
     console.log(`[Server] HTTP & WebSocket đang lắng nghe tại port: ${PORT}`);
-    console.log(`[Swagger] Xem tài liệu API tại: http://localhost:${PORT}/api-docs`);
+    console.log(`[Swagger UI] Xem tài liệu API tại: http://localhost:${PORT}/swagger-ui`);
     console.log(`[Web App] Mở giao diện Dashboard tại: http://localhost:${PORT}/index.html`);
     console.log('====================================================');
   });

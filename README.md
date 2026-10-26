@@ -167,7 +167,7 @@ Khi màn hình xuất hiện thông báo sau là hệ thống đã sẵn sàng:
 ====================================================
 [Database] Kết nối PostgreSQL thành công! DB: iot_db | Giờ: ...
 [Server] HTTP & WebSocket đang lắng nghe tại port: 3000
-[Swagger] Xem tài liệu API tại: http://localhost:3000/api-docs
+[Swagger UI] Xem tài liệu API tại: http://localhost:3000/swagger-ui
 [Web App] Mở giao diện Dashboard tại: http://localhost:3000/index.html
 ====================================================
 ```
@@ -179,10 +179,10 @@ Khi màn hình xuất hiện thông báo sau là hệ thống đã sẵn sàng:
 * 🌐 **Giao diện Web Dashboard:** Mở trình duyệt và truy cập:  
   👉 **`http://localhost:3000`** hoặc **`http://localhost:3000/index.html`**
 * 📖 **Tài liệu Tương tác Swagger UI (OpenAPI 3.0):**  
-  👉 **`http://localhost:3000/api-docs`**  
+  👉 **`http://localhost:3000/swagger-ui`**  
   *(Bạn có thể nhấn vào nút **"Try it out"** của từng API để gửi request và xem kết quả trả về trực tiếp).*
 * 📄 **File đặc tả OpenAPI JSON thô:**  
-  👉 **`http://localhost:3000/api-docs.json`**
+  👉 **`http://localhost:3000/swagger-ui.json`** (hoặc `http://localhost:3000/api-docs.json`)
 
 ---
 
@@ -221,14 +221,14 @@ Khi màn hình xuất hiện thông báo sau là hệ thống đã sẵn sàng:
 ## 🧪 Kiểm thử Tự động với Postman / CLI
 
 Hệ thống hỗ trợ kiểm thử tự động toàn diện:
-1. **Kiểm thử trực tiếp trên Swagger UI:** Truy cập `http://localhost:3000/api-docs`, chọn API bất kỳ và bấm **Execute**.
+1. **Kiểm thử trực tiếp trên Swagger UI:** Truy cập `http://localhost:3000/swagger-ui`, chọn API bất kỳ và bấm **Execute**.
 2. **Kiểm thử nhanh bằng lệnh Node.js:**
    ```powershell
    cd backend
    node -e "require('./src/config/db.config').testDbConnection().then(() => process.exit(0));"
    ```
 3. **Import vào Postman:**
-   - Mở Postman, chọn **Import** &rarr; Chọn file `http://localhost:3000/api-docs.json`.
+   - Mở Postman, chọn **Import** &rarr; Dán link `http://localhost:3000/swagger-ui.json` (hoặc `http://localhost:3000/api-docs.json`).
    - Postman sẽ tự động sinh toàn bộ danh mục 10 APIs với đầy đủ URL, headers và body mẫu để kiểm thử.
 
 ---
