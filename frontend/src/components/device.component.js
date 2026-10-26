@@ -67,7 +67,7 @@ function toggleDevice(itemId, deviceKey, checkbox) {
         appendControlLog({
             id: requestId,
             time: timeStr,
-            device: `${devName} (${deviceKey})`,
+            device: devName,
             deviceId: 'ESP32_01',
             action: action,
             user: 'Đỗ Trọng Ninh',

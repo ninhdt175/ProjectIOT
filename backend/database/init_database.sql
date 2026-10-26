@@ -79,9 +79,9 @@ INSERT INTO users (username, password_hash, full_name) VALUES
 
 -- 3 thiết bị bật tắt (Đèn LED 1, 2, 3)
 INSERT INTO devices (id, name, device_type, is_online) VALUES
-('LED_01', 'Đèn LED 1 (GPIO 18)', 'LED_ACTUATOR', TRUE),
-('LED_02', 'Đèn LED 2 (GPIO 19)', 'LED_ACTUATOR', TRUE),
-('LED_03', 'Đèn LED 3 (GPIO 21)', 'LED_ACTUATOR', TRUE);
+('LED_01', 'Đèn LED 1', 'LED_ACTUATOR', TRUE),
+('LED_02', 'Đèn LED 2', 'LED_ACTUATOR', TRUE),
+('LED_03', 'Đèn LED 3', 'LED_ACTUATOR', TRUE);
 
 -- Cảm biến đo lường
 INSERT INTO sensor (sensor_code, sensor_name, sensor_type, unit) VALUES

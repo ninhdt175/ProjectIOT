@@ -30,7 +30,7 @@ const getControlHistory = async (req, res, next) => {
     let mappedList = rows.map((row) => ({
       id: Number(row.id),
       time: row.created_at_formatted,
-      device: `${row.device_name} (${row.device_id})`,
+      device: (row.device_name || row.device_id).replace(/\s*\([^)]*(?:GPIO|LED)[^)]*\)/gi, '').trim(),
       deviceId: row.device_id,
       action: row.action,
       user: row.user_name,

@@ -15,6 +15,12 @@ let historySortOrder = 'DESC';
 let currentHistoryPage = 1;
 let historyPageSize = 7;
 
+// Chuẩn hóa tên thiết bị: loại bỏ các chú thích như (GPIO 19), (LED_01)...
+function cleanDeviceName(name) {
+    if (!name) return '';
+    return String(name).replace(/\s*\([^)]*(?:GPIO|LED)[^)]*\)/gi, '').trim();
+}
+
 // Chuẩn hóa định dạng thời gian thực hiện YYYY-MM-DD HH:mm:ss theo chuẩn trang cảm biến
 function formatHistoryTime(timeVal, createdAtVal) {
     const raw = timeVal || createdAtVal;
@@ -64,9 +70,17 @@ function matchesHistoryFilter(item) {
     const matchesTime = !appliedHistoryFilters.time || 
                         (item.time && item.time.toLowerCase().includes(appliedHistoryFilters.time));
     
-    const matchesDevice = (appliedHistoryFilters.device === 'ALL') || 
-                          (item.device && item.device.includes(appliedHistoryFilters.device)) ||
-                          (item.deviceId && item.deviceId.includes(appliedHistoryFilters.device));
+    let matchesDevice = (appliedHistoryFilters.device === 'ALL');
+    if (!matchesDevice) {
+        const filterDev = appliedHistoryFilters.device;
+        const cleanName = cleanDeviceName(item.device);
+        matchesDevice = (item.device && item.device.includes(filterDev)) ||
+                        (cleanName && cleanName.includes(filterDev)) ||
+                        (item.deviceId && item.deviceId.includes(filterDev)) ||
+                        (filterDev === 'LED_01' && (cleanName.includes('Đèn LED 1') || cleanName === 'LED_01')) ||
+                        (filterDev === 'LED_02' && (cleanName.includes('Đèn LED 2') || cleanName === 'LED_02')) ||
+                        (filterDev === 'LED_03' && (cleanName.includes('Đèn LED 3') || cleanName === 'LED_03'));
+    }
 
     const matchesAction = (appliedHistoryFilters.action === 'ALL') || 
                           (item.action === appliedHistoryFilters.action);
@@ -147,6 +161,7 @@ function renderControlHistoryTable() {
         }
 
         const actionColor = item.action === 'ON' ? 'var(--status-up)' : 'var(--status-down)';
+        const devDisplayName = cleanDeviceName(item.device) || item.device || 'Đèn LED';
 
         return `
             <tr>
@@ -159,7 +174,7 @@ function renderControlHistoryTable() {
                     </div>
                 </td>
                 <td>
-                    <div style="color: var(--text-h); font-weight: 600; margin-bottom: 3px;">${item.device}</div>
+                    <div style="color: var(--text-h); font-weight: 600; margin-bottom: 3px;">${devDisplayName}</div>
                     <div style="font-size: 12px; color: var(--text-muted);">${item.deviceId}</div>
                 </td>
                 <td><span style="font-weight: 700; color: ${actionColor};">${item.action === 'ON' ? 'BẬT (ON)' : 'TẮT (OFF)'}</span></td>
@@ -304,10 +319,13 @@ function toggleHistoryTimeSort() {
     renderControlHistoryTable();
 }
 
-// Chèn bản ghi điều khiển mới vào đầu danh sách (chuẩn hóa thời gian theo trang sensor)
+// Chèn bản ghi điều khiển mới vào đầu danh sách (chuẩn hóa tên và thời gian theo trang sensor)
 function appendControlLog(log) {
     if (log) {
         log.time = formatHistoryTime(log.time, log.created_at);
+        if (log.device) {
+            log.device = cleanDeviceName(log.device);
+        }
     }
     controlHistoryList.unshift(log);
     if (controlHistoryList.length > 100) {
@@ -326,7 +344,7 @@ function updateControlLogStatus(logId, newStatus) {
     }
 }
 
-// Đồng bộ dữ liệu lịch sử từ Backend REST API (chuẩn hóa thời gian thực hiện theo trang sensor)
+// Đồng bộ dữ liệu lịch sử từ Backend REST API (chuẩn hóa tên thiết bị và thời gian thực hiện)
 async function fetchControlHistoryFromAPI() {
     if (window.HttpService && typeof window.HttpService.getControlHistory === 'function') {
         const data = await window.HttpService.getControlHistory(1, 100);
@@ -334,8 +352,8 @@ async function fetchControlHistoryFromAPI() {
             controlHistoryList = data.map(item => ({
                 id: item.id,
                 time: formatHistoryTime(item.time, item.created_at),
-                device: item.device_name || item.device,
-                deviceId: item.device_id || 'ESP32_01',
+                device: cleanDeviceName(item.device_name || item.device),
+                deviceId: item.device_id || item.deviceId || 'ESP32_01',
                 action: item.action,
                 user: item.user_name || 'Đỗ Trọng Ninh',
                 status: item.status || 'success'
@@ -369,3 +387,4 @@ window.resetHistoryFilters = resetHistoryFilters;
 window.goToHistoryPage = goToHistoryPage;
 window.handleHistoryPageSizeChange = handleHistoryPageSizeChange;
 window.fetchControlHistoryFromAPI = fetchControlHistoryFromAPI;
+window.cleanDeviceName = cleanDeviceName;

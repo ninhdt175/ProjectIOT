@@ -36,20 +36,20 @@ const APP_CONFIG = {
 
     // Dữ liệu lịch sử điều khiển mẫu ban đầu (Mock Data) chuẩn YYYY-MM-DD HH:mm:ss theo trang cảm biến
     DEFAULT_HISTORY: [
-        { id: 1, time: '2026-08-24 13:40:05', device: 'Đèn LED 1 (LED_01)', deviceId: 'ESP32_01', action: 'ON', user: 'Đỗ Trọng Ninh', status: 'success' },
-        { id: 2, time: '2026-08-24 13:15:20', device: 'Đèn LED 2 (LED_02)', deviceId: 'ESP32_01', action: 'OFF', user: 'Đỗ Trọng Ninh', status: 'success' },
-        { id: 3, time: '2026-08-24 12:45:11', device: 'Đèn LED 3 (LED_03)', deviceId: 'ESP32_01', action: 'ON', user: 'Đỗ Trọng Ninh', status: 'pending' },
-        { id: 4, time: '2026-08-23 22:30:00', device: 'Đèn LED 1 (LED_01)', deviceId: 'ESP32_01', action: 'OFF', user: 'Đỗ Trọng Ninh', status: 'success' },
-        { id: 5, time: '2026-08-23 18:00:15', device: 'Đèn LED 1 (LED_01)', deviceId: 'ESP32_01', action: 'ON', user: 'Đỗ Trọng Ninh', status: 'success' },
-        { id: 6, time: '2026-08-23 15:10:20', device: 'Đèn LED 2 (LED_02)', deviceId: 'ESP32_01', action: 'ON', user: 'Đỗ Trọng Ninh', status: 'pending' },
-        { id: 7, time: '2026-08-23 09:20:00', device: 'Đèn LED 3 (LED_03)', deviceId: 'ESP32_01', action: 'OFF', user: 'Đỗ Trọng Ninh', status: 'failed' },
-        { id: 8, time: '2026-08-22 21:10:00', device: 'Đèn LED 1 (LED_01)', deviceId: 'ESP32_01', action: 'OFF', user: 'Đỗ Trọng Ninh', status: 'success' },
-        { id: 9, time: '2026-08-22 18:05:40', device: 'Đèn LED 2 (LED_02)', deviceId: 'ESP32_01', action: 'ON', user: 'Đỗ Trọng Ninh', status: 'success' },
-        { id: 10, time: '2026-08-22 14:30:15', device: 'Đèn LED 3 (LED_03)', deviceId: 'ESP32_01', action: 'ON', user: 'Đỗ Trọng Ninh', status: 'pending' },
-        { id: 11, time: '2026-08-21 23:00:10', device: 'Đèn LED 1 (LED_01)', deviceId: 'ESP32_01', action: 'OFF', user: 'Đỗ Trọng Ninh', status: 'success' },
-        { id: 12, time: '2026-08-21 19:45:00', device: 'Đèn LED 2 (LED_02)', deviceId: 'ESP32_01', action: 'ON', user: 'Đỗ Trọng Ninh', status: 'success' },
-        { id: 13, time: '2026-08-21 11:20:30', device: 'Đèn LED 3 (LED_03)', deviceId: 'ESP32_01', action: 'OFF', user: 'Đỗ Trọng Ninh', status: 'failed' },
-        { id: 14, time: '2026-08-20 20:00:00', device: 'Đèn LED 1 (LED_01)', deviceId: 'ESP32_01', action: 'ON', user: 'Đỗ Trọng Ninh', status: 'success' }
+        { id: 1, time: '2026-08-24 13:40:05', device: 'Đèn LED 1', deviceId: 'ESP32_01', action: 'ON', user: 'Đỗ Trọng Ninh', status: 'success' },
+        { id: 2, time: '2026-08-24 13:15:20', device: 'Đèn LED 2', deviceId: 'ESP32_01', action: 'OFF', user: 'Đỗ Trọng Ninh', status: 'success' },
+        { id: 3, time: '2026-08-24 12:45:11', device: 'Đèn LED 3', deviceId: 'ESP32_01', action: 'ON', user: 'Đỗ Trọng Ninh', status: 'pending' },
+        { id: 4, time: '2026-08-23 22:30:00', device: 'Đèn LED 1', deviceId: 'ESP32_01', action: 'OFF', user: 'Đỗ Trọng Ninh', status: 'success' },
+        { id: 5, time: '2026-08-23 18:00:15', device: 'Đèn LED 1', deviceId: 'ESP32_01', action: 'ON', user: 'Đỗ Trọng Ninh', status: 'success' },
+        { id: 6, time: '2026-08-23 15:10:20', device: 'Đèn LED 2', deviceId: 'ESP32_01', action: 'ON', user: 'Đỗ Trọng Ninh', status: 'pending' },
+        { id: 7, time: '2026-08-23 09:20:00', device: 'Đèn LED 3', deviceId: 'ESP32_01', action: 'OFF', user: 'Đỗ Trọng Ninh', status: 'failed' },
+        { id: 8, time: '2026-08-22 21:10:00', device: 'Đèn LED 1', deviceId: 'ESP32_01', action: 'OFF', user: 'Đỗ Trọng Ninh', status: 'success' },
+        { id: 9, time: '2026-08-22 18:05:40', device: 'Đèn LED 2', deviceId: 'ESP32_01', action: 'ON', user: 'Đỗ Trọng Ninh', status: 'success' },
+        { id: 10, time: '2026-08-22 14:30:15', device: 'Đèn LED 3', deviceId: 'ESP32_01', action: 'ON', user: 'Đỗ Trọng Ninh', status: 'pending' },
+        { id: 11, time: '2026-08-21 23:00:10', device: 'Đèn LED 1', deviceId: 'ESP32_01', action: 'OFF', user: 'Đỗ Trọng Ninh', status: 'success' },
+        { id: 12, time: '2026-08-21 19:45:00', device: 'Đèn LED 2', deviceId: 'ESP32_01', action: 'ON', user: 'Đỗ Trọng Ninh', status: 'success' },
+        { id: 13, time: '2026-08-21 11:20:30', device: 'Đèn LED 3', deviceId: 'ESP32_01', action: 'OFF', user: 'Đỗ Trọng Ninh', status: 'failed' },
+        { id: 14, time: '2026-08-20 20:00:00', device: 'Đèn LED 1', deviceId: 'ESP32_01', action: 'ON', user: 'Đỗ Trọng Ninh', status: 'success' }
     ]
 };
 
