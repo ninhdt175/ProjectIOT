@@ -1,11 +1,5 @@
 # Hệ Thống IoT Giám Sát Môi Trường & Điều Khiển Thiết Bị Thời Gian Thực
 
-> **Học phần:** Thực hành Hệ thống IoT & Ứng dụng  
-> **Sinh viên thực hiện:** Đỗ Trọng Ninh - **MSV:** B23DCCN633 - **Lớp:** D23CQCN01-B - **Nhóm:** 10  
-> **Giảng viên hướng dẫn:** TS. Nguyễn Quốc Uy  
-
----
-
 ## 📌 Giới thiệu Tổng quan
 
 Hệ thống IoT hoàn chỉnh khép kín từ phần cứng tới giao diện người dùng, bao gồm:
@@ -139,20 +133,3 @@ npm run dev
    ```
 3. Chọn Board `ESP32 Dev Module`, cắm cáp Micro-USB và nhấn **Upload**.
 4. Mở **Serial Monitor** (Baud rate `115200`) để theo dõi các bản tin đo cảm biến được phát lên MQTT Broker.
-
----
-
-## 📑 Danh mục REST APIs Đã Triển khai
-
-| STT | Phương thức | Đường dẫn Endpoint | Phân hệ | Chức năng chính |
-| :---: | :---: | :--- | :---: | :--- |
-| **1** | `GET` | `/api/sensors/history` | Sensors | Lấy lịch sử cảm biến có phân trang (5, 7, 10, 20) & lọc trường (`ALL`, `time`, `temperature`, `humidity`, `light`) |
-| **2** | `GET` | `/api/sensors/latest` | Sensors | Lấy chỉ số mới nhất hiển thị trên 3 Thẻ Card Dashboard |
-| **3** | `GET` | `/api/sensors/chart-data` | Sensors | Lấy 12 mốc dữ liệu gần nhất phục vụ vẽ biểu đồ Chart.js |
-| **4** | `GET` | `/api/sensors` | Sensors | Danh mục các cảm biến trong hệ thống (`DHT22_01`, `LDR_01`) |
-| **5** | `POST` | `/api/sensors/data` | Sensors | API ghi nhận dữ liệu cảm biến mới qua giao thức HTTP |
-| **6** | `GET` | `/api/controls/history` | Controls | Lấy lịch sử điều khiển bật/tắt (lọc 4 tiêu chí: time, device, action, status) |
-| **7** | `POST` | `/api/controls/toggle` | Controls | Gửi lệnh bật/tắt thiết bị (ghi `pending` vào CSDL) |
-| **8** | `GET` | `/api/devices` | Devices | Lấy danh sách 3 đèn LED (`LED_01`, `LED_02`, `LED_03`) và trạng thái |
-| **9** | `GET` | `/api/devices/:id` | Devices | Tra cứu chi tiết trạng thái của 1 thiết bị cụ thể |
-| **10** | `GET` | `/api/users/profile` | Users | Lấy thông tin hồ sơ sinh viên thực hiện đề tài |
