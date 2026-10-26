@@ -969,6 +969,18 @@ body {
     font-weight: 600;
 }
 
+.info-val a {
+    color: var(--brand);
+    text-decoration: none;
+    word-break: break-all;
+    transition: color 0.2s ease, text-decoration 0.2s ease;
+}
+
+.info-val a:hover {
+    color: var(--brand-hover);
+    text-decoration: underline;
+}
+
 /* 19. Tương thích đa kích thước màn hình (Responsive Design) */
 @media (max-width: 1024px) {
     .dashboard-layout {
