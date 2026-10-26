@@ -31,19 +31,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
-// Cấu hình Swagger UI tại /swagger-ui (thay thế /api-docs)
-const swaggerUiOptions = {
-  customSiteTitle: 'Tài liệu IoT System API - Swagger UI',
-  customCss: '.swagger-ui .topbar { display: none }',
-  swaggerOptions: {
-    persistAuthorization: true,
-    displayRequestDuration: true,
-    docExpansion: 'list',
-    filter: true
-  }
-};
-
-app.use('/swagger-ui', swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerUiOptions));
+// Cấu hình Swagger UI mặc định tại /swagger-ui
+app.use('/swagger-ui', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // Hỗ trợ redirect tự động từ /api-docs và /swagger sang /swagger-ui
 app.get('/api-docs', (req, res) => res.redirect('/swagger-ui'));
 app.get('/swagger', (req, res) => res.redirect('/swagger-ui'));

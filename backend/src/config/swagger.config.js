@@ -3,8 +3,6 @@ const fs = require('fs');
 const swaggerJsDoc = require('swagger-jsdoc');
 require('dotenv').config();
 
-const port = process.env.PORT || 3000;
-
 // Đọc danh sách tất cả các file routes bằng đường dẫn tuyệt đối (tránh lỗi escape backslash của glob trên Windows)
 const routesDir = path.join(__dirname, '../routes');
 const routeFiles = fs.existsSync(routesDir)
@@ -17,29 +15,15 @@ const routeFiles = fs.existsSync(routesDir)
 const swaggerOptions = {
   definition: {
     openapi: '3.0.0',
-    info: {
-      title: 'Hệ Thống IoT Giám Sát & Điều Khiển ESP32 - REST APIs',
-      version: '1.0.0',
-      description: 'Tài liệu Swagger UI tương tác trực quan cho toàn bộ hệ thống IoT (Đỗ Trọng Ninh - B23DCCN633 - Nhóm 10)',
-      contact: {
-        name: 'Đỗ Trọng Ninh',
-        email: 'dtn17505@gmail.com'
-      }
-    },
-    servers: [
-      {
-        url: `http://localhost:${port}`,
-        description: 'Máy chủ phát triển cục bộ (Local Development Server)'
-      }
-    ],
+    info: {},
     tags: [
-      {
-        name: 'Sensors',
-        description: 'Nhóm API truy xuất và ghi nhận dữ liệu cảm biến (Nhiệt độ, Độ ẩm, Cường độ ánh sáng)'
-      },
       {
         name: 'Controls & Devices',
         description: 'Nhóm API điều khiển thiết bị (LED_01, LED_02, LED_03) và tra cứu lịch sử thao tác'
+      },
+      {
+        name: 'Sensors',
+        description: 'Nhóm API truy xuất và ghi nhận dữ liệu cảm biến (Nhiệt độ, Độ ẩm, Cường độ ánh sáng)'
       },
       {
         name: 'Users',
