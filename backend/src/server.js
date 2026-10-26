@@ -84,10 +84,6 @@ const PORT = process.env.PORT || 3000;
 
 // Khởi động Server sau khi kiểm tra CSDL
 const startServer = async () => {
-  console.log('====================================================');
-  console.log('       HỆ THỐNG IOT BACKEND SERVER - GIAI ĐOẠN 3     ');
-  console.log('    (TÍCH HỢP MQTT MOSQUITTO & SOCKET.IO REALTIME)  ');
-  console.log('====================================================');
 
   await testDbConnection();
 
@@ -95,7 +91,6 @@ const startServer = async () => {
     console.log(`[Server] HTTP & WebSocket đang lắng nghe tại port: ${PORT}`);
     console.log(`[Swagger UI] Xem tài liệu API tại: http://localhost:${PORT}/swagger-ui`);
     console.log(`[Web App] Mở giao diện Dashboard tại: http://localhost:${PORT}/index.html`);
-    console.log('====================================================');
   });
 };
 
