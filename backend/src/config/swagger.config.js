@@ -11,27 +11,27 @@ const routeFiles = fs.existsSync(routesDir)
       .map((file) => path.join(routesDir, file))
   : [];
 
-// Cấu hình tài liệu 
+// Cấu hình tài liệu chuẩn Swagger UI mặc định
 const swaggerOptions = {
   definition: {
     openapi: '3.0.0',
     info: {},
     tags: [
       {
-        name: 'Controls & Devices',
-        description: 'Nhóm API điều khiển thiết bị và tra cứu lịch sử thao tác'
+        name: 'Users',
+        description: 'Nhóm API xác thực và người dùng'
       },
       {
         name: 'Sensors',
-        description: 'Nhóm API truy xuất và ghi nhận dữ liệu cảm biến '
+        description: 'Nhóm API dữ liệu cảm biến và tra cứu'
       },
       {
-        name: 'Users',
-        description: 'Nhóm API hồ sơ người dùng / sinh viên'
+        name: 'Controls & Devices',
+        description: 'Nhóm API quản lý thiết bị và lịch sử điều khiển'
       },
       {
         name: 'System',
-        description: 'Nhóm API kiểm tra trạng thái hoạt động hệ thống'
+        description: 'Nhóm API giám sát hệ thống'
       }
     ]
   },

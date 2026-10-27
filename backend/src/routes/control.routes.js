@@ -6,7 +6,7 @@ const controlController = require('../controllers/control.controller');
  * @openapi
  * /api/controls/history:
  *   get:
- *     summary: Lấy lịch sử thao tác điều khiển thiết bị có lọc theo 4 tiêu chí và phân trang
+ *     summary: Lấy danh sách lịch sử điều khiển thiết bị
  *     tags: [Controls & Devices]
  *     parameters:
  *       - in: query
@@ -21,40 +21,39 @@ const controlController = require('../controllers/control.controller');
  *           type: integer
  *           enum: [5, 7, 10, 20]
  *           default: 7
- *         description: Số lượng dòng hiển thị trên một trang
+ *         description: Số bản ghi trên một trang (5, 7, 10, 20)
  *       - in: query
  *         name: time
  *         schema:
  *           type: string
- *         description: Từ khóa mốc thời gian cần tìm
+ *         description: Lọc theo chuỗi ngày giờ
  *       - in: query
  *         name: device
  *         schema:
  *           type: string
- *           enum: [ALL, LED_01, LED_02, LED_03]
  *           default: ALL
- *         description: Lọc theo mã thiết bị điều khiển
+ *         description: Lọc theo mã thiết bị (ALL, LED_01, LED_02, LED_03)
  *       - in: query
  *         name: action
  *         schema:
  *           type: string
  *           enum: [ALL, ON, OFF]
  *           default: ALL
- *         description: Lọc theo hành động bật hoặc tắt
+ *         description: Lọc theo hành động
  *       - in: query
  *         name: status
  *         schema:
  *           type: string
- *           enum: [ALL, success, pending, failed]
+ *           enum: [ALL, success, failed, pending]
  *           default: ALL
- *         description: Lọc theo trạng thái phản hồi lệnh
+ *         description: Lọc theo trạng thái thực thi
  *       - in: query
  *         name: sort
  *         schema:
  *           type: string
  *           enum: [DESC, ASC]
  *           default: DESC
- *         description: Thứ tự sắp xếp theo thời gian
+ *         description: Thứ tự sắp xếp theo mốc thời gian
  *     responses:
  *       200:
  *         description: Danh sách lịch sử điều khiển phân trang thành công
@@ -65,7 +64,7 @@ router.get('/history', controlController.getControlHistory);
  * @openapi
  * /api/controls/toggle:
  *   post:
- *     summary: Gửi lệnh bật/tắt thiết bị điều khiển qua HTTP REST
+ *     summary: Tiếp nhận lệnh điều khiển Bật hoặc Tắt thiết bị
  *     tags: [Controls & Devices]
  *     requestBody:
  *       required: true
@@ -89,12 +88,12 @@ router.get('/history', controlController.getControlHistory);
  *                 example: 1
  *               message:
  *                 type: string
- *                 example: Bật Đèn LED 1 từ giao diện
+ *                 example: Yêu cầu bật Đèn LED 1
  *     responses:
  *       200:
- *         description: Lệnh điều khiển đã tiếp nhận thành công
+ *         description: Lệnh điều khiển đã được tiếp nhận và phát tới thiết bị qua MQTT
  *       400:
- *         description: Dữ liệu gửi lên không hợp lệ
+ *         description: Tham số không hợp lệ
  *       404:
  *         description: Không tìm thấy thiết bị
  */
