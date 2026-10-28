@@ -68,8 +68,44 @@ function restoreActiveView() {
     }
 }
 
+// Kiểm tra phiên đăng nhập người dùng từ LocalStorage
+function checkAuth() {
+    const userStr = localStorage.getItem('currentUser');
+    const token = localStorage.getItem('authToken');
+    if (!userStr || !token) {
+        window.location.href = 'login.html';
+        return;
+    }
+    try {
+        const user = JSON.parse(userStr);
+        const nameElements = document.querySelectorAll('.user-pill .name, .profile-header-clean h2');
+        nameElements.forEach(el => {
+            if (user.name) el.textContent = user.name;
+        });
+    } catch (e) {
+        console.error('Lỗi phân tích dữ liệu người dùng:', e);
+    }
+}
+
+// Xử lý đăng xuất người dùng và dọn dẹp phiên làm việc
+function logout() {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('currentUser');
+    try {
+        sessionStorage.removeItem('activeView');
+    } catch (e) {}
+
+    if (typeof showToast === 'function') {
+        showToast('Đang đăng xuất khỏi hệ thống...', 'info');
+    }
+    setTimeout(() => {
+        window.location.href = 'login.html';
+    }, 600);
+}
+
 // Khởi chạy khi tài liệu HTML tải xong
 document.addEventListener('DOMContentLoaded', () => {
+    checkAuth();
     restoreActiveView();
     if (window.SocketService && typeof window.SocketService.initConnection === 'function') {
         window.SocketService.initConnection();
@@ -79,3 +115,5 @@ document.addEventListener('DOMContentLoaded', () => {
 // Xuất các hàm ra phạm vi toàn cục
 window.switchView = switchView;
 window.restoreActiveView = restoreActiveView;
+window.checkAuth = checkAuth;
+window.logout = logout;

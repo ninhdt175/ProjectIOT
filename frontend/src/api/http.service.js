@@ -1,7 +1,25 @@
-// Dịch vụ giao tiếp dữ liệu REST API (HTTP Service)
+// Dịch vụ giao tiếp dữ liệu REST API
 const HttpService = {
     getBaseUrl() {
         return window.APP_CONFIG?.BACKEND_URL || (window.location.port === '3000' ? window.location.origin : 'http://localhost:3000');
+    },
+
+    // Gửi yêu cầu đăng nhập tài khoản
+    async login(username, password) {
+        try {
+            const baseUrl = this.getBaseUrl();
+            const res = await fetch(`${baseUrl}/api/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            if (res.ok) {
+                return await res.json();
+            }
+            return null;
+        } catch (e) {
+            return null;
+        }
     },
 
     // Lấy lịch sử dữ liệu cảm biến từ Backend
