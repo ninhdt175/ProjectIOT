@@ -58,9 +58,14 @@ const SocketService = {
                     const humid = (data.humidity !== null && data.humidity !== undefined) ? parseFloat(data.humidity) : NaN;
                     const light = (data.light_lux !== null && data.light_lux !== undefined) ? parseInt(data.light_lux, 10) : NaN;
 
-                    // 1. Cập nhật 3 Thẻ Card trên Dashboard
+                    // 1. Cập nhật 3 Thẻ Card trên Dashboard & kiểm tra ngưỡng nháy đèn
                     if (typeof updateDashboardMetrics === 'function') {
                         updateDashboardMetrics(temp, humid, light);
+                    }
+
+                    // Đồng bộ số lần nháy từ phần cứng ESP32 nếu có
+                    if (typeof updateHardwareBlinkCounters === 'function' && data.blink_led1 !== undefined) {
+                        updateHardwareBlinkCounters(data.blink_led1, data.blink_led2, data.blink_led3);
                     }
 
                     // 2. Cập nhật Biểu đồ Chart.js
@@ -106,6 +111,18 @@ const SocketService = {
                                 rawVal: light,
                                 time: timeFull
                             });
+                        }
+                    }
+                });
+
+                // Nhận thông báo nháy đèn cảnh báo từ Server
+                socket.on('device_blink_alert', (data) => {
+                    if (data && data.target && window.AppState?.devices?.[data.target]) {
+                        const dev = window.AppState.devices[data.target];
+                        const item = document.getElementById(dev.elementId);
+                        if (item) {
+                            item.classList.add('is-blinking');
+                            setTimeout(() => item.classList.remove('is-blinking'), 1800);
                         }
                     }
                 });

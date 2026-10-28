@@ -32,6 +32,29 @@ const initSocketService = (io) => {
       console.warn('[Socket.IO] Đồng bộ trạng thái ban đầu lỗi:', syncErr.message);
     }
 
+    // Lắng nghe sự kiện nháy đèn cảnh báo khi vượt ngưỡng từ Web Client
+    socket.on('device_blink', async (data) => {
+      try {
+        const { target, count } = data;
+        if (!target) return;
+        console.log(`[Socket.IO Cảnh báo] Nháy đèn ${target} do vượt ngưỡng (Lần ${count || 1})`);
+        // Phát lệnh BLINK tới vi điều khiển ESP32 qua MQTT
+        try {
+          await publishDeviceControl(target, 'BLINK');
+        } catch (mqttErr) {
+          console.warn('[Socket.IO] Không thể phát lệnh BLINK qua MQTT:', mqttErr.message);
+        }
+        // Phát thông báo tới toàn bộ Web Clients khác để đồng bộ số lần nháy
+        io.emit('device_blink_alert', {
+          target,
+          count: count || 1,
+          timestamp: new Date().toISOString()
+        });
+      } catch (blinkErr) {
+        console.error('[Socket.IO] Lỗi xử lý sự kiện device_blink:', blinkErr.message);
+      }
+    });
+
     // Lắng nghe lệnh điều khiển thiết bị từ Web Client
     socket.on('device_control', async (data) => {
       try {

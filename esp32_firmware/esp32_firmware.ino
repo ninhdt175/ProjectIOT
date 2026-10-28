@@ -30,6 +30,16 @@ const char* TOPIC_DEVICE_STATUS  = "iot/device/status";
 WiFiClient espClient;
 PubSubClient client(espClient);
 
+// 3 Ngưỡng cảnh báo cảm biến (khi vượt ngưỡng sẽ nháy đèn tương ứng)
+float THRESHOLD_TEMP  = 30.0; // Nhiệt độ > 30.0 °C -> Nháy Đèn LED 1
+float THRESHOLD_HUMID = 75.0; // Độ ẩm > 75.0 %     -> Nháy Đèn LED 2
+int   THRESHOLD_LIGHT = 1800; // Ánh sáng > 1800 lux -> Nháy Đèn LED 3
+
+// Bộ đếm số lần nháy đèn tương ứng
+unsigned long blinkCountLED1 = 0;
+unsigned long blinkCountLED2 = 0;
+unsigned long blinkCountLED3 = 0;
+
 unsigned long lastSensorReadTime = 0;
 const unsigned long SENSOR_INTERVAL = 2500;
 
@@ -56,6 +66,16 @@ void testLEDsBlink() {
   digitalWrite(LED1_PIN, LOW);
   digitalWrite(LED2_PIN, LOW);
   digitalWrite(LED3_PIN, LOW);
+}
+
+// Hàm nháy đèn LED theo số lần (non-blocking hoặc delay ngắn)
+void blinkLED(int pin, int times = 2, int delayMs = 120) {
+  for (int i = 0; i < times; i++) {
+    digitalWrite(pin, HIGH);
+    delay(delayMs);
+    digitalWrite(pin, LOW);
+    delay(delayMs);
+  }
 }
 
 // Khởi tạo cảm biến DHT22 và quang trở LDR
@@ -107,6 +127,23 @@ void connectMQTT() {
 
 // Điều khiển GPIO đèn LED
 bool executeDeviceControl(const char* target, const char* action) {
+  // Hỗ trợ lệnh nháy đèn cảnh báo BLINK từ Server / Web
+  if (strcmp(action, "BLINK") == 0) {
+    if (strcmp(target, "LED_01") == 0) {
+      blinkLED(LED1_PIN, 2, 100);
+      blinkCountLED1++;
+      return true;
+    } else if (strcmp(target, "LED_02") == 0) {
+      blinkLED(LED2_PIN, 2, 100);
+      blinkCountLED2++;
+      return true;
+    } else if (strcmp(target, "LED_03") == 0) {
+      blinkLED(LED3_PIN, 2, 100);
+      blinkCountLED3++;
+      return true;
+    }
+  }
+
   int outputLevel = (strcmp(action, "ON") == 0) ? HIGH : LOW;
 
   if (strcmp(target, "ALL") == 0 || strcmp(target, "LED_ALL") == 0) {
@@ -207,6 +244,9 @@ void publishSensorData(float temperature, float humidity, int lightLux) {
   sensorDoc["temperature"] = serialized(String(temperature, 1));
   sensorDoc["humidity"]    = serialized(String(humidity, 1));
   sensorDoc["light_lux"]   = lightLux;
+  sensorDoc["blink_led1"]  = blinkCountLED1;
+  sensorDoc["blink_led2"]  = blinkCountLED2;
+  sensorDoc["blink_led3"]  = blinkCountLED3;
 
   char sensorBuffer[256];
   serializeJson(sensorDoc, sensorBuffer);

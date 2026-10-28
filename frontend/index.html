@@ -103,6 +103,10 @@
                             <span class="metric-trend"><i class="ph ph-trend-up"></i> Cảm biến DHT22</span>
                         </div>
                         <div id="metric-temp" class="simple-value">30.0 <span class="unit-label">°C</span></div>
+                        <div class="threshold-pill-container">
+                            <span class="threshold-pill">Ngưỡng: &gt; <strong id="thresh-val-temp-card">30.0</strong>°C</span>
+                            <span id="thresh-status-temp" class="thresh-status-badge normal"><i class="ph ph-check-circle"></i> An toàn</span>
+                        </div>
                     </div>
 
                     <div class="simple-card bg-humid">
@@ -111,6 +115,10 @@
                             <span class="metric-trend"><i class="ph ph-drop-half-bottom"></i> Cảm biến DHT22</span>
                         </div>
                         <div id="metric-humid" class="simple-value">74.0 <span class="unit-label">%</span></div>
+                        <div class="threshold-pill-container">
+                            <span class="threshold-pill">Ngưỡng: &gt; <strong id="thresh-val-humid-card">75.0</strong>%</span>
+                            <span id="thresh-status-humid" class="thresh-status-badge normal"><i class="ph ph-check-circle"></i> An toàn</span>
+                        </div>
                     </div>
 
                     <div class="simple-card bg-light">
@@ -119,6 +127,10 @@
                             <span class="metric-trend"><i class="ph ph-sun-dim"></i> Cảm biến LDR</span>
                         </div>
                         <div id="metric-light" class="simple-value">1750 <span class="unit-label">lux</span></div>
+                        <div class="threshold-pill-container">
+                            <span class="threshold-pill">Ngưỡng: &gt; <strong id="thresh-val-light-card">1800</strong> lux</span>
+                            <span id="thresh-status-light" class="thresh-status-badge normal"><i class="ph ph-check-circle"></i> An toàn</span>
+                        </div>
                     </div>
                 </div>
 
@@ -144,7 +156,10 @@
                                     <div class="dev-avatar"><i class="ph-fill ph-lightbulb"></i></div>
                                     <div>
                                         <div class="dev-name">Đèn LED 1</div>
-                                        <div class="dev-room">LED_01</div>
+                                        <div class="dev-role"><i class="ph-fill ph-thermometer-simple"></i> Cảm biến Nhiệt độ</div>
+                                        <div class="dev-blink-info">
+                                            <span class="blink-tag"><i class="ph-bold ph-lightning"></i> Nháy: <b id="blink-count-LED_01">0</b> lần</span>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="dev-action-right">
@@ -160,7 +175,10 @@
                                     <div class="dev-avatar"><i class="ph-fill ph-lightbulb"></i></div>
                                     <div>
                                         <div class="dev-name">Đèn LED 2</div>
-                                        <div class="dev-room">LED_02</div>
+                                        <div class="dev-role"><i class="ph-fill ph-drop"></i> Cảm biến Độ ẩm</div>
+                                        <div class="dev-blink-info">
+                                            <span class="blink-tag"><i class="ph-bold ph-lightning"></i> Nháy: <b id="blink-count-LED_02">0</b> lần</span>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="dev-action-right">
@@ -176,7 +194,10 @@
                                     <div class="dev-avatar"><i class="ph-fill ph-lightbulb"></i></div>
                                     <div>
                                         <div class="dev-name">Đèn LED 3</div>
-                                        <div class="dev-room">LED_03</div>
+                                        <div class="dev-role"><i class="ph-fill ph-sun"></i> Cảm biến Ánh sáng</div>
+                                        <div class="dev-blink-info">
+                                            <span class="blink-tag"><i class="ph-bold ph-lightning"></i> Nháy: <b id="blink-count-LED_03">0</b> lần</span>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="dev-action-right">
@@ -189,6 +210,96 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Card Cấu hình 3 Ngưỡng Cảm biến & Đếm số lần Nháy Đèn -->
+                <div class="card threshold-card">
+                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 8px;">
+                        <h2 class="card-title" style="font-size: 18px; font-weight: 700; color: var(--text-h); display: flex; align-items: center; gap: 8px;">
+                            <i class="ph-bold ph-faders" style="color: var(--brand);"></i> Cấu hình Ngưỡng Cảnh báo & Đếm số lần Nháy đèn
+                        </h2>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <button class="btn btn-outline" onclick="resetBlinkCounters()" title="Xóa toàn bộ số lần nháy về 0" style="padding: 6px 12px; font-size: 13px;">
+                                <i class="ph ph-arrow-counter-clockwise"></i> Đặt lại bộ đếm
+                            </button>
+                            <button class="btn btn-primary" onclick="saveThresholds()" title="Lưu và áp dụng ngưỡng mới" style="padding: 6px 14px; font-size: 13px;">
+                                <i class="ph ph-floppy-disk"></i> Lưu cài đặt
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+                        Khi giá trị cảm biến vượt quá ngưỡng cài đặt, hệ thống sẽ tự động kích hoạt <strong>nháy đèn LED tương ứng</strong> và tích lũy <strong>bộ đếm số lần nháy</strong> theo thời gian thực.
+                    </p>
+
+                    <div class="threshold-grid">
+                        <!-- Ngưỡng 1: Nhiệt độ -> Đèn LED 1 -->
+                        <div class="thresh-item" id="thresh-box-temp">
+                            <div class="thresh-item-header">
+                                <div class="thresh-icon temp"><i class="ph-fill ph-thermometer-simple"></i></div>
+                                <div>
+                                    <div class="thresh-title">Ngưỡng Nhiệt độ</div>
+                                    <div class="thresh-desc">Điều khiển nháy: <strong>Đèn LED 1 (Đỏ)</strong></div>
+                                </div>
+                            </div>
+                            <div class="thresh-input-row">
+                                <label for="input-thresh-temp">Ngưỡng kích hoạt (&gt;):</label>
+                                <div class="thresh-input-wrap">
+                                    <input type="number" id="input-thresh-temp" class="form-input" value="30.0" step="0.5" min="0" max="60">
+                                    <span class="unit-addon">°C</span>
+                                </div>
+                            </div>
+                            <div class="thresh-stat-row">
+                                <span>Số lần nháy Đèn 1:</span>
+                                <span class="thresh-count-badge" id="stat-blink-LED_01">0 lần</span>
+                            </div>
+                        </div>
+
+                        <!-- Ngưỡng 2: Độ ẩm -> Đèn LED 2 -->
+                        <div class="thresh-item" id="thresh-box-humid">
+                            <div class="thresh-item-header">
+                                <div class="thresh-icon humid"><i class="ph-fill ph-drop"></i></div>
+                                <div>
+                                    <div class="thresh-title">Ngưỡng Độ ẩm</div>
+                                    <div class="thresh-desc">Điều khiển nháy: <strong>Đèn LED 2 (Vàng)</strong></div>
+                                </div>
+                            </div>
+                            <div class="thresh-input-row">
+                                <label for="input-thresh-humid">Ngưỡng kích hoạt (&gt;):</label>
+                                <div class="thresh-input-wrap">
+                                    <input type="number" id="input-thresh-humid" class="form-input" value="75.0" step="1" min="0" max="100">
+                                    <span class="unit-addon">%</span>
+                                </div>
+                            </div>
+                            <div class="thresh-stat-row">
+                                <span>Số lần nháy Đèn 2:</span>
+                                <span class="thresh-count-badge" id="stat-blink-LED_02">0 lần</span>
+                            </div>
+                        </div>
+
+                        <!-- Ngưỡng 3: Ánh sáng -> Đèn LED 3 -->
+                        <div class="thresh-item" id="thresh-box-light">
+                            <div class="thresh-item-header">
+                                <div class="thresh-icon light"><i class="ph-fill ph-sun"></i></div>
+                                <div>
+                                    <div class="thresh-title">Ngưỡng Ánh sáng</div>
+                                    <div class="thresh-desc">Điều khiển nháy: <strong>Đèn LED 3 (Xanh)</strong></div>
+                                </div>
+                            </div>
+                            <div class="thresh-input-row">
+                                <label for="input-thresh-light">Ngưỡng kích hoạt (&gt;):</label>
+                                <div class="thresh-input-wrap">
+                                    <input type="number" id="input-thresh-light" class="form-input" value="1800" step="50" min="0" max="5000">
+                                    <span class="unit-addon">lux</span>
+                                </div>
+                            </div>
+                            <div class="thresh-stat-row">
+                                <span>Số lần nháy Đèn 3:</span>
+                                <span class="thresh-count-badge" id="stat-blink-LED_03">0 lần</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
             <!-- View: Sensors -->
@@ -344,10 +455,10 @@
             <div id="profile" class="view-section">
                 <div class="profile-card">
                     <div class="profile-header-clean">
-                        <img src="public/images/avatar.svg" alt="Avatar" class="profile-avatar-clean">
+                        <img src="public/images/avatar.png" alt="Avatar" class="profile-avatar-clean">
                         <div>
                             <h2 style="font-size: 28px; font-weight: 700; color: var(--text-h); margin-bottom: 6px; letter-spacing: -0.5px;">Đỗ Trọng Ninh</h2>
-                            <p style="color: var(--text-muted); font-size: 14px;">Báo cáo học phần IoT và Ứng dụng</p>
+                            <p style="color: var(--text-muted); font-size: 14px;"></p>
                         </div>
                     </div>
                     

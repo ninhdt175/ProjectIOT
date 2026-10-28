@@ -67,6 +67,9 @@ const initMQTTService = (io) => {
             temperature,
             humidity,
             light_lux,
+            blink_led1: payload.blink_led1 !== undefined ? payload.blink_led1 : undefined,
+            blink_led2: payload.blink_led2 !== undefined ? payload.blink_led2 : undefined,
+            blink_led3: payload.blink_led3 !== undefined ? payload.blink_led3 : undefined,
             time: timeFormatted,
             created_at: timeFormatted
           });
