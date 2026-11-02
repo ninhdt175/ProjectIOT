@@ -11,7 +11,7 @@ const routeFiles = fs.existsSync(routesDir)
       .map((file) => path.join(routesDir, file))
   : [];
 
-// Cấu hình tài liệu chuẩn Swagger UI mặc định
+// Cấu hình tài liệu chuẩn Swagger UI mặc định khớp chính xác với Chương 4 trong Báo cáo
 const swaggerOptions = {
   definition: {
     openapi: '3.0.0',
@@ -28,16 +28,11 @@ const swaggerOptions = {
       {
         name: 'Controls & Devices',
         description: 'Nhóm API quản lý thiết bị và lịch sử điều khiển'
-      },
-      {
-        name: 'System',
-        description: 'Nhóm API giám sát hệ thống'
       }
     ]
   },
   apis: [
-    ...routeFiles,
-    path.join(__dirname, '../server.js')
+    ...routeFiles
   ]
 };
 

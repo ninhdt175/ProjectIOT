@@ -47,17 +47,7 @@ app.get(['/swagger-ui.json', '/api-docs.json'], (req, res) => {
 const frontendPath = path.join(__dirname, '../../frontend');
 app.use(express.static(frontendPath));
 
-// API kiểm tra tình trạng ban đầu của Server
-/**
- * @openapi
- * /api/status:
- *   get:
- *     summary: Kiểm tra tình trạng hoạt động của Server Back-End
- *     tags: [System]
- *     responses:
- *       200:
- *         description: Server hoạt động bình thường
- */
+// API kiểm tra tình trạng ban đầu của Server (Nội bộ)
 app.get('/api/status', (req, res) => {
   res.json({
     success: true,

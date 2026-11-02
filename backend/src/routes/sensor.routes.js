@@ -124,7 +124,79 @@ router.get('/latest', sensorController.getLatestSensorData);
 router.get('/chart-data', sensorController.getChartData);
 router.get('/chart', sensorController.getChartData);
 
+/**
+ * @openapi
+ * /api/sensors:
+ *   get:
+ *     summary: Lấy danh mục toàn bộ cảm biến trong hệ thống
+ *     tags: [Sensors]
+ *     responses:
+ *       200:
+ *         description: Danh sách các cảm biến được quản lý
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                         example: 1
+ *                       sensor_code:
+ *                         type: string
+ *                         example: DHT22_01
+ *                       sensor_name:
+ *                         type: string
+ *                         example: Cảm biến Nhiệt độ & Độ ẩm
+ *                       sensor_type:
+ *                         type: string
+ *                         example: dht22
+ *                       unit:
+ *                         type: string
+ *                         example: "°C / %"
+ */
 router.get('/', sensorController.getAllSensors);
+
+/**
+ * @openapi
+ * /api/sensors/data:
+ *   post:
+ *     summary: Ghi nhận dữ liệu đo cảm biến vào cơ sở dữ liệu qua HTTP
+ *     tags: [Sensors]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - sensor_id
+ *             properties:
+ *               sensor_id:
+ *                 type: integer
+ *                 example: 1
+ *               temperature:
+ *                 type: number
+ *                 example: 30.5
+ *               humidity:
+ *                 type: number
+ *                 example: 72.8
+ *               light_lux:
+ *                 type: integer
+ *                 example: 1650
+ *     responses:
+ *       201:
+ *         description: Dữ liệu cảm biến đã được lưu trữ thành công
+ *       400:
+ *         description: Thiếu thông tin bắt buộc
+ */
 router.post('/data', sensorController.createSensorData);
 
 module.exports = router;

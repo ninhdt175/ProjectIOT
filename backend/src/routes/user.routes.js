@@ -4,7 +4,7 @@ const userController = require('../controllers/user.controller');
 
 /**
  * @openapi
- * /api/profile:
+ * /api/users/profile:
  *   get:
  *     summary: Lấy thông tin hồ sơ sinh viên
  *     tags: [Users]
@@ -48,5 +48,37 @@ const userController = require('../controllers/user.controller');
  *                       example: TS. Nguyễn Quốc Uy
  */
 router.get('/profile', userController.getUserProfile);
+
+/**
+ * @openapi
+ * /api/users/login:
+ *   post:
+ *     summary: Đăng nhập và xác thực tài khoản người dùng
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - username
+ *               - password
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 example: B23DCCN633
+ *               password:
+ *                 type: string
+ *                 example: 123456
+ *     responses:
+ *       200:
+ *         description: Đăng nhập thành công, trả về JWT Token và thông tin người dùng
+ *       400:
+ *         description: Thiếu thông tin đăng nhập
+ *       401:
+ *         description: Sai thông tin đăng nhập
+ */
+router.post('/login', userController.loginUser);
 
 module.exports = router;

@@ -16,4 +16,7 @@ router.use('/users', userRoutes);
 // Route tắt cho hồ sơ sinh viên (/api/profile)
 router.get('/profile', userController.getUserProfile);
 
+// Route tắt cho đăng nhập (/api/auth/login)
+router.post('/auth/login', userController.loginUser);
+
 module.exports = router;
