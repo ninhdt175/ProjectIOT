@@ -79,7 +79,8 @@ function matchesHistoryFilter(item) {
                         (item.deviceId && item.deviceId.includes(filterDev)) ||
                         (filterDev === 'LED_01' && (cleanName.includes('Đèn LED 1') || cleanName === 'LED_01')) ||
                         (filterDev === 'LED_02' && (cleanName.includes('Đèn LED 2') || cleanName === 'LED_02')) ||
-                        (filterDev === 'LED_03' && (cleanName.includes('Đèn LED 3') || cleanName === 'LED_03'));
+                        (filterDev === 'LED_03' && (cleanName.includes('Đèn LED 3') || cleanName === 'LED_03')) ||
+                        (filterDev === 'LED_04' && (cleanName.includes('Đèn LED 4') || cleanName === 'LED_04'));
     }
 
     const matchesAction = (appliedHistoryFilters.action === 'ALL') || 
@@ -349,7 +350,7 @@ async function fetchControlHistoryFromAPI() {
     if (window.HttpService && typeof window.HttpService.getControlHistory === 'function') {
         const data = await window.HttpService.getControlHistory(1, 100);
         if (data && Array.isArray(data) && data.length > 0) {
-            controlHistoryList = data.map(item => ({
+            const mapped = data.map(item => ({
                 id: item.id,
                 time: formatHistoryTime(item.time, item.created_at),
                 device: cleanDeviceName(item.device_name || item.device),
@@ -358,6 +359,16 @@ async function fetchControlHistoryFromAPI() {
                 user: item.user_name || 'Đỗ Trọng Ninh',
                 status: item.status || 'success'
             }));
+
+            // Giữ lại các bản ghi điều khiển của Đèn LED 4 từ danh sách cục bộ hoặc thêm mẫu nếu Backend chưa có
+            const existingLed4 = controlHistoryList.filter(log => log.deviceId === 'LED_04' || (log.device && log.device.includes('Đèn LED 4')));
+            if (existingLed4.length > 0) {
+                controlHistoryList = [...existingLed4, ...mapped];
+            } else {
+                const defaultLed4 = (window.APP_CONFIG?.DEFAULT_HISTORY || []).filter(log => log.deviceId === 'LED_04');
+                controlHistoryList = [...defaultLed4, ...mapped];
+            }
+
             renderControlHistoryTable();
         }
     }

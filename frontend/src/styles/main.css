@@ -322,6 +322,11 @@ body {
     border-color: #fef3c7;
 }
 
+.bg-oxygen {
+    background-color: #ecfeff;
+    border-color: #cffafe;
+}
+
 .card-top-row {
     display: flex;
     justify-content: space-between;
@@ -373,6 +378,86 @@ body {
     display: grid;
     grid-template-columns: 2fr 1fr;
     gap: 24px;
+}
+
+/* Lưới 4 Biểu đồ phía trên (2 Cột x 2 Hàng) */
+.dashboard-charts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.chart-column {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.chart-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    padding: 16px 20px;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+}
+
+.chart-card-header {
+    margin-bottom: 10px !important;
+}
+
+.chart-card-header .card-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-h);
+}
+
+.chart-container-sm {
+    position: relative;
+    height: 175px;
+    width: 100%;
+}
+
+/* Lưới Phía Dưới: 4 Ô cảm biến (Trái) & 4 Ô Bật/Tắt Đèn (Phải) */
+.dashboard-bottom-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.bottom-card {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.metrics-grid-2x2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.device-grid-2x2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.metrics-grid-2x2 .simple-card {
+    padding: 16px 18px;
+    min-height: 105px;
+}
+
+.metrics-grid-2x2 .simple-value {
+    font-size: 26px;
+    margin-top: 10px;
+}
+
+.device-grid-2x2 .device-item {
+    padding: 14px 16px;
 }
 
 .card {
@@ -496,6 +581,22 @@ body {
     background: #dcfce7;
     color: var(--status-up);
     border-color: #86efac;
+}
+
+.device-item.offline {
+    background-color: #f8fafc;
+    border-color: #e2e8f0;
+    opacity: 0.75;
+}
+
+.device-item.offline .dev-avatar {
+    background: #f1f5f9;
+    color: #94a3b8;
+    border-color: #e2e8f0;
+}
+
+.device-item.offline .toggle {
+    background: #cbd5e1 !important;
 }
 
 .dev-action-right {
@@ -778,6 +879,12 @@ body {
     background: #fffbeb;
     color: #b45309;
     border-color: #fef3c7;
+}
+
+.tag-oxygen {
+    background: #ecfeff;
+    color: #0891b2;
+    border-color: #cffafe;
 }
 
 /* 16. Ô hiển thị thời gian & Nút sao chép (Copy Time Button) */

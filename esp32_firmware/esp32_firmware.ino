@@ -8,6 +8,7 @@
 #define LED1_PIN    18
 #define LED2_PIN    19
 #define LED3_PIN    21
+#define LED4_PIN    5
 #define DHTPIN      23
 #define DHTTYPE     DHT22
 #define LDR_PIN     32
@@ -42,9 +43,11 @@ void initLEDs() {
   pinMode(LED1_PIN, OUTPUT);
   pinMode(LED2_PIN, OUTPUT);
   pinMode(LED3_PIN, OUTPUT);
+  pinMode(LED4_PIN, OUTPUT);
   gpio_set_drive_capability((gpio_num_t)LED1_PIN, GPIO_DRIVE_CAP_0);
   gpio_set_drive_capability((gpio_num_t)LED2_PIN, GPIO_DRIVE_CAP_0);
   gpio_set_drive_capability((gpio_num_t)LED3_PIN, GPIO_DRIVE_CAP_0);
+  gpio_set_drive_capability((gpio_num_t)LED4_PIN, GPIO_DRIVE_CAP_0);
 }
 
 // Kiểm tra LED khi khởi động
@@ -52,10 +55,12 @@ void testLEDsBlink() {
   digitalWrite(LED1_PIN, HIGH);
   digitalWrite(LED2_PIN, HIGH);
   digitalWrite(LED3_PIN, HIGH);
+  digitalWrite(LED4_PIN, HIGH);
   delay(300);
   digitalWrite(LED1_PIN, LOW);
   digitalWrite(LED2_PIN, LOW);
   digitalWrite(LED3_PIN, LOW);
+  digitalWrite(LED4_PIN, LOW);
 }
 
 // Khởi tạo cảm biến DHT22 và quang trở LDR
@@ -95,8 +100,9 @@ void connectWiFi() {
 void connectMQTT() {
   if (!client.connected()) {
     Serial.print("[MQTT] Connecting to broker... ");
-    String clientId = "ESP32_Client_" + String(random(0xffff), HEX);
-    if (client.connect(clientId.c_str(), mqtt_user, mqtt_pass)) {
+    char clientId[32];
+    snprintf(clientId, sizeof(clientId), "ESP32_%04X", (uint16_t)random(0xffff));
+    if (client.connect(clientId, mqtt_user, mqtt_pass)) {
       Serial.println("connected.");
       client.subscribe(TOPIC_DEVICE_CONTROL);
     } else {
@@ -113,6 +119,7 @@ bool executeDeviceControl(const char* target, const char* action) {
     digitalWrite(LED1_PIN, outputLevel);
     digitalWrite(LED2_PIN, outputLevel);
     digitalWrite(LED3_PIN, outputLevel);
+    digitalWrite(LED4_PIN, outputLevel);
     return true;
   } else if (strcmp(target, "LED_01") == 0) {
     digitalWrite(LED1_PIN, outputLevel);
@@ -122,6 +129,9 @@ bool executeDeviceControl(const char* target, const char* action) {
     return true;
   } else if (strcmp(target, "LED_03") == 0) {
     digitalWrite(LED3_PIN, outputLevel);
+    return true;
+  } else if (strcmp(target, "LED_04") == 0) {
+    digitalWrite(LED4_PIN, outputLevel);
     return true;
   }
   return false;
@@ -204,8 +214,8 @@ void publishSensorData(float temperature, float humidity, int lightLux) {
   StaticJsonDocument<256> sensorDoc;
   sensorDoc["device_id"]   = "ESP32_01";
   sensorDoc["sensor_id"]   = 1;
-  sensorDoc["temperature"] = serialized(String(temperature, 1));
-  sensorDoc["humidity"]    = serialized(String(humidity, 1));
+  sensorDoc["temperature"] = round(temperature * 10.0) / 10.0;
+  sensorDoc["humidity"]    = round(humidity * 10.0) / 10.0;
   sensorDoc["light_lux"]   = lightLux;
 
   char sensorBuffer[256];
@@ -239,6 +249,7 @@ void setup() {
 
   connectWiFi();
   initMQTT();
+  connectMQTT();
 }
 
 void loop() {
@@ -248,7 +259,7 @@ void loop() {
 
   static unsigned long lastMqttRetry = 0;
   if (!client.connected()) {
-    if (millis() - lastMqttRetry > 5000) {
+    if (millis() - lastMqttRetry > 3000) {
       lastMqttRetry = millis();
       connectMQTT();
     }

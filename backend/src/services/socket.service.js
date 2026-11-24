@@ -1,5 +1,10 @@
 const db = require('../config/db.config');
-const { publishDeviceControl } = require('./mqtt.service');
+const {
+  publishDeviceControl,
+  markEsp32Offline,
+  isEsp32Connected,
+  getDeviceStates
+} = require('./mqtt.service');
 
 // Quản lý kết nối và các sự kiện thời gian thực Socket.IO
 const initSocketService = (io) => {
@@ -16,6 +21,15 @@ const initSocketService = (io) => {
         socket.emit('sensor_data', latestSensors[0]);
       }
 
+      const onlineNow = isEsp32Connected();
+      const liveStates = getDeviceStates();
+
+      // Thông báo trạng thái kết nối thực tế của mạch ESP32 và trạng thái các nút công tắc
+      socket.emit('esp32_status', {
+        is_online: onlineNow,
+        devices: liveStates
+      });
+
       const { rows: deviceStates } = await db.query(
         `SELECT d.id AS target,
                 COALESCE((SELECT action FROM history WHERE device_id = d.id AND status = 'success' ORDER BY created_at DESC LIMIT 1), 'OFF') AS state
@@ -24,7 +38,7 @@ const initSocketService = (io) => {
       deviceStates.forEach((dev) => {
         socket.emit('device_status', {
           target: dev.target,
-          state: dev.state,
+          state: onlineNow ? (liveStates[dev.target] || dev.state || 'OFF') : 'OFF',
           status: 'success'
         });
       });
@@ -91,6 +105,7 @@ const initSocketService = (io) => {
                   `UPDATE history SET status = 'failed', message = 'Hết thời gian chờ phản hồi từ thiết bị (5s)' WHERE id = $1`,
                   [historyId]
                 );
+                await markEsp32Offline();
                 // Bắn phản hồi thất bại về Web
                 io.emit('device_control_ack', {
                   target,

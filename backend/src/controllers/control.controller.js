@@ -1,4 +1,10 @@
 const db = require('../config/db.config');
+const {
+  publishDeviceControl,
+  waitForDeviceAck,
+  markEsp32Offline,
+  isEsp32Connected
+} = require('../services/mqtt.service');
 
 // Lấy lịch sử điều khiển thiết bị có lọc theo 4 tiêu chí và phân trang (5, 7, 10, 20 dòng)
 const getControlHistory = async (req, res, next) => {
@@ -106,8 +112,43 @@ const toggleDevice = async (req, res, next) => {
 
     const deviceName = deviceCheck.rows[0].name;
     const defaultMsg = message || `Yêu cầu ${cleanAction === 'ON' ? 'bật' : 'tắt'} ${deviceName}`;
+    const requestId = 'swagger_' + Date.now() + '_' + device_id;
+    const io = req.app ? req.app.get('io') : null;
 
-    // Lưu vào bảng history với trạng thái 'pending' chờ phản hồi phần cứng
+    // 1. Nếu mạch ESP32 đang bị rút kết nối (Offline), từ chối ngay và trả về success: false
+    if (!isEsp32Connected()) {
+      await markEsp32Offline();
+      const offlineMsg = `Thất bại: Mạch ESP32 đang ngoại tuyến (đã rút kết nối)`;
+      const { rows } = await db.query(
+        `INSERT INTO history (user_id, device_id, action, status, message, created_at)
+         VALUES ($1, $2, $3, 'failed', $4, CURRENT_TIMESTAMP)
+         RETURNING id, to_char(created_at, 'YYYY-MM-DD HH24:MI:SS') AS created_at;`,
+        [user_id || 1, device_id, cleanAction, offlineMsg]
+      );
+
+      if (io) {
+        io.emit('device_control_ack', {
+          target: device_id,
+          action: cleanAction,
+          status: 'failed',
+          requestId,
+          message: offlineMsg
+        });
+      }
+
+      return res.status(200).json({
+        success: false,
+        message: 'Không thể điều khiển: Mạch ESP32 đang ngoại tuyến (đã rút kết nối)',
+        history_id: Number(rows[0].id),
+        status: 'failed',
+        is_online: false,
+        device_id,
+        action: cleanAction,
+        created_at: rows[0].created_at
+      });
+    }
+
+    // 2. Lưu vào bảng history với trạng thái 'pending' chờ phản hồi phần cứng
     const insertQuery = `
       INSERT INTO history (user_id, device_id, action, status, message, created_at)
       VALUES ($1, $2, $3, 'pending', $4, CURRENT_TIMESTAMP)
@@ -117,23 +158,65 @@ const toggleDevice = async (req, res, next) => {
     const { rows } = await db.query(insertQuery, [user_id || 1, device_id, cleanAction, defaultMsg]);
     const historyId = Number(rows[0].id);
 
-    // Tự động chuyển trạng thái sang 'failed' nếu sau 5s không có phản hồi xác nhận (ACK)
-    setTimeout(async () => {
-      try {
-        await db.query(
-          "UPDATE history SET status = 'failed', message = 'Hết thời gian chờ phản hồi từ thiết bị (5s)' WHERE id = $1 AND status = 'pending'",
-          [historyId]
-        );
-      } catch (timeoutErr) {
-        console.error('[Timeout] Lỗi khi cập nhật trạng thái timeout:', timeoutErr.message);
+    // 3. Phát lệnh điều khiển tới thiết bị phần cứng qua MQTT và chờ phản hồi ACK thực tế
+    const ackPromise = waitForDeviceAck(device_id, 4500);
+    try {
+      await publishDeviceControl(device_id, cleanAction, requestId);
+    } catch (mqttErr) {
+      console.warn('[Control Controller] Không thể gửi lệnh qua MQTT:', mqttErr.message);
+      await db.query(
+        "UPDATE history SET status = 'failed', message = 'Không thể kết nối tới MQTT Broker' WHERE id = $1",
+        [historyId]
+      );
+      return res.status(200).json({
+        success: false,
+        message: 'Không thể gửi lệnh tới MQTT Broker',
+        history_id: historyId,
+        status: 'failed',
+        is_online: false,
+        device_id,
+        action: cleanAction,
+        created_at: rows[0].created_at
+      });
+    }
+
+    const ackResult = await ackPromise;
+
+    // Nếu không nhận được ACK từ ESP32 (mạch vừa bị rút ra) -> trả về success: false
+    if (!ackResult || ackResult.status !== 'success') {
+      await db.query(
+        "UPDATE history SET status = 'failed', message = 'Hết thời gian chờ phản hồi từ thiết bị (mạch đã ngắt kết nối)' WHERE id = $1 AND status = 'pending'",
+        [historyId]
+      );
+      await markEsp32Offline();
+      if (io) {
+        io.emit('device_control_ack', {
+          target: device_id,
+          action: cleanAction,
+          status: 'failed',
+          requestId,
+          message: 'Hết thời gian chờ phản hồi từ thiết bị (mạch đã ngắt kết nối)'
+        });
       }
-    }, 5000);
+
+      return res.status(200).json({
+        success: false,
+        message: 'Không thể điều khiển: Thiết bị không phản hồi (mạch ESP32 đã rút kết nối)',
+        history_id: historyId,
+        status: 'failed',
+        is_online: false,
+        device_id,
+        action: cleanAction,
+        created_at: rows[0].created_at
+      });
+    }
 
     return res.status(200).json({
       success: true,
-      message: 'Lệnh điều khiển đã được tiếp nhận và phát tới thiết bị qua MQTT',
+      message: `Đã ${cleanAction === 'ON' ? 'bật' : 'tắt'} ${deviceName} thành công`,
       history_id: historyId,
-      status: 'pending',
+      status: 'success',
+      is_online: true,
       device_id,
       action: cleanAction,
       created_at: rows[0].created_at

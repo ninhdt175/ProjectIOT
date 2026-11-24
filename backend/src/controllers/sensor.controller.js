@@ -267,6 +267,20 @@ const createSensorData = async (req, res, next) => {
       light_lux !== undefined ? light_lux : null
     ]);
 
+    // Phát sự kiện thời gian thực qua Socket.IO tới giao diện Web (Bảng Dữ liệu cảm biến & Dashboard)
+    const io = req.app ? req.app.get('io') : null;
+    if (io) {
+      io.emit('sensor_data', {
+        device_id: 'ESP32_01',
+        sensor_id: Number(sensor_id),
+        temperature: temperature !== undefined && temperature !== null ? Number(temperature) : null,
+        humidity: humidity !== undefined && humidity !== null ? Number(humidity) : null,
+        light_lux: light_lux !== undefined && light_lux !== null ? Number(light_lux) : null,
+        time: rows[0].created_at,
+        created_at: rows[0].created_at
+      });
+    }
+
     return res.status(201).json({
       success: true,
       message: 'Dữ liệu cảm biến đã lưu thành công vào cơ sở dữ liệu',

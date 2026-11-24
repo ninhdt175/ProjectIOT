@@ -122,7 +122,6 @@ router.get('/latest', sensorController.getLatestSensorData);
  *         description: Tập dữ liệu tọa độ mốc thời gian và giá trị đo
  */
 router.get('/chart-data', sensorController.getChartData);
-router.get('/chart', sensorController.getChartData);
 
 /**
  * @openapi

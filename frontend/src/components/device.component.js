@@ -1,4 +1,4 @@
-// Điều khiển thiết bị ngoại vi (Device Control Component)
+// Điều khiển thiết bị ngoại vi (Device Control Component - Hỗ trợ 4 đèn LED)
 
 // Theo dõi cờ pending chống spam click cho từng thiết bị
 const pendingDevices = {};
@@ -37,7 +37,7 @@ function setDevicePendingState(itemId, deviceKey, isPending) {
     }
 }
 
-// Điều khiển bật/tắt thiết bị với cơ chế Pessimistic UI và Timeout 5s
+// Điều khiển bật/tắt thiết bị với phản hồi tức thì trên Front-End và đồng bộ Lịch sử
 function toggleDevice(itemId, deviceKey, checkbox) {
     const item = document.getElementById(itemId);
     if (!item || !checkbox) return;
@@ -49,12 +49,6 @@ function toggleDevice(itemId, deviceKey, checkbox) {
     }
 
     const desiredState = checkbox.checked;
-    const originalState = !desiredState;
-
-    // Giữ nguyên trạng thái cũ cho đến khi nhận được ACK xác nhận
-    checkbox.checked = originalState;
-    setDevicePendingState(itemId, deviceKey, true);
-
     const action = desiredState ? 'ON' : 'OFF';
     const devName = (window.AppState?.devices?.[deviceKey]?.name) || deviceKey;
     const now = new Date();
@@ -62,39 +56,26 @@ function toggleDevice(itemId, deviceKey, checkbox) {
     const timeStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
     const requestId = `cmd_${Date.now()}_${deviceKey}`;
 
-    // Ghi nhật ký lịch sử ở trạng thái pending (Đang chờ)
+    // Cập nhật ngay trạng thái giao diện (Optimistic UI - Phản hồi tức thì)
+    item.classList.remove('offline');
+    item.classList.toggle('active', desiredState);
+    if (window.AppState?.devices?.[deviceKey]) {
+        window.AppState.devices[deviceKey].state = desiredState;
+    }
+
+    // Ghi nhận lịch sử và phát qua Socket tới vi điều khiển ESP32 cho cả 4 đèn
     if (typeof appendControlLog === 'function') {
         appendControlLog({
             id: requestId,
             time: timeStr,
             device: devName,
-            deviceId: 'ESP32_01',
+            deviceId: deviceKey,
             action: action,
             user: 'Đỗ Trọng Ninh',
-            status: 'pending'
+            status: 'success'
         });
     }
 
-    // Thiết lập bộ đếm thời gian 5s: nếu quá 5s không có phản hồi thì tự động chuyển sang Thất bại
-    if (controlTimeouts[deviceKey]) {
-        clearTimeout(controlTimeouts[deviceKey]);
-    }
-
-    controlTimeouts[deviceKey] = setTimeout(() => {
-        if (pendingDevices[deviceKey]) {
-            console.warn(`[DeviceControl] Thiết bị ${deviceKey} không phản hồi sau 5s, chuyển trạng thái sang Thất bại.`);
-            handleDeviceControlAck({
-                target: deviceKey,
-                action: action,
-                status: 'failed',
-                requestId: requestId,
-                message: 'Hết thời gian chờ phản hồi từ thiết bị (5s)'
-            });
-        }
-        delete controlTimeouts[deviceKey];
-    }, 5000);
-
-    // Gửi lệnh qua WebSocket nếu đang kết nối máy chủ
     if (window.AppState?.socket && window.AppState.socket.connected) {
         window.AppState.socket.emit('device_control', {
             target: deviceKey,
@@ -104,24 +85,22 @@ function toggleDevice(itemId, deviceKey, checkbox) {
     }
 }
 
-// Xử lý phản hồi xác nhận lệnh (ACK) từ Backend/ESP32 hoặc do Timeout 5s
+// Xử lý phản hồi xác nhận lệnh (ACK) từ Backend/ESP32 hoặc do Timeout
 function handleDeviceControlAck(response) {
     if (!response || !response.target) return;
 
     const { target, action, status, requestId } = response;
 
-    // Hủy bỏ bộ hẹn giờ timeout 5s nếu nhận được phản hồi trước thời hạn
     if (controlTimeouts[target]) {
         clearTimeout(controlTimeouts[target]);
         delete controlTimeouts[target];
     }
 
     const dev = window.AppState?.devices?.[target];
-    const itemId = dev?.elementId || (target === 'LED_01' ? 'devItem1' : (target === 'LED_02' ? 'devItem2' : 'devItem3'));
+    const itemId = dev?.elementId || (target === 'LED_01' ? 'devItem1' : (target === 'LED_02' ? 'devItem2' : (target === 'LED_03' ? 'devItem3' : 'devItem4')));
     const item = document.getElementById(itemId);
     const checkbox = item?.querySelector('input.toggle');
 
-    // Giải phóng trạng thái đang chờ
     setDevicePendingState(itemId, target, false);
 
     const isSuccess = (status === 'success');
@@ -129,7 +108,10 @@ function handleDeviceControlAck(response) {
     if (isSuccess) {
         const isTurnOn = (action === 'ON');
         if (checkbox) checkbox.checked = isTurnOn;
-        if (item) item.classList.toggle('active', isTurnOn);
+        if (item) {
+            item.classList.remove('offline');
+            item.classList.toggle('active', isTurnOn);
+        }
 
         if (window.AppState?.devices?.[target]) {
             window.AppState.devices[target].state = isTurnOn;
@@ -139,10 +121,16 @@ function handleDeviceControlAck(response) {
             updateControlLogStatus(requestId, 'success');
         }
     } else {
-        // Trường hợp thất bại (do lỗi hoặc quá 5s không phản hồi)
-        const currentState = window.AppState?.devices?.[target]?.state ?? false;
-        if (checkbox) checkbox.checked = currentState;
-        if (item) item.classList.toggle('active', currentState);
+        // Nếu thất bại do rút kết nối mạch: đưa về màu xám
+        if (checkbox) checkbox.checked = false;
+        if (item) {
+            item.classList.remove('active');
+            item.classList.add('offline');
+        }
+
+        if (window.AppState?.devices?.[target]) {
+            window.AppState.devices[target].state = false;
+        }
 
         if (typeof updateControlLogStatus === 'function') {
             updateControlLogStatus(requestId, 'failed');
