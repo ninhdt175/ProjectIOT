@@ -33,7 +33,6 @@ Mockup_*.html
 # Documentation & Diagram Assets (excluded from Git per workspace rules)
 *.md
 !README.md
-!TAI_LIEU_BO_SUNG_VA_NANG_CAP_HE_THONG.md
 *.drawio
 *.excalidraw
 *.png
