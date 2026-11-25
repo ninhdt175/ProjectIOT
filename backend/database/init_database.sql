@@ -62,6 +62,7 @@ CREATE TABLE data_sensor (
     temperature NUMERIC(5, 2),
     humidity NUMERIC(5, 2),
     light_lux INTEGER,
+    oxygen NUMERIC(5, 2),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_data_sensor_sensor FOREIGN KEY (sensor_id) REFERENCES sensor(id) ON DELETE CASCADE
 );
@@ -86,12 +87,13 @@ INSERT INTO devices (id, name, device_type, is_online) VALUES
 -- Cảm biến đo lường
 INSERT INTO sensor (sensor_code, sensor_name, sensor_type, unit) VALUES
 ('DHT22_01', 'Cảm biến Nhiệt độ & Độ ẩm', 'dht22', '°C / %'),
-('LDR_01', 'Cảm biến Cường độ Ánh sáng', 'ldr', 'lux');
+('LDR_01', 'Cảm biến Cường độ Ánh sáng', 'ldr', 'lux'),
+('O2_01', 'Cảm biến Nồng độ Oxy', 'oxygen', '%');
 
 -- Dữ liệu đo mẫu
-INSERT INTO data_sensor (sensor_id, temperature, humidity, light_lux, created_at) VALUES
-(1, 29.50, 75.00, 1650, CURRENT_TIMESTAMP - INTERVAL '10 minutes'),
-(1, 30.00, 74.00, 1750, CURRENT_TIMESTAMP - INTERVAL '5 minutes');
+INSERT INTO data_sensor (sensor_id, temperature, humidity, light_lux, oxygen, created_at) VALUES
+(1, 29.50, 75.00, 1650, 20.90, CURRENT_TIMESTAMP - INTERVAL '10 minutes'),
+(1, 30.00, 74.00, 1750, 21.00, CURRENT_TIMESTAMP - INTERVAL '5 minutes');
 
 -- Nhật ký điều khiển mẫu
 INSERT INTO history (user_id, device_id, action, status, message, created_at) VALUES

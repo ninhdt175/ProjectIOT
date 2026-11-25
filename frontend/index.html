@@ -108,7 +108,8 @@
                     <div class="chart-column">
                         <div class="card chart-card">
                             <div class="card-header chart-card-header">
-                                <h3 class="card-title"><i class="ph-bold ph-thermometer-simple" style="color: #ef4444;"></i> Biểu đồ Nhiệt độ (°C)</h3>
+                                <h3 class="card-title"><i class="ph-bold ph-thermometer-simple"
+                                        style="color: #ef4444;"></i> Biểu đồ Nhiệt độ (°C)</h3>
                             </div>
                             <div class="chart-container-sm">
                                 <canvas id="chartTemp"></canvas>
@@ -117,7 +118,8 @@
 
                         <div class="card chart-card">
                             <div class="card-header chart-card-header">
-                                <h3 class="card-title"><i class="ph-bold ph-drop" style="color: #3b82f6;"></i> Biểu đồ Độ ẩm (%)</h3>
+                                <h3 class="card-title"><i class="ph-bold ph-drop" style="color: #3b82f6;"></i> Biểu đồ
+                                    Độ ẩm (%)</h3>
                             </div>
                             <div class="chart-container-sm">
                                 <canvas id="chartHumid"></canvas>
@@ -129,7 +131,8 @@
                     <div class="chart-column">
                         <div class="card chart-card">
                             <div class="card-header chart-card-header">
-                                <h3 class="card-title"><i class="ph-bold ph-sun" style="color: #f59e0b;"></i> Biểu đồ Ánh sáng (lux)</h3>
+                                <h3 class="card-title"><i class="ph-bold ph-sun" style="color: #f59e0b;"></i> Biểu đồ
+                                    Ánh sáng (lux)</h3>
                             </div>
                             <div class="chart-container-sm">
                                 <canvas id="chartLight"></canvas>
@@ -138,7 +141,8 @@
 
                         <div class="card chart-card">
                             <div class="card-header chart-card-header">
-                                <h3 class="card-title"><i class="ph-bold ph-wind" style="color: #06b6d4;"></i> Biểu đồ Nồng độ Oxy (%)</h3>
+                                <h3 class="card-title"><i class="ph-bold ph-wind" style="color: #06b6d4;"></i> Biểu đồ
+                                    Nồng độ Oxy (%)</h3>
                             </div>
                             <div class="chart-container-sm">
                                 <canvas id="chartOxygen"></canvas>
@@ -157,7 +161,8 @@
                         <div class="metrics-grid-2x2">
                             <div class="simple-card bg-temp">
                                 <div class="card-top-row">
-                                    <div class="simple-label"><i class="ph-fill ph-thermometer-simple" style="color: #ef4444;"></i> Nhiệt độ</div>
+                                    <div class="simple-label"><i class="ph-fill ph-thermometer-simple"
+                                            style="color: #ef4444;"></i> Nhiệt độ</div>
                                     <span class="metric-trend"><i class="ph ph-trend-up"></i> DHT22</span>
                                 </div>
                                 <div id="metric-temp" class="simple-value">30.0 <span class="unit-label">°C</span></div>
@@ -165,7 +170,8 @@
 
                             <div class="simple-card bg-humid">
                                 <div class="card-top-row">
-                                    <div class="simple-label"><i class="ph-fill ph-drop" style="color: #3b82f6;"></i> Độ ẩm</div>
+                                    <div class="simple-label"><i class="ph-fill ph-drop" style="color: #3b82f6;"></i> Độ
+                                        ẩm</div>
                                     <span class="metric-trend"><i class="ph ph-drop-half-bottom"></i> DHT22</span>
                                 </div>
                                 <div id="metric-humid" class="simple-value">74.0 <span class="unit-label">%</span></div>
@@ -173,18 +179,22 @@
 
                             <div class="simple-card bg-light">
                                 <div class="card-top-row">
-                                    <div class="simple-label"><i class="ph-fill ph-sun" style="color: #f59e0b;"></i> Độ sáng</div>
+                                    <div class="simple-label"><i class="ph-fill ph-sun" style="color: #f59e0b;"></i> Độ
+                                        sáng</div>
                                     <span class="metric-trend"><i class="ph ph-sun-dim"></i> LDR</span>
                                 </div>
-                                <div id="metric-light" class="simple-value">1750 <span class="unit-label">lux</span></div>
+                                <div id="metric-light" class="simple-value">1750 <span class="unit-label">lux</span>
+                                </div>
                             </div>
 
                             <div class="simple-card bg-oxygen">
                                 <div class="card-top-row">
-                                    <div class="simple-label"><i class="ph-fill ph-wind" style="color: #0891b2;"></i> Nồng độ Oxy</div>
+                                    <div class="simple-label"><i class="ph-fill ph-wind" style="color: #0891b2;"></i>
+                                        Nồng độ Oxy</div>
                                     <span class="metric-trend"><i class="ph ph-activity"></i> O2_01</span>
                                 </div>
-                                <div id="metric-oxygen" class="simple-value">20.9 <span class="unit-label">%</span></div>
+                                <div id="metric-oxygen" class="simple-value">20.9 <span class="unit-label">%</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -205,7 +215,7 @@
                                 </div>
                                 <div class="dev-action-right">
                                     <span class="device-pending-tag" style="display: none;">
-                                        <i class="ph ph-spinner ph-spin"></i> Đang chờ...
+                                        <i class="ph ph-spinner ph-spin"></i> Đang chờ
                                     </span>
                                     <input type="checkbox" class="toggle"
                                         onchange="toggleDevice('devItem1', 'LED_01', this)">
@@ -222,7 +232,7 @@
                                 </div>
                                 <div class="dev-action-right">
                                     <span class="device-pending-tag" style="display: none;">
-                                        <i class="ph ph-spinner ph-spin"></i> Đang chờ...
+                                        <i class="ph ph-spinner ph-spin"></i> Đang chờ
                                     </span>
                                     <input type="checkbox" class="toggle"
                                         onchange="toggleDevice('devItem2', 'LED_02', this)">
@@ -239,7 +249,7 @@
                                 </div>
                                 <div class="dev-action-right">
                                     <span class="device-pending-tag" style="display: none;">
-                                        <i class="ph ph-spinner ph-spin"></i> Đang chờ...
+                                        <i class="ph ph-spinner ph-spin"></i> Đang chờ
                                     </span>
                                     <input type="checkbox" class="toggle"
                                         onchange="toggleDevice('devItem3', 'LED_03', this)">
@@ -256,7 +266,7 @@
                                 </div>
                                 <div class="dev-action-right">
                                     <span class="device-pending-tag" style="display: none;">
-                                        <i class="ph ph-spinner ph-spin"></i> Đang chờ...
+                                        <i class="ph ph-spinner ph-spin"></i> Đang chờ
                                     </span>
                                     <input type="checkbox" class="toggle"
                                         onchange="toggleDevice('devItem4', 'LED_04', this)">

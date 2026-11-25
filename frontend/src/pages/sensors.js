@@ -1,8 +1,6 @@
 // Quản lý trang dữ liệu cảm biến (Sensors Controller)
 
-let sensorDataList = (window.APP_CONFIG && window.APP_CONFIG.DEFAULT_SENSORS)
-    ? [...window.APP_CONFIG.DEFAULT_SENSORS]
-    : [];
+let sensorDataList = [];
 
 let appliedSensorFilters = {
     search: '',
@@ -12,6 +10,8 @@ let appliedSensorFilters = {
 let sensorSortOrder = 'DESC';
 let currentSensorPage = 1;
 let sensorPageSize = 7;
+let sensorTotalItems = 0;
+let sensorTotalPages = 1;
 
 // Kiểm tra bản ghi có khớp bộ lọc hay không
 function matchesSensorFilter(item) {
@@ -67,20 +67,29 @@ function matchesSensorFilter(item) {
     );
 }
 
-// Render bảng dữ liệu cảm biến (cố định 7 dòng kèm phân trang)
+// Tạo dãy nút phân trang gọn
+function buildSensorPaginationButtons(current, total) {
+    let html = `<button class="page-btn" ${current === 1 ? 'disabled' : ''} onclick="goToSensorPage(${current - 1})" title="Trang trước"><i class="ph ph-caret-left"></i></button>`;
+    const pages = new Set([1, total, current - 1, current, current + 1].filter(p => p >= 1 && p <= total));
+    const sorted = [...pages].sort((a, b) => a - b);
+    let prev = 0;
+    for (const p of sorted) {
+        if (prev && p - prev > 1) {
+            html += `<button class="page-btn" disabled>…</button>`;
+        }
+        html += `<button class="page-btn ${p === current ? 'active' : ''}" onclick="goToSensorPage(${p})">${p}</button>`;
+        prev = p;
+    }
+    html += `<button class="page-btn" ${current === total ? 'disabled' : ''} onclick="goToSensorPage(${current + 1})" title="Trang sau"><i class="ph ph-caret-right"></i></button>`;
+    return html;
+}
+
+// Render bảng dữ liệu cảm biến
 function renderSensorTable() {
     const tableBody = document.getElementById('sensor-table-body');
     const paginationInfo = document.getElementById('sensor-pagination-info');
     const paginationControls = document.getElementById('sensor-pagination-controls');
     if (!tableBody) return;
-
-    const filtered = sensorDataList.filter(matchesSensorFilter);
-
-    filtered.sort((a, b) => {
-        const timeA = new Date(String(a.time).replace(' ', 'T')).getTime() || 0;
-        const timeB = new Date(String(b.time).replace(' ', 'T')).getTime() || 0;
-        return sensorSortOrder === 'ASC' ? timeA - timeB : timeB - timeA;
-    });
 
     const sortSelect = document.getElementById('sensor-sort-order');
     if (sortSelect && sortSelect.value !== sensorSortOrder) {
@@ -96,13 +105,11 @@ function renderSensorTable() {
         sizeSelect.value = String(sensorPageSize);
     }
 
-    const totalItems = filtered.length;
-    const totalPages = Math.max(1, Math.ceil(totalItems / sensorPageSize));
-    if (currentSensorPage > totalPages) {
-        currentSensorPage = 1;
-    }
+    const pageItems = sensorDataList;
+    const totalItems = sensorTotalItems;
+    const totalPages = sensorTotalPages;
 
-    if (totalItems === 0) {
+    if (totalItems === 0 || pageItems.length === 0) {
         let emptyHtml = `<tr class="empty-row"><td colspan="4" style="text-align: center; color: var(--text-muted);">Không tìm thấy dữ liệu cảm biến phù hợp</td></tr>`;
         for (let i = 1; i < sensorPageSize; i++) {
             emptyHtml += `<tr class="empty-row"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>`;
@@ -121,8 +128,7 @@ function renderSensorTable() {
     }
 
     const startIndex = (currentSensorPage - 1) * sensorPageSize;
-    const endIndex = Math.min(startIndex + sensorPageSize, totalItems);
-    const pageItems = filtered.slice(startIndex, endIndex);
+    const endIndex = Math.min(startIndex + pageItems.length, totalItems);
 
     let rowsHtml = pageItems.map(item => {
         let tagClass = 'tag-temp';
@@ -178,37 +184,16 @@ function renderSensorTable() {
     }
 
     if (paginationControls) {
-        let buttonsHtml = `
-            <button class="page-btn" ${currentSensorPage === 1 ? 'disabled' : ''} onclick="goToSensorPage(${currentSensorPage - 1})" title="Trang trước">
-                <i class="ph ph-caret-left"></i>
-            </button>
-        `;
-
-        for (let p = 1; p <= totalPages; p++) {
-            buttonsHtml += `
-                <button class="page-btn ${p === currentSensorPage ? 'active' : ''}" onclick="goToSensorPage(${p})">${p}</button>
-            `;
-        }
-
-        buttonsHtml += `
-            <button class="page-btn" ${currentSensorPage === totalPages ? 'disabled' : ''} onclick="goToSensorPage(${currentSensorPage + 1})" title="Trang sau">
-                <i class="ph ph-caret-right"></i>
-            </button>
-        `;
-
-        paginationControls.innerHTML = buttonsHtml;
+        paginationControls.innerHTML = buildSensorPaginationButtons(currentSensorPage, totalPages);
     }
 }
 
 // Chuyển trang phân trang
 function goToSensorPage(page) {
-    const filtered = sensorDataList.filter(matchesSensorFilter);
-    const totalPages = Math.max(1, Math.ceil(filtered.length / sensorPageSize));
-
-    if (page < 1 || page > totalPages) return;
+    if (page < 1 || page > sensorTotalPages) return;
 
     currentSensorPage = page;
-    renderSensorTable();
+    fetchSensorDataFromAPI();
 }
 
 // Áp dụng bộ lọc tìm kiếm
@@ -222,7 +207,7 @@ function handleManualFilterSensor() {
     };
 
     currentSensorPage = 1;
-    renderSensorTable();
+    fetchSensorDataFromAPI();
 }
 
 // Cập nhật gợi ý tìm kiếm theo trường được chọn
@@ -244,7 +229,7 @@ function updateSensorSearchPlaceholder(field) {
             searchInput.placeholder = 'Nhập giá trị ánh sáng';
             break;
         case 'oxygen':
-            searchInput.placeholder = 'Nhập nồng độ oxy (VD: 20.9)';
+            searchInput.placeholder = 'Nhập nồng độ oxy';
             break;
         default:
             searchInput.placeholder = 'Nhập giá trị / thời gian tìm kiếm';
@@ -265,7 +250,7 @@ function handleSensorPageSizeChange(newSize) {
     const sizeSelect = document.getElementById('sensor-page-size');
     if (sizeSelect) sizeSelect.value = String(sensorPageSize);
 
-    renderSensorTable();
+    fetchSensorDataFromAPI();
 }
 
 // Đặt lại toàn bộ bộ lọc
@@ -294,30 +279,37 @@ function resetSensorFilters() {
     if (sizeSelect) sizeSelect.value = '7';
 
     currentSensorPage = 1;
-    renderSensorTable();
+    fetchSensorDataFromAPI();
 }
 
 // Xử lý thay đổi chiều sắp xếp qua dropdown
 function handleSensorSortChange(order) {
     sensorSortOrder = order;
     currentSensorPage = 1;
-    renderSensorTable();
+    fetchSensorDataFromAPI();
 }
 
 // Đảo chiều sắp xếp khi nhấn tiêu đề cột thời gian
 function toggleSensorTimeSort() {
     sensorSortOrder = (sensorSortOrder === 'DESC') ? 'ASC' : 'DESC';
     currentSensorPage = 1;
-    renderSensorTable();
+    fetchSensorDataFromAPI();
 }
 
-// Thêm bản ghi mới vào đầu bảng
+// Thêm bản ghi mới vào đầu bảng (chỉ cập nhật khi mạch đang Online và đang ở trang 1 DESC)
 function appendSensorRecord(record) {
-    sensorDataList.unshift(record);
-    if (sensorDataList.length > 100) {
-        sensorDataList.pop();
+    if (!record) return;
+    if (window.AppState && window.AppState.isOnline === false) return;
+
+    if (currentSensorPage === 1 && sensorSortOrder === 'DESC' && matchesSensorFilter(record)) {
+        sensorDataList.unshift(record);
+        if (sensorDataList.length > sensorPageSize) {
+            sensorDataList.pop();
+        }
+        sensorTotalItems += 1;
+        sensorTotalPages = Math.max(1, Math.ceil(sensorTotalItems / sensorPageSize));
+        renderSensorTable();
     }
-    renderSensorTable();
 }
 
 // Sao chép thời gian vào clipboard
@@ -340,7 +332,7 @@ function fallbackCopyText(text) {
         textArea.select();
         document.execCommand('copy');
         document.body.removeChild(textArea);
-    } catch (err) {}
+    } catch (err) { }
 }
 
 function copyTimeToClipboard(timeStr, btn) {
@@ -369,9 +361,18 @@ function copyTimeToClipboard(timeStr, btn) {
 // Đồng bộ dữ liệu lịch sử từ Backend REST API
 async function fetchSensorDataFromAPI() {
     if (window.HttpService && typeof window.HttpService.getSensorHistory === 'function') {
-        const data = await window.HttpService.getSensorHistory(1, 100);
-        if (data && Array.isArray(data) && data.length > 0) {
-            const mapped = data.map(item => ({
+        const res = await window.HttpService.getSensorHistory({
+            page: currentSensorPage,
+            limit: sensorPageSize,
+            sort: sensorSortOrder,
+            field: appliedSensorFilters.field,
+            search: appliedSensorFilters.search
+        });
+
+        if (res && res.success && Array.isArray(res.data)) {
+            sensorTotalItems = Number(res.total) || 0;
+            sensorTotalPages = Math.max(1, Number(res.totalPages) || 1);
+            sensorDataList = res.data.map(item => ({
                 id: item.id,
                 sensor: item.sensor || item.sensor_code || (item.type === 'light' ? 'LDR_01' : (item.type === 'oxygen' ? 'O2_01' : 'DHT22_01')),
                 device: item.device || item.device_id || 'ESP32_01',
@@ -380,35 +381,15 @@ async function fetchSensorDataFromAPI() {
                 rawVal: item.rawVal !== undefined ? Number(item.rawVal) : (parseFloat(item.value) || 0),
                 time: item.time || item.created_at
             }));
-
-            // Nếu Backend chưa có bản ghi Oxy, tự động bổ sung xen kẽ các bản ghi Nồng độ Oxy theo mốc thời gian
-            const hasOxygen = mapped.some(r => r.type === 'oxygen');
-            if (!hasOxygen) {
-                const oxygenRecords = [];
-                const seenTimes = new Set();
-                mapped.forEach((r, idx) => {
-                    if (!seenTimes.has(r.time)) {
-                        seenTimes.add(r.time);
-                        const o2Val = Number((20.8 + (idx % 4) * 0.1).toFixed(1));
-                        oxygenRecords.push({
-                            id: 'o2_' + idx,
-                            sensor: 'O2_01',
-                            device: 'ESP32_01',
-                            type: 'oxygen',
-                            value: `${o2Val} %`,
-                            rawVal: o2Val,
-                            time: r.time
-                        });
-                    }
-                });
-                sensorDataList = [...mapped, ...oxygenRecords];
-            } else {
-                sensorDataList = mapped;
-            }
-
             renderSensorTable();
+            return;
         }
     }
+
+    sensorDataList = [];
+    sensorTotalItems = 0;
+    sensorTotalPages = 1;
+    renderSensorTable();
 }
 
 document.addEventListener('DOMContentLoaded', () => {

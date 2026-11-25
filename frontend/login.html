@@ -1,28 +1,30 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <script>
-        (function() {
+        (function () {
             try {
                 if (localStorage.getItem('currentUser') && localStorage.getItem('authToken')) {
                     window.location.href = 'index.html';
                 }
-            } catch (e) {}
+            } catch (e) { }
         })();
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng nhập - Hệ thống IoT</title>
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
+
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    
+
     <link rel="stylesheet" href="src/styles/main.css">
     <link rel="stylesheet" href="src/styles/login.css">
 </head>
+
 <body class="login-page">
 
     <div class="login-card-container">
@@ -37,14 +39,8 @@
             <div class="form-group">
                 <label class="form-label" for="username">Tên đăng nhập / Email</label>
                 <div class="input-wrapper">
-                    <input 
-                        type="text" 
-                        id="username" 
-                        class="form-input" 
-                        placeholder="Nhập tên đăng nhập (VD: B23DCCN633)..." 
-                        required
-                        autocomplete="username"
-                    >
+                    <input type="text" id="username" class="form-input" placeholder="Nhập tên đăng nhập" required
+                        autocomplete="username">
                     <i class="ph ph-user input-icon"></i>
                 </div>
             </div>
@@ -52,16 +48,11 @@
             <div class="form-group">
                 <label class="form-label" for="password">Mật khẩu</label>
                 <div class="input-wrapper">
-                    <input 
-                        type="password" 
-                        id="password" 
-                        class="form-input" 
-                        placeholder="Nhập mật khẩu..." 
-                        required
-                        autocomplete="current-password"
-                    >
+                    <input type="password" id="password" class="form-input" placeholder="Nhập mật khẩu" required
+                        autocomplete="current-password">
                     <i class="ph ph-lock-key input-icon"></i>
-                    <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility()" title="Ẩn/Hiện mật khẩu">
+                    <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility()"
+                        title="Ẩn/Hiện mật khẩu">
                         <i id="passwordToggleIcon" class="ph ph-eye"></i>
                     </button>
                 </div>
@@ -88,4 +79,5 @@
     <script src="src/api/http.service.js"></script>
     <script src="src/pages/login.js"></script>
 </body>
+
 </html>

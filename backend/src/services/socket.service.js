@@ -13,16 +13,18 @@ const initSocketService = (io) => {
 
     // Gửi đồng bộ trạng thái ban đầu khi client vừa tải trang
     try {
-      const { rows: latestSensors } = await db.query(
-        `SELECT temperature, humidity, light_lux, to_char(created_at, 'YYYY-MM-DD HH24:MI:SS') AS created_at
-         FROM data_sensor ORDER BY created_at DESC LIMIT 1`
-      );
-      if (latestSensors.length > 0) {
-        socket.emit('sensor_data', latestSensors[0]);
-      }
-
       const onlineNow = isEsp32Connected();
       const liveStates = getDeviceStates();
+
+      if (onlineNow) {
+        const { rows: latestSensors } = await db.query(
+          `SELECT temperature, humidity, light_lux, oxygen, to_char(created_at, 'YYYY-MM-DD HH24:MI:SS') AS created_at
+           FROM data_sensor ORDER BY created_at DESC LIMIT 1`
+        );
+        if (latestSensors.length > 0) {
+          socket.emit('sensor_data', latestSensors[0]);
+        }
+      }
 
       // Thông báo trạng thái kết nối thực tế của mạch ESP32 và trạng thái các nút công tắc
       socket.emit('esp32_status', {

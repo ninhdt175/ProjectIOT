@@ -112,15 +112,16 @@ const initMQTTService = (io) => {
         const temperature = payload.temperature !== undefined ? parseFloat(payload.temperature) : null;
         const humidity = payload.humidity !== undefined ? parseFloat(payload.humidity) : null;
         const light_lux = payload.light_lux !== undefined ? parseInt(payload.light_lux, 10) : null;
+        const oxygen = payload.oxygen !== undefined ? parseFloat(payload.oxygen) : null;
         const sensor_id = payload.sensor_id || 1;
         const device_id = payload.device_id || 'ESP32_01';
 
         // Ghi dữ liệu cảm biến vào bảng data_sensor trong PostgreSQL
         try {
           await db.query(
-            `INSERT INTO data_sensor (sensor_id, temperature, humidity, light_lux, created_at)
-             VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)`,
-            [sensor_id, temperature, humidity, light_lux]
+            `INSERT INTO data_sensor (sensor_id, temperature, humidity, light_lux, oxygen, created_at)
+             VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)`,
+            [sensor_id, temperature, humidity, light_lux, oxygen]
           );
         } catch (dbErr) {
           console.error('[MQTT Service] Lỗi lưu data_sensor:', dbErr.message);
@@ -140,6 +141,7 @@ const initMQTTService = (io) => {
             temperature,
             humidity,
             light_lux,
+            oxygen,
             time: timeFormatted,
             created_at: timeFormatted
           });

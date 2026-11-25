@@ -1,4 +1,4 @@
-// Điều khiển thiết bị ngoại vi (Device Control Component - Hỗ trợ 4 đèn LED)
+// Điều khiển thiết bị ngoại vi 
 
 // Theo dõi cờ pending chống spam click cho từng thiết bị
 const pendingDevices = {};
@@ -6,7 +6,7 @@ const pendingDevices = {};
 // Quản lý bộ đếm thời gian chờ phản hồi 5s của từng thiết bị
 const controlTimeouts = {};
 
-// Cập nhật trạng thái chờ lệnh trên giao diện (isPending: boolean)
+// Cập nhật trạng thái chờ lệnh trên giao diện
 function setDevicePendingState(itemId, deviceKey, isPending) {
     pendingDevices[deviceKey] = isPending;
 
@@ -37,7 +37,7 @@ function setDevicePendingState(itemId, deviceKey, isPending) {
     }
 }
 
-// Điều khiển bật/tắt thiết bị với phản hồi tức thì trên Front-End và đồng bộ Lịch sử
+// Điều khiển bật/tắt thiết bị
 function toggleDevice(itemId, deviceKey, checkbox) {
     const item = document.getElementById(itemId);
     if (!item || !checkbox) return;
@@ -56,14 +56,10 @@ function toggleDevice(itemId, deviceKey, checkbox) {
     const timeStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
     const requestId = `cmd_${Date.now()}_${deviceKey}`;
 
-    // Cập nhật ngay trạng thái giao diện (Optimistic UI - Phản hồi tức thì)
-    item.classList.remove('offline');
-    item.classList.toggle('active', desiredState);
-    if (window.AppState?.devices?.[deviceKey]) {
-        window.AppState.devices[deviceKey].state = desiredState;
-    }
 
-    // Ghi nhận lịch sử và phát qua Socket tới vi điều khiển ESP32 cho cả 4 đèn
+    checkbox.checked = !desiredState;
+    setDevicePendingState(itemId, deviceKey, true);
+
     if (typeof appendControlLog === 'function') {
         appendControlLog({
             id: requestId,
@@ -72,7 +68,7 @@ function toggleDevice(itemId, deviceKey, checkbox) {
             deviceId: deviceKey,
             action: action,
             user: 'Đỗ Trọng Ninh',
-            status: 'success'
+            status: 'pending'
         });
     }
 
@@ -80,6 +76,24 @@ function toggleDevice(itemId, deviceKey, checkbox) {
         window.AppState.socket.emit('device_control', {
             target: deviceKey,
             action: action,
+            requestId: requestId
+        });
+
+        // Dự phòng timeout 5.5s nếu mất phản hồi từ Server/ESP32
+        controlTimeouts[deviceKey] = setTimeout(() => {
+            handleDeviceControlAck({
+                target: deviceKey,
+                action: action,
+                status: 'failed',
+                requestId: requestId
+            });
+        }, 5000);
+    } else {
+        // Chưa kết nối được Socket tới Back-end: báo thất bại ngay
+        handleDeviceControlAck({
+            target: deviceKey,
+            action: action,
+            status: 'failed',
             requestId: requestId
         });
     }

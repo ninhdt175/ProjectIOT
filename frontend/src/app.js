@@ -1,6 +1,6 @@
 // Trạng thái toàn cục (Global State)
 const AppState = {
-    isOnline: true,
+    isOnline: false,
     socket: null,
     backendUrl: window.APP_CONFIG ? window.APP_CONFIG.BACKEND_URL : window.location.origin,
     devices: window.APP_CONFIG ? JSON.parse(JSON.stringify(window.APP_CONFIG.DEVICES)) : {}

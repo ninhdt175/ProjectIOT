@@ -1,9 +1,25 @@
+let chartLoadedForOnlineSession = false;
+
 // Dịch vụ kết nối WebSocket thời gian thực (SocketService)
 const SocketService = {
     // Cập nhật trạng thái kết nối ESP32 trên Topbar và trạng thái các nút công tắc trong "Thiết bị kết nối"
     setDeviceOnlineStatus(isOnline, deviceStates) {
         if (window.AppState) {
             window.AppState.isOnline = isOnline;
+        }
+
+        if (isOnline) {
+            if (!chartLoadedForOnlineSession) {
+                chartLoadedForOnlineSession = true;
+                if (typeof window.loadInitialChartData === 'function') {
+                    window.loadInitialChartData();
+                }
+            }
+        } else {
+            chartLoadedForOnlineSession = false;
+            if (typeof window.resetChartsToOffline === 'function') {
+                window.resetChartsToOffline();
+            }
         }
 
         const badge = document.getElementById('device-status-badge');
@@ -98,6 +114,7 @@ const SocketService = {
                 // Nhận dữ liệu cảm biến định kỳ từ ESP32 qua Back-End
                 socket.on('sensor_data', (data) => {
                     if (!data) return;
+                    if (window.AppState && window.AppState.isOnline === false) return;
 
                     const now = new Date();
                     const pad = (n) => String(n).padStart(2, '0');
@@ -203,45 +220,13 @@ const SocketService = {
                 });
 
             } catch (e) {
-                console.warn('[SocketService] Lỗi kết nối Socket, chuyển sang mô phỏng:', e.message);
-                this.startSimulatedTelemetry();
+                console.error('[SocketService] Lỗi kết nối Socket:', e.message);
+                this.setDeviceOnlineStatus(false);
             }
         } else {
-            this.startSimulatedTelemetry();
+            console.error('[SocketService] Không tìm thấy thư viện Socket.IO client.');
+            this.setDeviceOnlineStatus(false);
         }
-    },
-
-    // Mô phỏng dữ liệu cảm biến ngẫu nhiên khi chạy độc lập hoàn toàn không có mạng
-    startSimulatedTelemetry() {
-        this.setDeviceOnlineStatus(true);
-
-        let currentTemp = 30.0;
-        let currentHumid = 74.0;
-        let currentLight = 1750;
-        let currentOxygen = 20.9;
-
-        setInterval(() => {
-            currentTemp += (Math.random() - 0.48) * 0.4;
-            currentHumid += (Math.random() - 0.5) * 0.6;
-            currentLight += Math.floor((Math.random() - 0.49) * 40);
-            currentOxygen += (Math.random() - 0.5) * 0.08;
-
-            currentTemp = Math.max(22, Math.min(38, currentTemp));
-            currentHumid = Math.max(40, Math.min(95, currentHumid));
-            currentLight = Math.max(50, Math.min(3500, currentLight));
-            currentOxygen = Math.max(20.5, Math.min(21.4, currentOxygen));
-
-            const now = new Date();
-            const timeLabel = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
-
-            if (typeof updateDashboardMetrics === 'function') {
-                updateDashboardMetrics(currentTemp, currentHumid, currentLight, currentOxygen);
-            }
-
-            if (typeof updateChartRealtime === 'function') {
-                updateChartRealtime(timeLabel, parseFloat(currentTemp.toFixed(1)), parseFloat(currentHumid.toFixed(1)), currentLight, parseFloat(currentOxygen.toFixed(1)));
-            }
-        }, 2500);
     }
 };
 

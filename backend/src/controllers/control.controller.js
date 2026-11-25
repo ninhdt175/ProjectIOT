@@ -6,34 +6,60 @@ const {
   isEsp32Connected
 } = require('../services/mqtt.service');
 
-// Lấy lịch sử điều khiển thiết bị có lọc theo 4 tiêu chí và phân trang (5, 7, 10, 20 dòng)
+// Lấy lịch sử điều khiển thiết bị có lọc, sắp xếp và phân trang
 const getControlHistory = async (req, res, next) => {
   try {
     const page = Math.max(1, parseInt(req.query.page, 10) || 1);
     const limit = Math.max(1, parseInt(req.query.limit, 10) || 7);
-    const timeFilter = (req.query.time || '').trim().toLowerCase();
-    const deviceFilter = req.query.device || 'ALL';
-    const actionFilter = req.query.action || 'ALL';
-    const statusFilter = req.query.status || 'ALL';
+    const timeFilter = (req.query.time || '').trim();
+    const deviceFilter = (req.query.device || 'ALL').trim();
+    const actionFilter = (req.query.action || 'ALL').trim();
+    const statusFilter = (req.query.status || 'ALL').trim();
     const sort = (req.query.sort || 'DESC').toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
 
-    // Truy vấn kết hợp bảng history, devices và users
+    const conditions = [];
+    const params = [];
+
+    if (timeFilter) {
+      params.push(`%${timeFilter}%`);
+      conditions.push(`to_char(h.created_at, 'YYYY-MM-DD HH24:MI:SS') ILIKE $${params.length}`);
+    }
+    if (deviceFilter && deviceFilter !== 'ALL') {
+      params.push(deviceFilter, `%${deviceFilter}%`);
+      conditions.push(`(h.device_id = $${params.length - 1} OR d.name ILIKE $${params.length})`);
+    }
+    if (actionFilter && actionFilter !== 'ALL') {
+      params.push(actionFilter.toUpperCase());
+      conditions.push(`h.action = $${params.length}`);
+    }
+    if (statusFilter && statusFilter !== 'ALL') {
+      params.push(statusFilter.toLowerCase());
+      conditions.push(`h.status = $${params.length}`);
+    }
+
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+    const offset = (page - 1) * limit;
+    params.push(limit, offset);
+
     const queryText = `
       SELECT h.id, h.user_id, COALESCE(u.full_name, 'Đỗ Trọng Ninh') AS user_name,
              h.device_id, d.name AS device_name, d.device_type,
              h.action, h.status, h.message,
              to_char(h.created_at, 'YYYY-MM-DD HH24:MI:SS') AS created_at_formatted,
-             h.created_at
+             COUNT(*) OVER()::int AS total_count
       FROM history h
       JOIN devices d ON h.device_id = d.id
       LEFT JOIN users u ON h.user_id = u.id
-      ORDER BY h.created_at ${sort};
+      ${whereClause}
+      ORDER BY h.created_at ${sort}, h.id ${sort}
+      LIMIT $${params.length - 1} OFFSET $${params.length};
     `;
 
-    const { rows } = await db.query(queryText);
+    const { rows } = await db.query(queryText, params);
+    const total = rows.length > 0 ? rows[0].total_count : 0;
+    const totalPages = Math.max(1, Math.ceil(total / limit));
 
-    // Chuyển đổi dữ liệu chuẩn hóa theo giao diện trang Lịch sử
-    let mappedList = rows.map((row) => ({
+    const paginatedData = rows.map((row) => ({
       id: Number(row.id),
       time: row.created_at_formatted,
       device: (row.device_name || row.device_id).replace(/\s*\([^)]*(?:GPIO|LED)[^)]*\)/gi, '').trim(),
@@ -44,29 +70,6 @@ const getControlHistory = async (req, res, next) => {
       message: row.message || `${row.action === 'ON' ? 'Bật' : 'Tắt'} ${row.device_name}`,
       created_at: row.created_at_formatted
     }));
-
-    // Áp dụng bộ lọc 4 tiêu chí
-    let filteredList = mappedList.filter((item) => {
-      const matchesTime = !timeFilter || (item.time && item.time.toLowerCase().includes(timeFilter));
-      const matchesDevice = deviceFilter === 'ALL' || item.deviceId === deviceFilter || item.device.includes(deviceFilter);
-      const matchesAction = actionFilter === 'ALL' || item.action === actionFilter;
-      const matchesStatus = statusFilter === 'ALL' || item.status === statusFilter;
-
-      return matchesTime && matchesDevice && matchesAction && matchesStatus;
-    });
-
-    // Sắp xếp theo thời gian
-    filteredList.sort((a, b) => {
-      const timeA = new Date(String(a.time).replace(' ', 'T')).getTime() || 0;
-      const timeB = new Date(String(b.time).replace(' ', 'T')).getTime() || 0;
-      return sort === 'ASC' ? timeA - timeB : timeB - timeA;
-    });
-
-    // Phân trang
-    const total = filteredList.length;
-    const totalPages = Math.max(1, Math.ceil(total / limit));
-    const offset = (page - 1) * limit;
-    const paginatedData = filteredList.slice(offset, offset + limit);
 
     return res.json({
       success: true,

@@ -1,4 +1,5 @@
 const db = require('../config/db.config');
+const { isEsp32Connected } = require('../services/mqtt.service');
 
 // Lấy lịch sử đo lường cảm biến có phân trang, tìm kiếm và lọc theo trường
 const getSensorHistory = async (req, res, next) => {
@@ -9,15 +10,16 @@ const getSensorHistory = async (req, res, next) => {
     const field = req.query.field || 'ALL';
     const sort = (req.query.sort || 'DESC').toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
 
-    // Truy vấn toàn bộ dữ liệu cảm biến kèm thông tin loại cảm biến
+    // Truy vấn dữ liệu cảm biến đã sắp xếp sẵn từ PostgreSQL
+    // shortcut: flattens full table in Node memory before slicing; move into SQL CROSS JOIN LATERAL when data_sensor exceeds ~10k rows
     const queryText = `
       SELECT ds.id, ds.sensor_id, s.sensor_code, s.sensor_name, s.sensor_type, s.unit,
-             ds.temperature, ds.humidity, ds.light_lux,
+             ds.temperature, ds.humidity, ds.light_lux, ds.oxygen,
              to_char(ds.created_at, 'YYYY-MM-DD HH24:MI:SS') AS time,
              ds.created_at
       FROM data_sensor ds
       JOIN sensor s ON ds.sensor_id = s.id
-      ORDER BY ds.created_at ${sort};
+      ORDER BY ds.created_at ${sort}, ds.id ${sort};
     `;
 
     const { rows } = await db.query(queryText);
@@ -69,6 +71,21 @@ const getSensorHistory = async (req, res, next) => {
           created_at: row.created_at
         });
       }
+
+      // Dòng đo Nồng độ Oxy
+      if (row.oxygen !== null && row.oxygen !== undefined) {
+        flattenedList.push({
+          id: Number(row.id),
+          sensor_id: 3,
+          sensor: 'O2_01',
+          device: 'ESP32_01',
+          type: 'oxygen',
+          value: `${Number(row.oxygen).toFixed(1)} %`,
+          rawVal: Number(row.oxygen),
+          time: row.time,
+          created_at: row.created_at
+        });
+      }
     });
 
     // Lọc theo trường lựa chọn (field) và từ khóa tìm kiếm (search)
@@ -76,6 +93,7 @@ const getSensorHistory = async (req, res, next) => {
       if (field === 'temperature' && item.type !== 'temperature') return false;
       if (field === 'humidity' && item.type !== 'humidity') return false;
       if (field === 'light' && item.type !== 'light') return false;
+      if (field === 'oxygen' && item.type !== 'oxygen') return false;
 
       if (!search) return true;
 
@@ -83,14 +101,14 @@ const getSensorHistory = async (req, res, next) => {
         return Boolean(item.time && item.time.toLowerCase().includes(search));
       }
 
-      if (field === 'temperature' || field === 'humidity' || field === 'light') {
+      if (field === 'temperature' || field === 'humidity' || field === 'light' || field === 'oxygen') {
         const valStr = item.value ? String(item.value).toLowerCase() : '';
         const rawStr = item.rawVal !== undefined ? String(item.rawVal).toLowerCase() : '';
         return Boolean(valStr.includes(search) || rawStr.includes(search));
       }
 
       // Tìm kiếm toàn diện (field === 'ALL')
-      const typeName = item.type === 'temperature' ? 'nhiệt độ' : (item.type === 'humidity' ? 'độ ẩm' : 'ánh sáng');
+      const typeName = item.type === 'temperature' ? 'nhiệt độ' : (item.type === 'humidity' ? 'độ ẩm' : (item.type === 'light' ? 'ánh sáng' : 'nồng độ oxy'));
       const valStr = item.value ? String(item.value).toLowerCase() : '';
       const rawStr = item.rawVal !== undefined ? String(item.rawVal).toLowerCase() : '';
 
@@ -104,14 +122,7 @@ const getSensorHistory = async (req, res, next) => {
       );
     });
 
-    // Sắp xếp lại theo thời gian
-    filteredList.sort((a, b) => {
-      const timeA = new Date(String(a.time).replace(' ', 'T')).getTime() || 0;
-      const timeB = new Date(String(b.time).replace(' ', 'T')).getTime() || 0;
-      return sort === 'ASC' ? timeA - timeB : timeB - timeA;
-    });
-
-    // Áp dụng phân trang (hỗ trợ 5, 7, 10, 20 dòng)
+    // Áp dụng phân trang 
     const total = filteredList.length;
     const totalPages = Math.max(1, Math.ceil(total / limit));
     const offset = (page - 1) * limit;
@@ -130,12 +141,12 @@ const getSensorHistory = async (req, res, next) => {
   }
 };
 
-// Lấy dữ liệu cảm biến mới nhất hiển thị trên 3 Thẻ Card Dashboard
+// Lấy dữ liệu cảm biến mới nhất hiển thị trên 4 Thẻ Card Dashboard
 const getLatestSensorData = async (req, res, next) => {
   try {
     const queryText = `
       SELECT ds.id, ds.sensor_id, s.sensor_code, s.sensor_name,
-             ds.temperature, ds.humidity, ds.light_lux,
+             ds.temperature, ds.humidity, ds.light_lux, ds.oxygen,
              to_char(ds.created_at, 'YYYY-MM-DD HH24:MI:SS') AS created_at
       FROM data_sensor ds
       JOIN sensor s ON ds.sensor_id = s.id
@@ -152,6 +163,7 @@ const getLatestSensorData = async (req, res, next) => {
           temperature: 0,
           humidity: 0,
           light_lux: 0,
+          oxygen: 0,
           sensor_code: 'DHT22_01',
           created_at: new Date().toISOString()
         }
@@ -168,6 +180,7 @@ const getLatestSensorData = async (req, res, next) => {
         temperature: Number(row.temperature),
         humidity: Number(row.humidity),
         light_lux: Number(row.light_lux),
+        oxygen: row.oxygen !== null && row.oxygen !== undefined ? Number(row.oxygen) : null,
         created_at: row.created_at
       }
     });
@@ -182,11 +195,11 @@ const getChartData = async (req, res, next) => {
     const points = Math.min(50, Math.max(5, parseInt(req.query.points, 10) || 12));
 
     const queryText = `
-      SELECT id, temperature, humidity, light_lux,
+      SELECT id, temperature, humidity, light_lux, oxygen,
              to_char(created_at, 'HH24:MI:SS') AS time_label,
              created_at
       FROM (
-          SELECT id, temperature, humidity, light_lux, created_at
+          SELECT id, temperature, humidity, light_lux, oxygen, created_at
           FROM data_sensor
           ORDER BY created_at DESC
           LIMIT $1
@@ -200,6 +213,7 @@ const getChartData = async (req, res, next) => {
     const temperature = rows.map((r) => (r.temperature !== null ? Number(r.temperature) : null));
     const humidity = rows.map((r) => (r.humidity !== null ? Number(r.humidity) : null));
     const light_lux = rows.map((r) => (r.light_lux !== null ? Number(r.light_lux) : null));
+    const oxygen = rows.map((r) => (r.oxygen !== null && r.oxygen !== undefined ? Number(r.oxygen) : null));
 
     return res.json({
       success: true,
@@ -207,7 +221,8 @@ const getChartData = async (req, res, next) => {
       labels,
       temperature,
       humidity,
-      light_lux
+      light_lux,
+      oxygen
     });
   } catch (error) {
     return next(error);
@@ -245,7 +260,7 @@ const getAllSensors = async (req, res, next) => {
 // API ghi nhận dữ liệu cảm biến mới (Giao thức HTTP Ingestion)
 const createSensorData = async (req, res, next) => {
   try {
-    const { sensor_id, temperature, humidity, light_lux } = req.body;
+    const { sensor_id, temperature, humidity, light_lux, oxygen } = req.body;
 
     if (!sensor_id) {
       return res.status(400).json({
@@ -254,9 +269,18 @@ const createSensorData = async (req, res, next) => {
       });
     }
 
+    // Khi mạch ESP32 đang ngoại tuyến thì không lưu dữ liệu cảm biến vào DB
+    if (!isEsp32Connected()) {
+      return res.status(200).json({
+        success: false,
+        is_online: false,
+        message: 'Mạch ESP32 đang ngoại tuyến, không lưu dữ liệu cảm biến'
+      });
+    }
+
     const queryText = `
-      INSERT INTO data_sensor (sensor_id, temperature, humidity, light_lux, created_at)
-      VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)
+      INSERT INTO data_sensor (sensor_id, temperature, humidity, light_lux, oxygen, created_at)
+      VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)
       RETURNING id, to_char(created_at, 'YYYY-MM-DD HH24:MI:SS') AS created_at;
     `;
 
@@ -264,7 +288,8 @@ const createSensorData = async (req, res, next) => {
       sensor_id,
       temperature !== undefined ? temperature : null,
       humidity !== undefined ? humidity : null,
-      light_lux !== undefined ? light_lux : null
+      light_lux !== undefined ? light_lux : null,
+      oxygen !== undefined ? oxygen : null
     ]);
 
     // Phát sự kiện thời gian thực qua Socket.IO tới giao diện Web (Bảng Dữ liệu cảm biến & Dashboard)
@@ -276,6 +301,7 @@ const createSensorData = async (req, res, next) => {
         temperature: temperature !== undefined && temperature !== null ? Number(temperature) : null,
         humidity: humidity !== undefined && humidity !== null ? Number(humidity) : null,
         light_lux: light_lux !== undefined && light_lux !== null ? Number(light_lux) : null,
+        oxygen: oxygen !== undefined && oxygen !== null ? Number(oxygen) : null,
         time: rows[0].created_at,
         created_at: rows[0].created_at
       });

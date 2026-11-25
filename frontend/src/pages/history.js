@@ -1,8 +1,6 @@
 // Quản lý trang lịch sử điều khiển thiết bị (History Controller)
 
-let controlHistoryList = (window.APP_CONFIG && window.APP_CONFIG.DEFAULT_HISTORY)
-    ? [...window.APP_CONFIG.DEFAULT_HISTORY]
-    : [];
+let controlHistoryList = [];
 
 let appliedHistoryFilters = {
     time: '',
@@ -14,6 +12,8 @@ let appliedHistoryFilters = {
 let historySortOrder = 'DESC';
 let currentHistoryPage = 1;
 let historyPageSize = 7;
+let historyTotalItems = 0;
+let historyTotalPages = 1;
 
 // Chuẩn hóa tên thiết bị: loại bỏ các chú thích như (GPIO 19), (LED_01)...
 function cleanDeviceName(name) {
@@ -67,45 +67,54 @@ function parseHistoryTimestamp(timeStr) {
 
 // Kiểm tra bản ghi có thỏa mãn 4 tiêu chí lọc
 function matchesHistoryFilter(item) {
-    const matchesTime = !appliedHistoryFilters.time || 
-                        (item.time && item.time.toLowerCase().includes(appliedHistoryFilters.time));
-    
+    const matchesTime = !appliedHistoryFilters.time ||
+        (item.time && item.time.toLowerCase().includes(appliedHistoryFilters.time));
+
     let matchesDevice = (appliedHistoryFilters.device === 'ALL');
     if (!matchesDevice) {
         const filterDev = appliedHistoryFilters.device;
         const cleanName = cleanDeviceName(item.device);
         matchesDevice = (item.device && item.device.includes(filterDev)) ||
-                        (cleanName && cleanName.includes(filterDev)) ||
-                        (item.deviceId && item.deviceId.includes(filterDev)) ||
-                        (filterDev === 'LED_01' && (cleanName.includes('Đèn LED 1') || cleanName === 'LED_01')) ||
-                        (filterDev === 'LED_02' && (cleanName.includes('Đèn LED 2') || cleanName === 'LED_02')) ||
-                        (filterDev === 'LED_03' && (cleanName.includes('Đèn LED 3') || cleanName === 'LED_03')) ||
-                        (filterDev === 'LED_04' && (cleanName.includes('Đèn LED 4') || cleanName === 'LED_04'));
+            (cleanName && cleanName.includes(filterDev)) ||
+            (item.deviceId && item.deviceId.includes(filterDev)) ||
+            (filterDev === 'LED_01' && (cleanName.includes('Đèn LED 1') || cleanName === 'LED_01')) ||
+            (filterDev === 'LED_02' && (cleanName.includes('Đèn LED 2') || cleanName === 'LED_02')) ||
+            (filterDev === 'LED_03' && (cleanName.includes('Đèn LED 3') || cleanName === 'LED_03')) ||
+            (filterDev === 'LED_04' && (cleanName.includes('Đèn LED 4') || cleanName === 'LED_04'));
     }
 
-    const matchesAction = (appliedHistoryFilters.action === 'ALL') || 
-                          (item.action === appliedHistoryFilters.action);
+    const matchesAction = (appliedHistoryFilters.action === 'ALL') ||
+        (item.action === appliedHistoryFilters.action);
 
-    const matchesStatus = (appliedHistoryFilters.status === 'ALL') || 
-                          (item.status === appliedHistoryFilters.status);
+    const matchesStatus = (appliedHistoryFilters.status === 'ALL') ||
+        (item.status === appliedHistoryFilters.status);
 
     return matchesTime && matchesDevice && matchesAction && matchesStatus;
 }
 
-// Render bảng lịch sử điều khiển (cố định 7 dòng kèm phân trang)
+// Tạo dãy nút phân trang gọn (tránh tràn giao diện khi tổng số trang lớn)
+function buildPaginationButtons(current, total, fnName) {
+    let html = `<button class="page-btn" ${current === 1 ? 'disabled' : ''} onclick="${fnName}(${current - 1})" title="Trang trước"><i class="ph ph-caret-left"></i></button>`;
+    const pages = new Set([1, total, current - 1, current, current + 1].filter(p => p >= 1 && p <= total));
+    const sorted = [...pages].sort((a, b) => a - b);
+    let prev = 0;
+    for (const p of sorted) {
+        if (prev && p - prev > 1) {
+            html += `<button class="page-btn" disabled>…</button>`;
+        }
+        html += `<button class="page-btn ${p === current ? 'active' : ''}" onclick="${fnName}(${p})">${p}</button>`;
+        prev = p;
+    }
+    html += `<button class="page-btn" ${current === total ? 'disabled' : ''} onclick="${fnName}(${current + 1})" title="Trang sau"><i class="ph ph-caret-right"></i></button>`;
+    return html;
+}
+
+// Render bảng lịch sử điều khiển
 function renderControlHistoryTable() {
     const tableBody = document.getElementById('history-table-body');
     const paginationInfo = document.getElementById('history-pagination-info');
     const paginationControls = document.getElementById('history-pagination-controls');
     if (!tableBody) return;
-
-    const filtered = controlHistoryList.filter(matchesHistoryFilter);
-
-    filtered.sort((a, b) => {
-        const timeA = parseHistoryTimestamp(a.time);
-        const timeB = parseHistoryTimestamp(b.time);
-        return historySortOrder === 'ASC' ? timeA - timeB : timeB - timeA;
-    });
 
     const sortSelect = document.getElementById('history-sort-order');
     if (sortSelect && sortSelect.value !== historySortOrder) {
@@ -121,13 +130,11 @@ function renderControlHistoryTable() {
         sizeSelect.value = String(historyPageSize);
     }
 
-    const totalItems = filtered.length;
-    const totalPages = Math.max(1, Math.ceil(totalItems / historyPageSize));
-    if (currentHistoryPage > totalPages) {
-        currentHistoryPage = 1;
-    }
+    const pageItems = controlHistoryList;
+    const totalItems = historyTotalItems;
+    const totalPages = historyTotalPages;
 
-    if (totalItems === 0) {
+    if (totalItems === 0 || pageItems.length === 0) {
         let emptyHtml = `<tr class="empty-row"><td colspan="5" style="text-align: center; color: var(--text-muted);">Không tìm thấy nhật ký điều khiển phù hợp</td></tr>`;
         for (let i = 1; i < historyPageSize; i++) {
             emptyHtml += `<tr class="empty-row"><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>`;
@@ -146,8 +153,7 @@ function renderControlHistoryTable() {
     }
 
     const startIndex = (currentHistoryPage - 1) * historyPageSize;
-    const endIndex = Math.min(startIndex + historyPageSize, totalItems);
-    const pageItems = filtered.slice(startIndex, endIndex);
+    const endIndex = Math.min(startIndex + pageItems.length, totalItems);
 
     let rowsHtml = pageItems.map(item => {
         let badgeClass = 'badge-green';
@@ -211,37 +217,16 @@ function renderControlHistoryTable() {
     }
 
     if (paginationControls) {
-        let buttonsHtml = `
-            <button class="page-btn" ${currentHistoryPage === 1 ? 'disabled' : ''} onclick="goToHistoryPage(${currentHistoryPage - 1})" title="Trang trước">
-                <i class="ph ph-caret-left"></i>
-            </button>
-        `;
-
-        for (let p = 1; p <= totalPages; p++) {
-            buttonsHtml += `
-                <button class="page-btn ${p === currentHistoryPage ? 'active' : ''}" onclick="goToHistoryPage(${p})">${p}</button>
-            `;
-        }
-
-        buttonsHtml += `
-            <button class="page-btn" ${currentHistoryPage === totalPages ? 'disabled' : ''} onclick="goToHistoryPage(${currentHistoryPage + 1})" title="Trang sau">
-                <i class="ph ph-caret-right"></i>
-            </button>
-        `;
-
-        paginationControls.innerHTML = buttonsHtml;
+        paginationControls.innerHTML = buildPaginationButtons(currentHistoryPage, totalPages, 'goToHistoryPage');
     }
 }
 
 // Chuyển trang phân trang
 function goToHistoryPage(page) {
-    const filtered = controlHistoryList.filter(matchesHistoryFilter);
-    const totalPages = Math.max(1, Math.ceil(filtered.length / historyPageSize));
-
-    if (page < 1 || page > totalPages) return;
+    if (page < 1 || page > historyTotalPages) return;
 
     currentHistoryPage = page;
-    renderControlHistoryTable();
+    fetchControlHistoryFromAPI();
 }
 
 // Áp dụng bộ lọc tìm kiếm
@@ -259,7 +244,7 @@ function handleManualFilterHistory() {
     };
 
     currentHistoryPage = 1;
-    renderControlHistoryTable();
+    fetchControlHistoryFromAPI();
 }
 
 // Xử lý thay đổi số lượng bản ghi hiển thị trên mỗi trang
@@ -270,7 +255,7 @@ function handleHistoryPageSizeChange(newSize) {
     const sizeSelect = document.getElementById('history-page-size');
     if (sizeSelect) sizeSelect.value = String(historyPageSize);
 
-    renderControlHistoryTable();
+    fetchControlHistoryFromAPI();
 }
 
 // Đặt lại toàn bộ bộ lọc
@@ -303,36 +288,40 @@ function resetHistoryFilters() {
     };
 
     currentHistoryPage = 1;
-    renderControlHistoryTable();
+    fetchControlHistoryFromAPI();
 }
 
 // Xử lý thay đổi chiều sắp xếp qua dropdown
 function handleHistorySortChange(order) {
     historySortOrder = order;
     currentHistoryPage = 1;
-    renderControlHistoryTable();
+    fetchControlHistoryFromAPI();
 }
 
 // Đảo chiều sắp xếp khi nhấn tiêu đề cột thời gian
 function toggleHistoryTimeSort() {
     historySortOrder = (historySortOrder === 'DESC') ? 'ASC' : 'DESC';
     currentHistoryPage = 1;
-    renderControlHistoryTable();
+    fetchControlHistoryFromAPI();
 }
 
-// Chèn bản ghi điều khiển mới vào đầu danh sách (chuẩn hóa tên và thời gian theo trang sensor)
+// Chèn bản ghi điều khiển mới (optimistic realtime khi đang ở trang 1 DESC)
 function appendControlLog(log) {
-    if (log) {
-        log.time = formatHistoryTime(log.time, log.created_at);
-        if (log.device) {
-            log.device = cleanDeviceName(log.device);
+    if (!log) return;
+    log.time = formatHistoryTime(log.time, log.created_at);
+    if (log.device) {
+        log.device = cleanDeviceName(log.device);
+    }
+
+    if (currentHistoryPage === 1 && historySortOrder === 'DESC' && matchesHistoryFilter(log)) {
+        controlHistoryList.unshift(log);
+        if (controlHistoryList.length > historyPageSize) {
+            controlHistoryList.pop();
         }
+        historyTotalItems += 1;
+        historyTotalPages = Math.max(1, Math.ceil(historyTotalItems / historyPageSize));
+        renderControlHistoryTable();
     }
-    controlHistoryList.unshift(log);
-    if (controlHistoryList.length > 100) {
-        controlHistoryList.pop();
-    }
-    renderControlHistoryTable();
 }
 
 // Cập nhật trạng thái lệnh (ACK)
@@ -345,33 +334,40 @@ function updateControlLogStatus(logId, newStatus) {
     }
 }
 
-// Đồng bộ dữ liệu lịch sử từ Backend REST API (chuẩn hóa tên thiết bị và thời gian thực hiện)
+// Đồng bộ dữ liệu lịch sử từ Backend REST API (lọc, sắp xếp và phân trang ở Server)
 async function fetchControlHistoryFromAPI() {
     if (window.HttpService && typeof window.HttpService.getControlHistory === 'function') {
-        const data = await window.HttpService.getControlHistory(1, 100);
-        if (data && Array.isArray(data) && data.length > 0) {
-            const mapped = data.map(item => ({
+        const res = await window.HttpService.getControlHistory({
+            page: currentHistoryPage,
+            limit: historyPageSize,
+            sort: historySortOrder,
+            time: appliedHistoryFilters.time,
+            device: appliedHistoryFilters.device,
+            action: appliedHistoryFilters.action,
+            status: appliedHistoryFilters.status
+        });
+
+        if (res && res.success && Array.isArray(res.data)) {
+            historyTotalItems = Number(res.total) || 0;
+            historyTotalPages = Math.max(1, Number(res.totalPages) || 1);
+            controlHistoryList = res.data.map(item => ({
                 id: item.id,
                 time: formatHistoryTime(item.time, item.created_at),
                 device: cleanDeviceName(item.device_name || item.device),
                 deviceId: item.device_id || item.deviceId || 'ESP32_01',
                 action: item.action,
-                user: item.user_name || 'Đỗ Trọng Ninh',
+                user: item.user_name || item.user || 'Đỗ Trọng Ninh',
                 status: item.status || 'success'
             }));
-
-            // Giữ lại các bản ghi điều khiển của Đèn LED 4 từ danh sách cục bộ hoặc thêm mẫu nếu Backend chưa có
-            const existingLed4 = controlHistoryList.filter(log => log.deviceId === 'LED_04' || (log.device && log.device.includes('Đèn LED 4')));
-            if (existingLed4.length > 0) {
-                controlHistoryList = [...existingLed4, ...mapped];
-            } else {
-                const defaultLed4 = (window.APP_CONFIG?.DEFAULT_HISTORY || []).filter(log => log.deviceId === 'LED_04');
-                controlHistoryList = [...defaultLed4, ...mapped];
-            }
-
             renderControlHistoryTable();
+            return;
         }
     }
+
+    controlHistoryList = [];
+    historyTotalItems = 0;
+    historyTotalPages = 1;
+    renderControlHistoryTable();
 }
 
 document.addEventListener('DOMContentLoaded', () => {

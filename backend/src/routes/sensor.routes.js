@@ -31,7 +31,7 @@ const sensorController = require('../controllers/sensor.controller');
  *         name: field
  *         schema:
  *           type: string
- *           enum: [ALL, time, temperature, humidity, light]
+ *           enum: [ALL, time, temperature, humidity, light, oxygen]
  *           default: ALL
  *         description: Trường cụ thể cần áp dụng tìm kiếm
  *       - in: query
@@ -190,6 +190,9 @@ router.get('/', sensorController.getAllSensors);
  *               light_lux:
  *                 type: integer
  *                 example: 1650
+ *               oxygen:
+ *                 type: number
+ *                 example: 20.9
  *     responses:
  *       201:
  *         description: Dữ liệu cảm biến đã được lưu trữ thành công
